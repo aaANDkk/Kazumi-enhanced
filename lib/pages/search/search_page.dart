@@ -8,6 +8,7 @@ import 'package:kazumi/bean/appbar/sys_app_bar.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/bean/dialog/adaptive_bottom_sheet.dart';
 import 'package:kazumi/bean/dialog/material_bottom_sheet.dart';
+import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
@@ -309,26 +310,27 @@ class _SearchPageState extends State<SearchPage> {
       )),
       if (busy && allItems.isEmpty)
         const SliverToBoxAdapter(child: _SearchLoadingState())
+      else if (allItems.isEmpty)
+        const SliverToBoxAdapter(
+          child: GeneralEmptyState(
+            icon: Icons.search_off_rounded,
+            title: '没有找到番剧',
+          ),
+        )
       else if (items.isEmpty)
         SliverToBoxAdapter(
             child: GeneralEmptyState(
-          icon: allItems.isEmpty
-              ? Icons.search_off_rounded
-              : Icons.filter_alt_off_rounded,
-          title: allItems.isEmpty ? '没有找到番剧' : '这些番剧被筛选隐藏了',
+          icon: Icons.filter_alt_off_rounded,
+          title: '这些番剧被筛选隐藏了',
           actions: [
             StateActionButton.tonal(
-                onPressed: allItems.isEmpty
-                    ? () => _submit(_submittedQuery!)
-                    : () async {
-                        await _controller.setNotShowWatchedBangumis(false);
-                        await _controller.setNotShowAbandonedBangumis(false);
-                      },
-                icon: allItems.isEmpty
-                    ? Icons.refresh_rounded
-                    : Icons.visibility_outlined,
-                text: allItems.isEmpty ? '重新搜索' : '显示全部'),
-            TextButton(onPressed: _showFilters, child: const Text('调整筛选')),
+              onPressed: () async {
+                await _controller.setNotShowWatchedBangumis(false);
+                await _controller.setNotShowAbandonedBangumis(false);
+              },
+              icon: Icons.visibility_outlined,
+              text: '显示全部',
+            ),
           ],
         ))
       else
