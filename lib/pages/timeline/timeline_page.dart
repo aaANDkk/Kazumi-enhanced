@@ -402,7 +402,12 @@ class _TimelinePageState extends State<TimelinePage> {
           )
         else
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(inset, 0, inset, 24),
+            padding: EdgeInsets.fromLTRB(
+              inset,
+              0,
+              inset,
+              24 + MediaQuery.paddingOf(context).bottom,
+            ),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,

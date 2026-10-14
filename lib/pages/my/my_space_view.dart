@@ -38,7 +38,12 @@ class MySpaceView extends StatelessWidget {
       final wide = width >= 840 && !largeText;
       return SingleChildScrollView(
         key: const PageStorageKey('my-space'),
-        padding: EdgeInsets.fromLTRB(inset, 12, inset, 32),
+        padding: EdgeInsets.fromLTRB(
+          inset,
+          12,
+          inset,
+          32 + MediaQuery.paddingOf(context).bottom,
+        ),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1120),

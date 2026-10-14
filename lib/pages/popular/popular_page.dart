@@ -132,7 +132,12 @@ class _PopularPageState extends State<PopularPage> {
       crossCount = 6;
     }
     return SliverPadding(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.fromLTRB(
+        8,
+        8,
+        8,
+        8 + MediaQuery.paddingOf(context).bottom,
+      ),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           // 行间距

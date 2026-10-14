@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
 import 'package:kazumi/navigation.dart';
+import 'package:kazumi/pages/menu/google_bottom_nav_bar.dart';
 import 'package:kazumi/pages/menu/route_visibility.dart';
 import 'package:kazumi/pages/router.dart';
 
@@ -137,34 +138,45 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
   }
 
   Widget _bottomMenu(BuildContext context, int selectedIndex) {
+    final reserveHeight = getFloatingBottomBarReserveHeight(context);
+    final navBar = GoogleBottomNavBar(
+      selectedIndex: selectedIndex,
+      onTabChange: _selectDestination,
+      items: const <GoogleBottomNavBarItem>[
+        GoogleBottomNavBarItem(
+          icon: Icons.home_outlined,
+          selectedIcon: Icons.home,
+          label: '推荐',
+        ),
+        GoogleBottomNavBarItem(
+          icon: Icons.timeline_outlined,
+          selectedIcon: Icons.timeline,
+          label: '时间表',
+        ),
+        GoogleBottomNavBarItem(
+          icon: Icons.favorite_border,
+          selectedIcon: Icons.favorite,
+          label: '追番',
+        ),
+        GoogleBottomNavBarItem(
+          icon: Icons.person_outline,
+          selectedIcon: Icons.person,
+          label: '我的',
+        ),
+      ],
+    );
+
     return Scaffold(
-      body: _outlet(context),
-      bottomNavigationBar: NavigationBar(
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: '推荐',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.timeline),
-            icon: Icon(Icons.timeline_outlined),
-            label: '时间表',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.favorite),
-            icon: Icon(Icons.favorite_border),
-            label: '追番',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.person),
-            icon: Icon(Icons.person_outline),
-            label: '我的',
-          ),
-        ],
-        selectedIndex: selectedIndex,
-        onDestinationSelected: _selectDestination,
+      extendBody: true,
+      body: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          padding: MediaQuery.paddingOf(context).copyWith(bottom: reserveHeight),
+          viewPadding:
+              MediaQuery.viewPaddingOf(context).copyWith(bottom: reserveHeight),
+        ),
+        child: _outlet(context),
       ),
+      bottomNavigationBar: navBar,
     );
   }
 
