@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:kazumi/services/platform/desktop_window_service.dart';
@@ -28,6 +29,7 @@ void main() {
       SettingsKeys.windowHeight,
       SettingsKeys.windowLeft,
       SettingsKeys.windowTop,
+      SettingsKeys.windowScaleFactor,
       SettingsKeys.windowIsMaximized,
     ]);
   });
@@ -73,30 +75,26 @@ void main() {
       );
     });
 
-    test('validates and restores saved window position', () async {
-      const targetSize = Size(1000, 700);
+    test('saves valid window bounds and scale factor', () async {
+      await DesktopWindowService.saveWindowBounds(
+        const Rect.fromLTWH(120.0, 80.0, 1100.0, 750.0),
+        scaleFactor: 1.5,
+      );
 
-      expect(DesktopWindowService.getSavedPosition(targetSize), isNull);
-
-      await GStorage.putSetting(SettingsKeys.windowLeft, 120.0);
-      await GStorage.putSetting(SettingsKeys.windowTop, 80.0);
-
-      final pos = DesktopWindowService.getSavedPosition(targetSize);
-      expect(pos, isNotNull);
-      expect(pos!.dx, 120.0);
-      expect(pos.dy, 80.0);
+      expect(GStorage.getSetting(SettingsKeys.windowWidth), 1100.0);
+      expect(GStorage.getSetting(SettingsKeys.windowHeight), 750.0);
+      expect(GStorage.getSetting(SettingsKeys.windowLeft), 120.0);
+      expect(GStorage.getSetting(SettingsKeys.windowTop), 80.0);
+      expect(GStorage.getSetting(SettingsKeys.windowScaleFactor), 1.5);
     });
 
-    test('rejects anomalous or out-of-screen window positions', () async {
-      const targetSize = Size(1000, 700);
+    test('rejects too small window bounds when saving', () async {
+      await DesktopWindowService.saveWindowBounds(
+        const Rect.fromLTWH(100.0, 100.0, 100.0, 100.0),
+      );
 
-      await GStorage.putSetting(SettingsKeys.windowLeft, 100.0);
-      await GStorage.putSetting(SettingsKeys.windowTop, -100.0); // top < -20
-      expect(DesktopWindowService.getSavedPosition(targetSize), isNull);
-
-      await GStorage.putSetting(SettingsKeys.windowLeft, 20000.0); // extreme
-      await GStorage.putSetting(SettingsKeys.windowTop, 100.0);
-      expect(DesktopWindowService.getSavedPosition(targetSize), isNull);
+      expect(GStorage.getSetting(SettingsKeys.windowWidth), isNull);
+      expect(GStorage.getSetting(SettingsKeys.windowHeight), isNull);
     });
 
     test('restores saved maximized state', () async {

@@ -81,13 +81,10 @@ void main() async {
   if (isDesktop()) {
     await windowManager.ensureInitialized();
     final initialSize = await DesktopWindowService.getInitialWindowSize();
-    final savedPosition = DesktopWindowService.getSavedPosition(initialSize);
-    final savedIsMaximized = DesktopWindowService.isSavedMaximized();
 
     final windowOptions = WindowOptions(
       size: initialSize,
       minimumSize: DesktopWindowService.minWindowSize,
-      center: savedPosition == null,
       skipTaskbar: false,
       // macOS embeds native buttons in the Flutter view.
       titleBarStyle: (Platform.isMacOS || !showWindowButton)
@@ -96,11 +93,9 @@ void main() async {
       windowButtonVisibility: showWindowButton,
       title: 'Kazumi',
     );
+    await DesktopWindowService.applyInitialWindowPosition(initialSize);
     windowManager.waitUntilReadyToShow(windowOptions, () async {
-      if (savedPosition != null) {
-        await windowManager.setPosition(savedPosition);
-      }
-      if (savedIsMaximized) {
+      if (DesktopWindowService.isSavedMaximized()) {
         await windowManager.maximize();
       }
       // window_manager controls desktop visibility to avoid startup flicker.

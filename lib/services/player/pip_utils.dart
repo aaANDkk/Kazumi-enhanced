@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/services/platform/desktop_window_service.dart';
 
 class PipUtils {

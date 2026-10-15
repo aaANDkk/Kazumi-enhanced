@@ -33,14 +33,33 @@ class _AppWidgetState extends State<AppWidget>
   bool _isHandlingWindowClose = false;
   bool _didApplyStoredThemeSettings = false;
   Brightness? _lastTitleBarBrightness;
+  int _windowGeometryRevision = 0;
   Timer? _windowGeometryTimer;
 
   void _scheduleWindowGeometryCapture() {
     if (!isDesktop()) return;
+    final revision = ++_windowGeometryRevision;
     _windowGeometryTimer?.cancel();
-    _windowGeometryTimer = Timer(const Duration(milliseconds: 200), () {
-      DesktopWindowService.captureAndSaveGeometry();
+    _windowGeometryTimer = Timer(const Duration(milliseconds: 125), () async {
+      if (!mounted || revision != _windowGeometryRevision) return;
+      final isAbnormal = (await windowManager.isMaximized()) ||
+          (await windowManager.isFullScreen()) ||
+          (await windowManager.isMinimized()) ||
+          PipUtils.isDesktopPIP;
+      if (isAbnormal) return;
+
+      final bounds = await windowManager.getBounds();
+      await DesktopWindowService.saveWindowBounds(
+        bounds,
+        scaleFactor: windowManager.getDevicePixelRatio(),
+      );
     });
+  }
+
+  void _invalidateWindowGeometryCapture() {
+    _windowGeometryRevision++;
+    _windowGeometryTimer?.cancel();
+    _windowGeometryTimer = null;
   }
 
   @override
@@ -85,7 +104,7 @@ class _AppWidgetState extends State<AppWidget>
 
   @override
   void dispose() {
-    _windowGeometryTimer?.cancel();
+    _invalidateWindowGeometryCapture();
     trayManager.removeListener(this);
     windowManager.removeListener(this);
     WidgetsBinding.instance.removeObserver(this);
@@ -216,8 +235,8 @@ class _AppWidgetState extends State<AppWidget>
       case 'show_window':
         windowManager.show();
       case 'exit':
-        _windowGeometryTimer?.cancel();
-        DesktopWindowService.captureAndSaveGeometry()
+        _invalidateWindowGeometryCapture();
+        DesktopWindowService.flushWindowGeometry()
             .timeout(const Duration(milliseconds: 500), onTimeout: () {})
             .whenComplete(() => exit(0));
     }
@@ -229,8 +248,8 @@ class _AppWidgetState extends State<AppWidget>
     if (_isHandlingWindowClose || !mounted) return;
     _isHandlingWindowClose = true;
     try {
-      _windowGeometryTimer?.cancel();
-      await DesktopWindowService.captureAndSaveGeometry();
+      _invalidateWindowGeometryCapture();
+      await DesktopWindowService.flushWindowGeometry();
       var action = switch (GStorage.getSetting(SettingsKeys.exitBehavior)) {
         0 => ExitDialogAction.exit,
         1 => ExitDialogAction.minimizeToTray,
@@ -292,8 +311,8 @@ class _AppWidgetState extends State<AppWidget>
 
   @override
   void onWindowMaximize() {
+    _invalidateWindowGeometryCapture();
     super.onWindowMaximize();
-    _windowGeometryTimer?.cancel();
     GStorage.putSetting(SettingsKeys.windowIsMaximized, true);
   }
 
@@ -306,8 +325,8 @@ class _AppWidgetState extends State<AppWidget>
 
   @override
   void onWindowEnterFullScreen() {
+    _invalidateWindowGeometryCapture();
     super.onWindowEnterFullScreen();
-    _windowGeometryTimer?.cancel();
   }
 
   @override

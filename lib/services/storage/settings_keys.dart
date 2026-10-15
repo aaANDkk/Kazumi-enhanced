@@ -380,6 +380,11 @@ class SettingsKeys {
     null,
     group: SettingGroup.interface,
   );
+  static const windowScaleFactor = SettingKey<double>(
+    'windowScaleFactor',
+    1.0,
+    group: SettingGroup.interface,
+  );
   static const windowIsMaximized = SettingKey<bool>(
     'windowIsMaximized',
     false,
@@ -671,6 +676,7 @@ class SettingsKeys {
     windowHeight,
     windowLeft,
     windowTop,
+    windowScaleFactor,
     windowIsMaximized,
     playerDebugMode,
     syncPlayEndPoint,

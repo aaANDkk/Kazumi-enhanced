@@ -1,13 +1,14 @@
-import 'dart:ui';
-import 'package:flutter/widgets.dart';
-import 'package:kazumi/services/logging/logger.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:kazumi/services/player/pip_utils.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
 abstract final class DesktopWindowService {
-  static const Size minWindowSize = Size(500, 380);
+  static const Size minWindowSize = Size(380, 400);
   static const Size defaultLowResSize = Size(840, 600);
   static const Size defaultNormalSize = Size(1280, 860);
 
@@ -15,7 +16,9 @@ abstract final class DesktopWindowService {
   static Future<Size> getInitialWindowSize() async {
     final savedWidth = GStorage.getSetting(SettingsKeys.windowWidth);
     final savedHeight = GStorage.getSetting(SettingsKeys.windowHeight);
-    if (savedWidth.isFinite &&
+    if (savedWidth != null &&
+        savedHeight != null &&
+        savedWidth.isFinite &&
         savedHeight.isFinite &&
         savedWidth >= minWindowSize.width &&
         savedHeight >= minWindowSize.height) {
@@ -25,47 +28,50 @@ abstract final class DesktopWindowService {
     return lowResolution ? defaultLowResSize : defaultNormalSize;
   }
 
-  /// Checks if the saved window position is valid (not off-screen).
-  static bool hasValidSavedPosition(Size targetSize) {
+  /// Restores window position with display boundary checks and DPI adaptation (aligned with Bettbox).
+  static Future<void> applyInitialWindowPosition(Size targetSize) async {
+    if (Platform.isMacOS) return;
     final left = GStorage.getSetting(SettingsKeys.windowLeft);
     final top = GStorage.getSetting(SettingsKeys.windowTop);
-    if (left == null || top == null) return false;
-    if (!left.isFinite || !top.isFinite) return false;
-
-    // Reject extreme coordinate anomalies
-    if (top < -20 || top > 10000 || left < -10000 || left > 10000) {
-      return false;
+    if (left == null || top == null) {
+      await windowManager.setAlignment(Alignment.center);
+      return;
     }
 
+    final savedDpr = GStorage.getSetting(SettingsKeys.windowScaleFactor);
+    final currentDpr = windowManager.getDevicePixelRatio();
+
+    final physLeft = left * savedDpr;
+    final physTop = top * savedDpr;
+    final physRight = physLeft + targetSize.width * savedDpr;
+    final physBottom = physTop + targetSize.height * savedDpr;
+
+    bool isPositionValid = false;
     try {
-      final displays = WidgetsBinding.instance.platformDispatcher.displays;
-      if (displays.isNotEmpty) {
-        bool onAnyScreen = false;
-        for (final display in displays) {
-          final displayWidth = display.size.width;
-          final displayHeight = display.size.height;
-          // Ensure title bar/top-left area intersects with this display
-          if (left < displayWidth - 50 &&
-              left + targetSize.width > 50 &&
-              top < displayHeight - 50 &&
-              top + 50 > 0) {
-            onAnyScreen = true;
-            break;
-          }
-        }
-        if (!onAnyScreen) return false;
-      }
+      final displays = await screenRetriever.getAllDisplays();
+      isPositionValid = displays.any((display) {
+        final pos = display.visiblePosition;
+        if (pos == null) return false;
+        final sf = (display.scaleFactor ?? 1.0).toDouble();
+        final physDisplayBounds = Rect.fromLTWH(
+          pos.dx * sf,
+          pos.dy * sf,
+          display.size.width * sf,
+          display.size.height * sf,
+        );
+        return physDisplayBounds.contains(Offset(physLeft, physTop)) ||
+            physDisplayBounds.contains(Offset(physRight, physBottom));
+      });
     } catch (_) {}
 
-    return true;
-  }
-
-  /// Retrieves the validated saved position or null if unavailable/invalid.
-  static Offset? getSavedPosition(Size targetSize) {
-    if (!hasValidSavedPosition(targetSize)) return null;
-    final left = GStorage.getSetting(SettingsKeys.windowLeft)!;
-    final top = GStorage.getSetting(SettingsKeys.windowTop)!;
-    return Offset(left, top);
+    if (isPositionValid) {
+      await windowManager.setPosition(Offset(
+        physLeft / currentDpr,
+        physTop / currentDpr,
+      ));
+    } else {
+      await windowManager.setAlignment(Alignment.center);
+    }
   }
 
   /// Checks if the window was previously maximized before close.
@@ -73,39 +79,46 @@ abstract final class DesktopWindowService {
     return GStorage.getSetting(SettingsKeys.windowIsMaximized);
   }
 
-  /// Captures current window size, position, and maximized state and persists them.
-  static Future<void> captureAndSaveGeometry() async {
+  /// Persists bounds and DPI scale factor if bounds are valid.
+  static Future<void> saveWindowBounds(
+    Rect bounds, {
+    double? scaleFactor,
+  }) async {
+    if (!bounds.width.isFinite ||
+        !bounds.height.isFinite ||
+        bounds.width < minWindowSize.width ||
+        bounds.height < minWindowSize.height) {
+      return;
+    }
+    if (!bounds.left.isFinite || !bounds.top.isFinite) return;
+
+    await GStorage.putSetting(SettingsKeys.windowWidth, bounds.width);
+    await GStorage.putSetting(SettingsKeys.windowHeight, bounds.height);
+    await GStorage.putSetting(SettingsKeys.windowLeft, bounds.left);
+    await GStorage.putSetting(SettingsKeys.windowTop, bounds.top);
+    if (scaleFactor != null && scaleFactor > 0) {
+      await GStorage.putSetting(SettingsKeys.windowScaleFactor, scaleFactor);
+    }
+  }
+
+  /// Flushes current window geometry synchronously or before exit/close.
+  static Future<void> flushWindowGeometry() async {
     if (!isDesktop()) return;
     try {
-      final isMaximized = await windowManager.isMaximized();
-      final isFullScreen = await windowManager.isFullScreen();
-      final isMinimized = await windowManager.isMinimized();
-
-      // Never overwrite regular window geometry during fullscreen, minimize, or PIP
-      if (isFullScreen || isMinimized || PipUtils.isDesktopPIP) {
-        return;
-      }
-
-      await GStorage.putSetting(SettingsKeys.windowIsMaximized, isMaximized);
-
-      // Only record width/height/position for normal (non-maximized) state
-      if (!isMaximized) {
+      final isMax = await windowManager.isMaximized();
+      await GStorage.putSetting(SettingsKeys.windowIsMaximized, isMax);
+      final isAbnormal = isMax ||
+          (await windowManager.isFullScreen()) ||
+          (await windowManager.isMinimized()) ||
+          PipUtils.isDesktopPIP;
+      if (!isAbnormal) {
         final bounds = await windowManager.getBounds();
-        if (bounds.width.isFinite &&
-            bounds.height.isFinite &&
-            bounds.width >= minWindowSize.width &&
-            bounds.height >= minWindowSize.height) {
-          await GStorage.putSetting(SettingsKeys.windowWidth, bounds.width);
-          await GStorage.putSetting(SettingsKeys.windowHeight, bounds.height);
-          if (bounds.left.isFinite && bounds.top.isFinite) {
-            await GStorage.putSetting(SettingsKeys.windowLeft, bounds.left);
-            await GStorage.putSetting(SettingsKeys.windowTop, bounds.top);
-          }
-        }
+        await saveWindowBounds(
+          bounds,
+          scaleFactor: windowManager.getDevicePixelRatio(),
+        );
       }
-    } catch (e) {
-      KazumiLogger().w('Failed to capture window geometry: $e');
-    }
+    } catch (_) {}
   }
 
   /// Restores normal desktop window geometry when exiting PIP mode.
@@ -113,16 +126,9 @@ abstract final class DesktopWindowService {
     await windowManager.setAlwaysOnTop(false);
     await windowManager.setAspectRatio(0);
     final targetSize = await getInitialWindowSize();
-    final savedPosition = getSavedPosition(targetSize);
-    final savedIsMaximized = isSavedMaximized();
-
     await windowManager.setSize(targetSize);
-    if (savedPosition != null) {
-      await windowManager.setPosition(savedPosition);
-    } else {
-      await windowManager.center();
-    }
-    if (savedIsMaximized) {
+    await applyInitialWindowPosition(targetSize);
+    if (isSavedMaximized()) {
       await windowManager.maximize();
     }
   }
