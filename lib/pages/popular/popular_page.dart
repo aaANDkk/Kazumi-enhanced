@@ -37,6 +37,7 @@ class _PopularPageState extends State<PopularPage> {
       initialScrollOffset: popularController.scrollOffset,
     );
     scrollController.addListener(scrollListener);
+    popularController.scrollToTop = _scrollToTop;
     if (popularController.trendList.isEmpty) {
       popularController.queryBangumiByTrend();
     }
@@ -44,9 +45,22 @@ class _PopularPageState extends State<PopularPage> {
 
   @override
   void dispose() {
+    if (popularController.scrollToTop == _scrollToTop) {
+      popularController.scrollToTop = null;
+    }
     scrollController.removeListener(scrollListener);
     scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (scrollController.hasClients) {
+      scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   void scrollListener() {
@@ -114,11 +128,6 @@ class _PopularPageState extends State<PopularPage> {
                 );
               })),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 350), curve: Curves.easeOut),
-        child: const Icon(Icons.arrow_upward),
       ),
     );
   }

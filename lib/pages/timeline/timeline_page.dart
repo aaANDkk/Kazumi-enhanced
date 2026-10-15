@@ -175,6 +175,7 @@ class _TimelinePageState extends State<TimelinePage> {
           ),
         );
         return Scaffold(
+          extendBody: true,
           appBar: SysAppBar(
             needTopOffset: false,
             toolbarHeight: 72,
@@ -197,10 +198,8 @@ class _TimelinePageState extends State<TimelinePage> {
               ),
             ],
           ),
-          body: SafeArea(
-            top: false,
-            child: LayoutBuilder(
-                builder: (context, viewport) => NestedScrollView(
+          body: LayoutBuilder(
+            builder: (context, viewport) => NestedScrollView(
                       // Keep the outer viewport clamped and unstretched so tabs stay fixed.
                       physics: const ClampingScrollPhysics(),
                       scrollBehavior: ScrollConfiguration.of(context).copyWith(
@@ -262,7 +261,7 @@ class _TimelinePageState extends State<TimelinePage> {
                                       ),
                                   ],
                                 ),
-                    )),
+                    ),
           ),
         );
       });
@@ -406,7 +405,7 @@ class _TimelinePageState extends State<TimelinePage> {
               inset,
               0,
               inset,
-              24 + MediaQuery.paddingOf(context).bottom,
+              12.0 + MediaQuery.paddingOf(context).bottom,
             ),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

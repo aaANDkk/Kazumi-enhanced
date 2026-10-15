@@ -13,12 +13,37 @@ if (localPropertiesFile.exists()) {
 }
 
 def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
+def keystorePropertiesFile = [
+    file('key.properties'),
+    rootProject.file('key.properties'),
+    rootProject.file('../key.properties')
+].find { it != null && it.exists() }
+
+if (keystorePropertiesFile != null) {
     keystorePropertiesFile.withReader('UTF-8') { reader ->
         keystoreProperties.load(reader)
     }
 }
+
+File resolvedStoreFile = null
+def candidateStoreFiles = [
+    file('kazumi.jks'),
+    rootProject.file('app/kazumi.jks'),
+    rootProject.file('kazumi.jks'),
+    keystoreProperties.getProperty('storeFile') ? file(keystoreProperties.getProperty('storeFile')) : null,
+    keystoreProperties.getProperty('storeFile') ? rootProject.file(keystoreProperties.getProperty('storeFile')) : null,
+    keystoreProperties.getProperty('storeFile') ? rootProject.file("app/${keystoreProperties.getProperty('storeFile')}") : null
+]
+for (def f in candidateStoreFiles) {
+    if (f != null && f.exists()) {
+        resolvedStoreFile = f
+        break
+    }
+}
+
+def keyAliasValue = System.getenv('KEY_ALIAS') ?: keystoreProperties.getProperty('keyAlias') ?: 'kazumi'
+def keyPasswordValue = System.getenv('KEY_PASSWORD') ?: keystoreProperties.getProperty('keyPassword') ?: 'kazumi123'
+def storePasswordValue = System.getenv('STORE_PASSWORD') ?: keystoreProperties.getProperty('storePassword') ?: 'kazumi123'
 
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -64,19 +89,24 @@ android {
 
     signingConfigs {
         release {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile keystoreProperties['storeFile'] ? rootProject.file(keystoreProperties['storeFile']) : null
-                storePassword keystoreProperties['storePassword']
+            if (resolvedStoreFile != null && resolvedStoreFile.exists()) {
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+                storeFile resolvedStoreFile
+                storePassword storePasswordValue
             }
         }
     }
 
     buildTypes {
         release {
-            // Signing with debug keys during Gradle assemble, then permanently signed with kazumi.jks via apksigner in CI release job
-            signingConfig signingConfigs.debug
+            if (resolvedStoreFile != null && resolvedStoreFile.exists()) {
+                println "[Gradle] Configuring Release Signing with Keystore: ${resolvedStoreFile.absolutePath}, alias: ${keyAliasValue}"
+                signingConfig signingConfigs.release
+            } else {
+                println "[Gradle] WARNING: No Release Keystore found! Falling back to Debug signing!"
+                signingConfig signingConfigs.debug
+            }
         }
     }
 

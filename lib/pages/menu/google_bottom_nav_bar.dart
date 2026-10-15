@@ -35,7 +35,7 @@ double getFloatingBottomBarReserveHeight(BuildContext context) {
     MediaQuery.viewPaddingOf(context).bottom,
     MediaQuery.paddingOf(context).bottom,
   );
-  return 84.0 + (viewBottom > 12 ? viewBottom - 12 : 0);
+  return 89.0 + (viewBottom > 12 ? viewBottom - 12 : 0);
 }
 
 double getFloatingBottomBarFABReserveHeight(BuildContext context) {
@@ -43,85 +43,7 @@ double getFloatingBottomBarFABReserveHeight(BuildContext context) {
     MediaQuery.viewPaddingOf(context).bottom,
     MediaQuery.paddingOf(context).bottom,
   );
-  return 84.0 - math.min(viewBottom, 12.0);
-}
-
-/// Rounded superellipse that always paints through a [Path].
-///
-/// Skia (windows / linux / macos) has no native rounded superellipse: the
-/// engine falls back to a plain rounded rectangle for filled
-/// [Canvas.drawRSuperellipse] calls, so solid [ShapeDecoration] surfaces lose
-/// their continuous corners on desktop while Impeller keeps them. Building the
-/// outline as a path renders the exact curve on every backend.
-class SuperellipseBorder extends RoundedSuperellipseBorder {
-  const SuperellipseBorder({super.side, super.borderRadius});
-
-  static final Map<Object, Path> _outerPathCache = <Object, Path>{};
-  static const int _outerPathCacheLimit = 256;
-
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    final key = Object.hash(rect, borderRadius, textDirection);
-    final cached = _outerPathCache[key];
-    if (cached != null) {
-      return cached;
-    }
-    final path = super.getOuterPath(rect, textDirection: textDirection);
-    if (_outerPathCache.length >= _outerPathCacheLimit) {
-      _outerPathCache.remove(_outerPathCache.keys.first);
-    }
-    _outerPathCache[key] = path;
-    return path;
-  }
-
-  @override
-  void paintInterior(
-    Canvas canvas,
-    Rect rect,
-    Paint paint, {
-    TextDirection? textDirection,
-  }) {
-    canvas.drawPath(getOuterPath(rect, textDirection: textDirection), paint);
-  }
-
-  @override
-  SuperellipseBorder copyWith({
-    BorderSide? side,
-    BorderRadiusGeometry? borderRadius,
-  }) {
-    return SuperellipseBorder(
-      side: side ?? this.side,
-      borderRadius: borderRadius ?? this.borderRadius,
-    );
-  }
-
-  @override
-  ShapeBorder scale(double t) {
-    return SuperellipseBorder(
-      side: side.scale(t),
-      borderRadius: borderRadius * t,
-    );
-  }
-
-  @override
-  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
-    return _keepSuperellipse(super.lerpFrom(a, t));
-  }
-
-  @override
-  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
-    return _keepSuperellipse(super.lerpTo(b, t));
-  }
-
-  static ShapeBorder? _keepSuperellipse(ShapeBorder? border) {
-    if (border is RoundedSuperellipseBorder) {
-      return SuperellipseBorder(
-        side: border.side,
-        borderRadius: border.borderRadius,
-      );
-    }
-    return border;
-  }
+  return 89.0 - math.min(viewBottom, 12.0);
 }
 
 class _Spring extends ChangeNotifier implements ValueListenable<double> {
@@ -380,9 +302,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
       return;
     }
     _lens.springTo(index.toDouble(), _settleSpring);
-    if (index != widget.selectedIndex) {
-      widget.onTabChange(index);
-    }
+    widget.onTabChange(index);
   }
 
   Color _cardColor(BuildContext context) {
@@ -429,7 +349,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
           Positioned.fill(
             child: Container(
               decoration: ShapeDecoration(
-                shape: SuperellipseBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32.5),
                 ),
                 shadows: [
@@ -449,12 +369,8 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                   ),
                 ],
               ),
-              child: ClipPath(
-                clipper: ShapeBorderClipper(
-                  shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(32.5),
-                  ),
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32.5),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(
                     sigmaX: 8.0,
@@ -463,7 +379,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                   child: DecoratedBox(
                     decoration: ShapeDecoration(
                       color: barColor,
-                      shape: SuperellipseBorder(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32.5),
                         side: BorderSide(
                           color: borderColor,
@@ -542,11 +458,12 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
     final viewBottom = MediaQuery.viewPaddingOf(context).bottom;
     return RepaintBoundary(
       child: Padding(
-        padding: EdgeInsets.only(bottom: math.max(viewBottom, 12.0)),
-        child: Container(
-          color: Colors.transparent,
+        padding: EdgeInsets.only(bottom: math.max(viewBottom, 12.0) + 5.0),
+        child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
-          child: Center(
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            heightFactor: 1.0,
             child: FractionallySizedBox(
               widthFactor: 0.8,
               child: bar,
@@ -604,7 +521,7 @@ class _Lens extends StatelessWidget {
       child: DecoratedBox(
         decoration: ShapeDecoration(
           color: lensColor,
-          shape: SuperellipseBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(lensRadius),
           ),
           shadows: [

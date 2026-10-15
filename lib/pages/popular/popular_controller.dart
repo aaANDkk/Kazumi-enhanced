@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' show VoidCallback;
 import 'package:kazumi/request/apis/bangumi_api.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/services/network/bangumi_acceleration.dart';
@@ -12,6 +13,8 @@ abstract class _PopularController with Store {
   static const int _trendPageSize = 24;
 
   int _trendOffset = 0;
+
+  VoidCallback? scrollToTop;
 
   @observable
   String currentTag = '';

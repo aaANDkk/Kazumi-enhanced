@@ -6,6 +6,7 @@ import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
 import 'package:kazumi/navigation.dart';
 import 'package:kazumi/pages/menu/google_bottom_nav_bar.dart';
 import 'package:kazumi/pages/menu/route_visibility.dart';
+import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/pages/router.dart';
 
 class ScaffoldMenu extends StatefulWidget {
@@ -21,6 +22,7 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
   final _outletKey = GlobalKey<RouterOutletState>();
   late int _selectedIndex = menu.indexForPath(widget.location);
   DateTime? _lastExitPromptAt;
+  DateTime? _lastHomeTapAt;
 
   /// The shell sits at the bottom of the root stack and stays mounted while
   /// other pages cover it, so it publishes that state for its subtree.
@@ -64,6 +66,19 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
 
   void _selectDestination(int index) {
     _lastExitPromptAt = null;
+    if (index == 0) {
+      final now = DateTime.now();
+      if (_lastHomeTapAt != null &&
+          now.difference(_lastHomeTapAt!) <= const Duration(milliseconds: 500)) {
+        _lastHomeTapAt = null;
+        inject<PopularController>().scrollToTop?.call();
+      } else {
+        _lastHomeTapAt = now;
+      }
+    } else {
+      _lastHomeTapAt = null;
+    }
+
     if (index == _selectedIndex) {
       return;
     }
@@ -168,15 +183,26 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
 
     return Scaffold(
       extendBody: true,
-      body: MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          padding: MediaQuery.paddingOf(context).copyWith(bottom: reserveHeight),
-          viewPadding:
-              MediaQuery.viewPaddingOf(context).copyWith(bottom: reserveHeight),
-        ),
-        child: _outlet(context),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                padding: MediaQuery.paddingOf(context).copyWith(bottom: reserveHeight),
+                viewPadding:
+                    MediaQuery.viewPaddingOf(context).copyWith(bottom: reserveHeight),
+              ),
+              child: _outlet(context),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: navBar,
+          ),
+        ],
       ),
-      bottomNavigationBar: navBar,
     );
   }
 
