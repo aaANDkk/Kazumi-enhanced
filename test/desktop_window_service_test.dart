@@ -93,8 +93,8 @@ void main() {
         const Rect.fromLTWH(100.0, 100.0, 100.0, 100.0),
       );
 
-      expect(GStorage.getSetting(SettingsKeys.windowWidth), isNull);
-      expect(GStorage.getSetting(SettingsKeys.windowHeight), isNull);
+      expect(GStorage.getSetting(SettingsKeys.windowWidth), 0.0);
+      expect(GStorage.getSetting(SettingsKeys.windowHeight), 0.0);
     });
 
     test('restores saved maximized state', () async {

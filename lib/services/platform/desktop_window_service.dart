@@ -16,9 +16,7 @@ abstract final class DesktopWindowService {
   static Future<Size> getInitialWindowSize() async {
     final savedWidth = GStorage.getSetting(SettingsKeys.windowWidth);
     final savedHeight = GStorage.getSetting(SettingsKeys.windowHeight);
-    if (savedWidth != null &&
-        savedHeight != null &&
-        savedWidth.isFinite &&
+    if (savedWidth.isFinite &&
         savedHeight.isFinite &&
         savedWidth >= minWindowSize.width &&
         savedHeight >= minWindowSize.height) {
