@@ -19,6 +19,7 @@ import 'package:kazumi/pages/error/storage_error_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/services/platform/desktop_window_config.dart';
+import 'package:kazumi/services/platform/desktop_window_service.dart';
 import 'package:kazumi/services/platform/webview_feature_service.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/navigation.dart';
@@ -79,10 +80,14 @@ void main() async {
   final showWindowButton = DesktopWindowConfig.showWindowButton;
   if (isDesktop()) {
     await windowManager.ensureInitialized();
-    final lowResolution = await isLowResolution();
+    final initialSize = await DesktopWindowService.getInitialWindowSize();
+    final savedPosition = DesktopWindowService.getSavedPosition(initialSize);
+    final savedIsMaximized = DesktopWindowService.isSavedMaximized();
+
     final windowOptions = WindowOptions(
-      size: lowResolution ? const Size(840, 600) : const Size(1280, 860),
-      center: true,
+      size: initialSize,
+      minimumSize: DesktopWindowService.minWindowSize,
+      center: savedPosition == null,
       skipTaskbar: false,
       // macOS embeds native buttons in the Flutter view.
       titleBarStyle: (Platform.isMacOS || !showWindowButton)
@@ -92,6 +97,12 @@ void main() async {
       title: 'Kazumi',
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      if (savedPosition != null) {
+        await windowManager.setPosition(savedPosition);
+      }
+      if (savedIsMaximized) {
+        await windowManager.maximize();
+      }
       // window_manager controls desktop visibility to avoid startup flicker.
       await windowManager.show();
       await windowManager.focus();

@@ -360,6 +360,31 @@ class SettingsKeys {
     2,
     group: SettingGroup.interface,
   );
+  static const windowWidth = SettingKey<double>(
+    'windowWidth',
+    0.0,
+    group: SettingGroup.interface,
+  );
+  static const windowHeight = SettingKey<double>(
+    'windowHeight',
+    0.0,
+    group: SettingGroup.interface,
+  );
+  static const windowLeft = SettingKey<double?>(
+    'windowLeft',
+    null,
+    group: SettingGroup.interface,
+  );
+  static const windowTop = SettingKey<double?>(
+    'windowTop',
+    null,
+    group: SettingGroup.interface,
+  );
+  static const windowIsMaximized = SettingKey<bool>(
+    'windowIsMaximized',
+    false,
+    group: SettingGroup.interface,
+  );
   static const playerDebugMode = SettingKey<bool>(
     _SettingBoxKey.playerDebugMode,
     false,
@@ -642,6 +667,11 @@ class SettingsKeys {
     showWindowButton,
     useDynamicColor,
     exitBehavior,
+    windowWidth,
+    windowHeight,
+    windowLeft,
+    windowTop,
+    windowIsMaximized,
     playerDebugMode,
     syncPlayEndPoint,
     syncPlayUserName,

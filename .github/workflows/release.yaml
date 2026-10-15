@@ -225,6 +225,13 @@ jobs:
             echo "tag=latest" >> $GITHUB_ENV
           fi
         shell: bash
+      - name: Delete old release if exists
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Cleaning up any existing release for tag ${{ env.tag }}..."
+          gh release delete "${{ env.tag }}" --yes --cleanup-tag=false || true
+        shell: bash
       - name: Download windows exe build file
         uses: actions/download-artifact@v4
         with:

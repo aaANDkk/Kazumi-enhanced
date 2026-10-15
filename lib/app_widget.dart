@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:kazumi/services/platform/desktop_window_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -31,6 +33,15 @@ class _AppWidgetState extends State<AppWidget>
   bool _isHandlingWindowClose = false;
   bool _didApplyStoredThemeSettings = false;
   Brightness? _lastTitleBarBrightness;
+  Timer? _windowGeometryTimer;
+
+  void _scheduleWindowGeometryCapture() {
+    if (!isDesktop()) return;
+    _windowGeometryTimer?.cancel();
+    _windowGeometryTimer = Timer(const Duration(milliseconds: 200), () {
+      DesktopWindowService.captureAndSaveGeometry();
+    });
+  }
 
   @override
   void initState() {
@@ -74,6 +85,7 @@ class _AppWidgetState extends State<AppWidget>
 
   @override
   void dispose() {
+    _windowGeometryTimer?.cancel();
     trayManager.removeListener(this);
     windowManager.removeListener(this);
     WidgetsBinding.instance.removeObserver(this);
@@ -204,7 +216,10 @@ class _AppWidgetState extends State<AppWidget>
       case 'show_window':
         windowManager.show();
       case 'exit':
-        exit(0);
+        _windowGeometryTimer?.cancel();
+        DesktopWindowService.captureAndSaveGeometry()
+            .timeout(const Duration(milliseconds: 500), onTimeout: () {})
+            .whenComplete(() => exit(0));
     }
   }
 
@@ -214,6 +229,8 @@ class _AppWidgetState extends State<AppWidget>
     if (_isHandlingWindowClose || !mounted) return;
     _isHandlingWindowClose = true;
     try {
+      _windowGeometryTimer?.cancel();
+      await DesktopWindowService.captureAndSaveGeometry();
       var action = switch (GStorage.getSetting(SettingsKeys.exitBehavior)) {
         0 => ExitDialogAction.exit,
         1 => ExitDialogAction.minimizeToTray,
@@ -247,6 +264,56 @@ class _AppWidgetState extends State<AppWidget>
     } finally {
       _isHandlingWindowClose = false;
     }
+  }
+
+  @override
+  void onWindowResize() {
+    super.onWindowResize();
+    _scheduleWindowGeometryCapture();
+  }
+
+  @override
+  void onWindowResized() {
+    super.onWindowResized();
+    _scheduleWindowGeometryCapture();
+  }
+
+  @override
+  void onWindowMove() {
+    super.onWindowMove();
+    _scheduleWindowGeometryCapture();
+  }
+
+  @override
+  void onWindowMoved() {
+    super.onWindowMoved();
+    _scheduleWindowGeometryCapture();
+  }
+
+  @override
+  void onWindowMaximize() {
+    super.onWindowMaximize();
+    _windowGeometryTimer?.cancel();
+    GStorage.putSetting(SettingsKeys.windowIsMaximized, true);
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    super.onWindowUnmaximize();
+    GStorage.putSetting(SettingsKeys.windowIsMaximized, false);
+    _scheduleWindowGeometryCapture();
+  }
+
+  @override
+  void onWindowEnterFullScreen() {
+    super.onWindowEnterFullScreen();
+    _windowGeometryTimer?.cancel();
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    super.onWindowLeaveFullScreen();
+    _scheduleWindowGeometryCapture();
   }
 
   @override

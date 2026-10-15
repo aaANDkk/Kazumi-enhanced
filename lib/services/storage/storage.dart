@@ -338,6 +338,9 @@ class GStorage {
     if (storedValue is T) {
       return storedValue;
     }
+    if (storedValue is num && (T == double || key is SettingKey<double?>)) {
+      return storedValue.toDouble() as T;
+    }
     return defaultValue;
   }
 
