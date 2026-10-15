@@ -136,7 +136,7 @@ jobs:
             $tag = "latest"
           }
           echo "tag=$tag" >> $env:GITHUB_ENV
-      - run: echo "Kazumi_windows_${env:tag}.zip build progress"
+      - run: echo "Kazumi_windows_x64_${env:tag}.exe build progress"
       - run: choco install yq
       - name: Enable Git longpaths
         run: git config --system core.longpaths true
@@ -157,12 +157,24 @@ jobs:
           --dart-define=DANDANAPI_KEY=$env:DANDANAPI_KEY
           --dart-define=KAZUMI_APPID=$env:KAZUMI_APPID
           --dart-define=KAZUMI_KEY=$env:KAZUMI_KEY
-      - run: Compress-Archive build/windows/x64/runner/Release/* Kazumi_windows_${env:tag}.zip
+      - name: Build Windows x64 EXE Installer
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            Write-Host "Inno Setup not found at default location, installing via choco..."
+            choco install innosetup --no-progress
+            $iscc = (Get-Command iscc.exe -ErrorAction SilentlyContinue).Source
+            if (-not $iscc) {
+              $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+            }
+          }
+          Write-Host "Compiling installer with $iscc..."
+          & $iscc /DAppVersion=${env:tag} /DOutputBaseFilename="Kazumi_windows_x64_${env:tag}" windows/packaging/exe/inno_setup.iss
       - name: Upload windows outputs
         uses: actions/upload-artifact@v4
         with:
           name: windows_outputs
-          path: Kazumi_windows_*.zip
+          path: Kazumi_windows_x64_*.exe
 
   release:
     name: "Release"
@@ -192,7 +204,7 @@ jobs:
       - name: Setup Android build tools
         run: sdkmanager "build-tools;34.0.0"
 
-      - name: Download windows zip build file
+      - name: Download windows exe build file
         uses: actions/download-artifact@v4
         with:
           name: windows_outputs
@@ -249,4 +261,4 @@ jobs:
           name: "Release ${{ env.tag }}"
           files: |
             build/signed/*.apk
-            Kazumi_windows_*.zip
+            Kazumi_windows_x64_*.exe

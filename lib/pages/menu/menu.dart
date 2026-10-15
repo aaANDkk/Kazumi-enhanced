@@ -149,8 +149,8 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
           label: '推荐',
         ),
         GoogleBottomNavBarItem(
-          icon: Icons.timeline_outlined,
-          selectedIcon: Icons.timeline,
+          icon: Icons.access_time_outlined,
+          selectedIcon: Icons.access_time_filled,
           label: '时间表',
         ),
         GoogleBottomNavBarItem(
@@ -207,8 +207,8 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
                   label: Text('推荐'),
                 ),
                 NavigationRailDestination(
-                  selectedIcon: Icon(Icons.timeline),
-                  icon: Icon(Icons.timeline_outlined),
+                  selectedIcon: Icon(Icons.access_time_filled),
+                  icon: Icon(Icons.access_time_outlined),
                   label: Text('时间表'),
                 ),
                 NavigationRailDestination(

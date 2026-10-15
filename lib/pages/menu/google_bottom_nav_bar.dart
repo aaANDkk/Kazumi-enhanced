@@ -218,7 +218,9 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
   late final Listenable _motion = Listenable.merge([_lens, _lift]);
   final ValueNotifier<int?> _activePressIndex = ValueNotifier(null);
   final ValueNotifier<bool> _isDragging = ValueNotifier(false);
+  final ValueNotifier<int> _sourceIndex = ValueNotifier(0);
 
+  double _barWidth = 0;
   int? _pointer;
   int? _pressedIndex;
   double _pressX = 0;
@@ -235,11 +237,15 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
     super.initState();
     _lastSnappedIndex = _selectedIndex;
     _activePressIndex.value = _selectedIndex;
+    _sourceIndex.value = _selectedIndex;
   }
 
   @override
   void didUpdateWidget(covariant GoogleBottomNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedIndex != widget.selectedIndex) {
+      _sourceIndex.value = oldWidget.selectedIndex;
+    }
     if (_pressedIndex == null &&
         (_lens.target != _selectedIndex ||
             oldWidget.selectedIndex != widget.selectedIndex)) {
@@ -256,6 +262,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
     _iconLift.dispose();
     _activePressIndex.dispose();
     _isDragging.dispose();
+    _sourceIndex.dispose();
     super.dispose();
   }
 
@@ -268,7 +275,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
   }
 
   double _positionAt(Offset localPosition) {
-    final width = context.size?.width ?? 0;
+    final width = _barWidth > 0 ? _barWidth : (context.size?.width ?? 0);
     final innerWidth = width - (2 * _barPaddingHorizontal);
     if (innerWidth <= 0 || widget.items.isEmpty) {
       return widget.selectedIndex.toDouble();
@@ -317,6 +324,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
     if (widget.items.isEmpty) {
       return;
     }
+    _sourceIndex.value = _selectedIndex;
     final position = _positionAt(localPosition);
     final index = _indexAt(position);
     _pressedIndex = index;
@@ -473,6 +481,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final totalWidth = constraints.maxWidth;
+                _barWidth = totalWidth;
                 final innerWidth = totalWidth - (2 * _barPaddingHorizontal);
                 final slotWidth = innerWidth / math.max(1, count);
 
@@ -513,6 +522,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                                     iconLift: _iconLift,
                                     isDragging: _isDragging,
                                     activePressIndex: _activePressIndex,
+                                    sourceIndex: _sourceIndex,
                                   ),
                                 ),
                             ],
@@ -536,7 +546,12 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
         child: Container(
           color: Colors.transparent,
           padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
-          child: bar,
+          child: Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.8,
+              child: bar,
+            ),
+          ),
         ),
       ),
     );
@@ -616,6 +631,7 @@ class _FloatingBarItem extends StatelessWidget {
     required this.iconLift,
     required this.isDragging,
     required this.activePressIndex,
+    required this.sourceIndex,
   });
 
   final GoogleBottomNavBarItem item;
@@ -624,17 +640,22 @@ class _FloatingBarItem extends StatelessWidget {
   final ValueListenable<double> iconLift;
   final ValueListenable<bool> isDragging;
   final ValueListenable<int?> activePressIndex;
+  final ValueListenable<int> sourceIndex;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return AnimatedBuilder(
-      animation: Listenable.merge([lens, iconLift, isDragging, activePressIndex]),
+      animation: Listenable.merge([lens, iconLift, isDragging, activePressIndex, sourceIndex]),
       builder: (context, _) {
         final emphasis = (1.0 - (lens.value - index).abs()).clamp(0.0, 1.0);
         final currentIconLift = iconLift.value.clamp(0.0, 1.0);
         final dragging = isDragging.value;
         final activeIndex = activePressIndex.value;
+        final srcIndex = sourceIndex.value;
+        final isParticipating =
+            dragging || index == activeIndex || index == srcIndex;
+        final fillEmphasis = isParticipating ? emphasis : 0.0;
         final scaleEmphasis = (index == activeIndex || dragging)
             ? emphasis
             : 0.0;
@@ -654,7 +675,7 @@ class _FloatingBarItem extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Opacity(
-                  opacity: (1.0 - emphasis).clamp(0.0, 1.0),
+                  opacity: (1.0 - fillEmphasis).clamp(0.0, 1.0),
                   child: Icon(
                     item.icon,
                     size: 24.0,
@@ -662,7 +683,7 @@ class _FloatingBarItem extends StatelessWidget {
                   ),
                 ),
                 Opacity(
-                  opacity: emphasis.clamp(0.0, 1.0),
+                  opacity: fillEmphasis.clamp(0.0, 1.0),
                   child: Icon(
                     item.selectedIcon!,
                     size: 24.0,
