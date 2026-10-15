@@ -4,10 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
 import 'package:kazumi/navigation.dart';
+import 'package:kazumi/pages/collect/collect_controller.dart';
 import 'package:kazumi/pages/menu/google_bottom_nav_bar.dart';
 import 'package:kazumi/pages/menu/route_visibility.dart';
+import 'package:kazumi/pages/my/my_controller.dart';
 import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/pages/router.dart';
+import 'package:kazumi/pages/timeline/timeline_controller.dart';
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key, required this.location});
@@ -22,7 +25,8 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
   final _outletKey = GlobalKey<RouterOutletState>();
   late int _selectedIndex = menu.indexForPath(widget.location);
   DateTime? _lastExitPromptAt;
-  DateTime? _lastHomeTapAt;
+  int? _lastTapIndex;
+  DateTime? _lastTapAt;
 
   /// The shell sits at the bottom of the root stack and stays mounted while
   /// other pages cover it, so it publishes that state for its subtree.
@@ -64,19 +68,31 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
     setState(() => _isCovered = value);
   }
 
+  void _triggerScrollToTop(int index) {
+    switch (index) {
+      case 0:
+        inject<PopularController>().scrollToTop?.call();
+      case 1:
+        inject<TimelineController>().scrollToTop?.call();
+      case 2:
+        inject<CollectController>().scrollToTop?.call();
+      case 3:
+        inject<MyController>().scrollToTop?.call();
+    }
+  }
+
   void _selectDestination(int index) {
     _lastExitPromptAt = null;
-    if (index == 0) {
-      final now = DateTime.now();
-      if (_lastHomeTapAt != null &&
-          now.difference(_lastHomeTapAt!) <= const Duration(milliseconds: 500)) {
-        _lastHomeTapAt = null;
-        inject<PopularController>().scrollToTop?.call();
-      } else {
-        _lastHomeTapAt = now;
-      }
+    final now = DateTime.now();
+    if (_lastTapIndex == index &&
+        _lastTapAt != null &&
+        now.difference(_lastTapAt!) <= const Duration(milliseconds: 500)) {
+      _lastTapIndex = null;
+      _lastTapAt = null;
+      _triggerScrollToTop(index);
     } else {
-      _lastHomeTapAt = null;
+      _lastTapIndex = index;
+      _lastTapAt = now;
     }
 
     if (index == _selectedIndex) {

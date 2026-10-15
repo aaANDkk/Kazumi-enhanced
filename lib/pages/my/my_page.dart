@@ -18,6 +18,14 @@ class MyPage extends StatefulWidget {
 
 class _MyPageState extends State<MyPage> {
   bool _attached = false;
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    widget.controller.scrollToTop = _scrollToTop;
+  }
 
   @override
   void didChangeDependencies() {
@@ -28,16 +36,38 @@ class _MyPageState extends State<MyPage> {
   @override
   void didUpdateWidget(covariant MyPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_attached && oldWidget.controller != widget.controller) {
-      oldWidget.controller.detach();
-      widget.controller.attach();
+    if (oldWidget.controller != widget.controller) {
+      if (oldWidget.controller.scrollToTop == _scrollToTop) {
+        oldWidget.controller.scrollToTop = null;
+      }
+      widget.controller.scrollToTop = _scrollToTop;
+      if (_attached) {
+        oldWidget.controller.detach();
+        widget.controller.attach();
+      }
     }
   }
 
   @override
   void dispose() {
+    if (widget.controller.scrollToTop == _scrollToTop) {
+      widget.controller.scrollToTop = null;
+    }
+    _scrollController.dispose();
     _setAttached(false);
     super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      for (final position in _scrollController.positions) {
+        position.animateTo(
+          0,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+        );
+      }
+    }
   }
 
   void _setAttached(bool value) {
@@ -92,6 +122,7 @@ class _MyPageState extends State<MyPage> {
           builder: (context) => MySpaceView(
             stats: widget.controller.watchStats,
             onOpen: _open,
+            controller: _scrollController,
           ),
         ),
       ),

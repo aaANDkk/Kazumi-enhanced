@@ -33,6 +33,7 @@ class _CollectPageState extends State<CollectPage> with KazumiDialogOwner {
   CollectController get collectController => widget.controller;
   bool get _syncDialogOpen => dialogs.isRunning;
   final Set<int> _pendingIds = {};
+  final _libraryKey = GlobalKey<CollectLibraryViewState>();
   late CollectLayout _layout;
 
   Future<bool> _syncStep(
@@ -56,11 +57,24 @@ class _CollectPageState extends State<CollectPage> with KazumiDialogOwner {
   @override
   void initState() {
     super.initState();
+    collectController.scrollToTop = _scrollToTop;
     // Read once; page switches never change the saved default.
     _layout = CollectLayout.fromValue(
       GStorage.getSetting(SettingsKeys.defaultCollectLayout),
     );
     collectController.loadCollectibles();
+  }
+
+  @override
+  void dispose() {
+    if (collectController.scrollToTop == _scrollToTop) {
+      collectController.scrollToTop = null;
+    }
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _libraryKey.currentState?.scrollToTop();
   }
 
   void _changeLayout(CollectLayout layout) {
@@ -138,6 +152,7 @@ class _CollectPageState extends State<CollectPage> with KazumiDialogOwner {
         bottom: false,
         child: Observer(
           builder: (context) => CollectLibraryView(
+            key: _libraryKey,
             entries: collectController.collectibles.toList(),
             showRating: GStorage.getSetting(SettingsKeys.showRating),
             layout: _layout,

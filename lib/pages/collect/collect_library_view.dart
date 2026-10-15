@@ -42,11 +42,26 @@ class CollectLibraryView extends StatefulWidget {
   final ValueChanged<CollectLayout> onLayoutChanged;
 
   @override
-  State<CollectLibraryView> createState() => _CollectLibraryViewState();
+  State<CollectLibraryView> createState() => CollectLibraryViewState();
 }
 
-class _CollectLibraryViewState extends State<CollectLibraryView>
+class CollectLibraryViewState extends State<CollectLibraryView>
     with TickerProviderStateMixin {
+  void scrollToTop() {
+    final activeType = _tabController.index < _collectCategories.length
+        ? _collectCategories[_tabController.index]
+        : _selectedType;
+    final controller = _scrollControllers[activeType];
+    if (controller != null && controller.hasClients) {
+      for (final position in controller.positions) {
+        position.animateTo(
+          0,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+        );
+      }
+    }
+  }
   final _searchController = TextEditingController();
   final _searchFocus = FocusNode();
   final _libraryFocus = FocusNode();

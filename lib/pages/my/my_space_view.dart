@@ -24,10 +24,12 @@ class MySpaceView extends StatelessWidget {
     super.key,
     required this.stats,
     required this.onOpen,
+    this.controller,
   });
 
   final WatchStats stats;
   final ValueChanged<MyDestination> onOpen;
+  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class MySpaceView extends StatelessWidget {
       final wide = width >= 840 && !largeText;
       return SingleChildScrollView(
         key: const PageStorageKey('my-space'),
+        controller: controller,
         padding: EdgeInsets.fromLTRB(
           inset,
           12,

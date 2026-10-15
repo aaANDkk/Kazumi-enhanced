@@ -1,3 +1,4 @@
+import 'dart:ui' show VoidCallback;
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/request/apis/bangumi_api.dart';
 import 'package:kazumi/utils/anime_season.dart';
@@ -17,6 +18,8 @@ abstract class _TimelineController with Store {
   _TimelineController(this._collectRepository);
 
   final ICollectRepository _collectRepository;
+
+  VoidCallback? scrollToTop;
 
   @observable
   ObservableList<List<BangumiItem>> bangumiCalendar =

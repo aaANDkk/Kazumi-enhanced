@@ -27,6 +27,8 @@ abstract class _CollectController with Store {
 
   final ICollectCrudRepository _collectCrudRepository;
 
+  VoidCallback? scrollToTop;
+
   @observable
   ObservableList<CollectedBangumi> collectibles =
       ObservableList<CollectedBangumi>();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show VoidCallback;
 
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/modules/my/watch_stats.dart';
@@ -24,6 +25,8 @@ abstract class _MyController with Store {
   final IHistoryRepository _historyRepository;
   final IDownloadRepository _downloadRepository;
   final IDanmakuShieldRepository _shieldRepository;
+
+  VoidCallback? scrollToTop;
 
   @observable
   WatchStats watchStats = const WatchStats();

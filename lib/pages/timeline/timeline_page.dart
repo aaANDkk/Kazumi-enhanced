@@ -34,13 +34,47 @@ class TimelinePage extends StatefulWidget {
 class _TimelinePageState extends State<TimelinePage> {
   TimelineController get _controller => widget.controller;
   late final bool _showRating;
+  final _nestedKey = GlobalKey<NestedScrollViewState>();
 
   @override
   void initState() {
     super.initState();
+    _controller.scrollToTop = _scrollToTop;
     _showRating = GStorage.getSetting(SettingsKeys.showRating);
     if (_controller.bangumiCalendar.isEmpty) {
       _controller.loadSeason(_controller.selectedDate);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_controller.scrollToTop == _scrollToTop) {
+      _controller.scrollToTop = null;
+    }
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    final state = _nestedKey.currentState;
+    if (state != null) {
+      if (state.outerController.hasClients) {
+        for (final position in state.outerController.positions) {
+          position.animateTo(
+            0,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+          );
+        }
+      }
+      if (state.innerController.hasClients) {
+        for (final position in state.innerController.positions) {
+          position.animateTo(
+            0,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+          );
+        }
+      }
     }
   }
 
@@ -200,6 +234,7 @@ class _TimelinePageState extends State<TimelinePage> {
           ),
           body: LayoutBuilder(
             builder: (context, viewport) => NestedScrollView(
+                      key: _nestedKey,
                       // Keep the outer viewport clamped and unstretched so tabs stay fixed.
                       physics: const ClampingScrollPhysics(),
                       scrollBehavior: ScrollConfiguration.of(context).copyWith(
