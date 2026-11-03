@@ -78,7 +78,12 @@ class _InfoTabViewState extends State<InfoTabView> {
   Widget get infoBody {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.fromLTRB(
+          16.0,
+          16.0,
+          16.0,
+          16.0 + MediaQuery.paddingOf(context).bottom,
+        ),
         child: SizedBox(
           width: MediaQuery.sizeOf(context).width > maxWidth
               ? maxWidth
@@ -238,7 +243,7 @@ class _InfoTabViewState extends State<InfoTabView> {
                     horizontalPadding,
                     16,
                     horizontalPadding,
-                    16,
+                    16 + MediaQuery.paddingOf(context).bottom,
                   ),
                   sliver: SliverGrid(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -325,23 +330,28 @@ class _InfoTabViewState extends State<InfoTabView> {
             ),
             SliverLayoutBuilder(builder: (context, _) {
               if (widget.staffList.isNotEmpty) {
-                return SliverList.builder(
-                  itemCount: widget.staffList.length,
-                  itemBuilder: (context, index) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: SizedBox(
-                          width: MediaQuery.sizeOf(context).width > maxWidth
-                              ? maxWidth
-                              : MediaQuery.sizeOf(context).width - 32,
-                          child: StaffCard(
-                            staffFullItem: widget.staffList[index],
+                return SliverPadding(
+                  padding: EdgeInsets.only(
+                    bottom: 16 + MediaQuery.paddingOf(context).bottom,
+                  ),
+                  sliver: SliverList.builder(
+                    itemCount: widget.staffList.length,
+                    itemBuilder: (context, index) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: SizedBox(
+                            width: MediaQuery.sizeOf(context).width > maxWidth
+                                ? maxWidth
+                                : MediaQuery.sizeOf(context).width - 32,
+                            child: StaffCard(
+                              staffFullItem: widget.staffList[index],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               }
               if (widget.staffQueryTimeout) {
@@ -403,23 +413,28 @@ class _InfoTabViewState extends State<InfoTabView> {
             ),
             SliverLayoutBuilder(builder: (context, _) {
               if (widget.characterList.isNotEmpty) {
-                return SliverList.builder(
-                  itemCount: widget.characterList.length,
-                  itemBuilder: (context, index) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: SizedBox(
-                          width: MediaQuery.sizeOf(context).width > maxWidth
-                              ? maxWidth
-                              : MediaQuery.sizeOf(context).width - 32,
-                          child: CharacterCard(
-                            characterItem: widget.characterList[index],
+                return SliverPadding(
+                  padding: EdgeInsets.only(
+                    bottom: 16 + MediaQuery.paddingOf(context).bottom,
+                  ),
+                  sliver: SliverList.builder(
+                    itemCount: widget.characterList.length,
+                    itemBuilder: (context, index) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: SizedBox(
+                            width: MediaQuery.sizeOf(context).width > maxWidth
+                                ? maxWidth
+                                : MediaQuery.sizeOf(context).width - 32,
+                            child: CharacterCard(
+                              characterItem: widget.characterList[index],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               }
               if (widget.charactersQueryTimeout) {

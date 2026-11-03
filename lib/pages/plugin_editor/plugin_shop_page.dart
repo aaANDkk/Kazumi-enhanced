@@ -12,6 +12,7 @@ class PluginShopPage extends StatelessWidget {
         title: const Text('规则仓库'),
         body: SafeArea(
           top: false,
+          bottom: false,
           child: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(

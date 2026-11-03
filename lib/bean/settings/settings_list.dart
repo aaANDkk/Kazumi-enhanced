@@ -18,8 +18,9 @@ class SettingsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: EdgeInsets.fromLTRB(0, 12, 0, 12 + bottomInset),
       itemCount: sections.length,
       itemBuilder: (context, index) => Center(
         child: ConstrainedBox(

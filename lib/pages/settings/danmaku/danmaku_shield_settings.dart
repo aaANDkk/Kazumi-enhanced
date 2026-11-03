@@ -16,7 +16,12 @@ class DanmakuShieldSettings extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1000),
             child: DanmakuShieldEditor(
               controller: inject<MyController>(),
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                16 + MediaQuery.paddingOf(context).bottom,
+              ),
             ),
           ),
         ),

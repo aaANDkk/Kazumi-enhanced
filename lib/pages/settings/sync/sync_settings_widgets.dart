@@ -11,8 +11,14 @@ class SyncPageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SafeArea(
         top: false,
+        bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            12,
+            20,
+            32 + MediaQuery.paddingOf(context).bottom,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),

@@ -78,6 +78,11 @@ class SysAppBar extends StatelessWidget implements PreferredSizeWidget {
               : Brightness.light,
           systemNavigationBarColor: Colors.transparent,
           systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarIconBrightness:
+              Theme.of(context).brightness == Brightness.light
+              ? Brightness.dark
+              : Brightness.light,
+          systemNavigationBarContrastEnforced: false,
         ),
       ),
     );

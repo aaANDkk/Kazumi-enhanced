@@ -251,6 +251,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: NotificationListener<UserScrollNotification>(
             onNotification: (notification) {
               if (_controller.isImageSearching &&
@@ -304,10 +305,16 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
     if (splitLayout) {
       final contentWidth = constraints.maxWidth.clamp(0.0, 1440.0);
       final inset = (constraints.maxWidth - contentWidth) / 2 + padding;
+      final bottomInset = MediaQuery.paddingOf(context).bottom;
       // Keep the right gutter inside the viewport for edge scrolling.
       return Center(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(inset, 0, showResults ? 0 : inset, 16),
+          padding: EdgeInsets.fromLTRB(
+            inset,
+            0,
+            showResults ? 0 : inset,
+            16 + bottomInset,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,7 +335,10 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                     child: SingleChildScrollView(
                       key: const PageStorageKey('image-search-results'),
                       controller: _resultScroll,
-                      padding: EdgeInsets.only(right: inset, bottom: 8),
+                      padding: EdgeInsets.only(
+                        right: inset,
+                        bottom: 8 + bottomInset,
+                      ),
                       child: resultContent,
                     ),
                   ),
@@ -344,7 +354,12 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
         key: const PageStorageKey('image-search-page'),
         controller: _pageScroll,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(padding, 0, padding, 24),
+        padding: EdgeInsets.fromLTRB(
+          padding,
+          0,
+          padding,
+          24 + MediaQuery.paddingOf(context).bottom,
+        ),
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: showResults ? 640 : 520),

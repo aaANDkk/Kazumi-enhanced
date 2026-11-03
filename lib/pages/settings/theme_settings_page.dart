@@ -116,6 +116,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         fontFamily: themeProvider.currentFontFamily,
         brightness: Brightness.dark,
         colorSchemeSeed: color,
+        appBarTheme: appBarThemeForBrightness(Brightness.dark),
         progressIndicatorTheme: progressIndicatorTheme2024,
         sliderTheme: sliderTheme2024,
         pageTransitionsTheme: pageTransitionsTheme2024);
@@ -126,6 +127,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           fontFamily: themeProvider.currentFontFamily,
           brightness: Brightness.light,
           colorSchemeSeed: color,
+          appBarTheme: appBarThemeForBrightness(Brightness.light),
           progressIndicatorTheme: progressIndicatorTheme2024,
           sliderTheme: sliderTheme2024,
           pageTransitionsTheme: pageTransitionsTheme2024),
@@ -141,6 +143,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         fontFamily: themeProvider.currentFontFamily,
         brightness: Brightness.dark,
         colorSchemeSeed: Colors.green,
+        appBarTheme: appBarThemeForBrightness(Brightness.dark),
         progressIndicatorTheme: progressIndicatorTheme2024,
         sliderTheme: sliderTheme2024,
         pageTransitionsTheme: pageTransitionsTheme2024);
@@ -151,6 +154,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           fontFamily: themeProvider.currentFontFamily,
           brightness: Brightness.light,
           colorSchemeSeed: Colors.green,
+          appBarTheme: appBarThemeForBrightness(Brightness.light),
           progressIndicatorTheme: progressIndicatorTheme2024,
           sliderTheme: sliderTheme2024,
           pageTransitionsTheme: pageTransitionsTheme2024),

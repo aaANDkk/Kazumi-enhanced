@@ -372,11 +372,13 @@ class _SearchPageState extends State<SearchPage> {
           backgroundColor: Colors.transparent, title: Text('番剧搜索')),
       body: SafeArea(
           top: false,
+          bottom: false,
           child: LayoutBuilder(builder: (context, constraints) {
             final horizontal = constraints.maxWidth >= 700 ? 32.0 : 20.0;
             final width = math.min(_hasSearched ? 1120.0 : 760.0,
                 constraints.maxWidth - horizontal * 2);
             final inset = (constraints.maxWidth - width) / 2;
+            final bottomInset = MediaQuery.paddingOf(context).bottom;
             final pinSearch = _hasSearched &&
                 constraints.maxHeight >= 420 &&
                 MediaQuery.textScalerOf(context).scale(16) <= 24;
@@ -386,7 +388,12 @@ class _SearchPageState extends State<SearchPage> {
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
                     SliverPadding(
-                      padding: EdgeInsets.fromLTRB(inset, 0, inset, 24),
+                      padding: EdgeInsets.fromLTRB(
+                        inset,
+                        0,
+                        inset,
+                        24 + bottomInset,
+                      ),
                       sliver: SliverMainAxisGroup(slivers: slivers),
                     )
                   ],

@@ -221,6 +221,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
           ],
           body: SafeArea(
             top: false,
+            bottom: false,
             child: Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
@@ -245,7 +246,12 @@ class _PluginViewPageState extends State<PluginViewPage> {
                   final canReorder =
                       query.isEmpty && !_updatesOnly && !_selecting;
                   return ReorderableListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      12,
+                      16,
+                      24 + MediaQuery.paddingOf(context).bottom,
+                    ),
                     buildDefaultDragHandles: false,
                     proxyDecorator: (child, index, animation) => Material(
                         elevation: 0, color: Colors.transparent, child: child),

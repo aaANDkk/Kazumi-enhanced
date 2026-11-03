@@ -58,7 +58,12 @@ class _DownloadPageState extends State<DownloadPage> {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16,
+            16,
+            16 + MediaQuery.paddingOf(context).bottom,
+          ),
           itemCount: recordKeys.length,
           itemBuilder: (context, index) {
             return Center(

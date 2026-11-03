@@ -90,7 +90,12 @@ class _ProxyEditorPageState extends State<ProxyEditorPage> {
     return SettingsDetailScaffold(
       title: const Text('代理配置'),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.fromLTRB(
+          16.0,
+          16.0,
+          16.0,
+          16.0 + MediaQuery.paddingOf(context).bottom,
+        ),
         child: Center(
           child: SizedBox(
             width: (MediaQuery.of(context).size.width > 800) ? 800 : null,

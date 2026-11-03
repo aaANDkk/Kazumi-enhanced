@@ -28,7 +28,7 @@ class VideoPageLayout extends StatelessWidget {
       final hasSidePanel = fillsWindow && !isPip && sidePanel != null;
       return SafeArea(
         top: !fillsWindow,
-        bottom: !fillsWindow,
+        bottom: false,
         left: !fillsWindow,
         right: !fillsWindow,
         child: Stack(

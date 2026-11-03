@@ -233,6 +233,7 @@ class _SettingsPageState extends State<SettingsPage> {
               : null,
           body: SafeArea(
             top: false,
+            bottom: false,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -312,12 +313,13 @@ class _SettingsMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
       child: ListView(
         padding: wide
-            ? const EdgeInsets.fromLTRB(4, 0, 0, 12)
-            : const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            ? EdgeInsets.fromLTRB(4, 0, 0, 12 + bottomInset)
+            : EdgeInsets.fromLTRB(16, 8, 16, 24 + bottomInset),
         children: [
           for (final group in _settingsGroups)
             if (wide) ...[

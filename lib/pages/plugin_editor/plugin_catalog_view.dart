@@ -279,7 +279,12 @@ class _PluginCatalogViewState extends State<PluginCatalogView> {
           SliverPadding(
             padding: widget._onboarding
                 ? EdgeInsets.zero
-                : const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                : EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    24 + MediaQuery.paddingOf(context).bottom,
+                  ),
             sliver: SliverMainAxisGroup(slivers: [
               SliverToBoxAdapter(
                   child: _header(catalog.length, installed, updates)),

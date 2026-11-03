@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kazumi/services/platform/desktop_window_service.dart';
 import 'package:kazumi/services/player/pip_utils.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -201,6 +202,7 @@ class _AppWidgetState extends State<AppWidget>
       brightness: brightness,
       colorSchemeSeed: color,
       colorScheme: colorScheme,
+      appBarTheme: appBarThemeForBrightness(brightness),
       progressIndicatorTheme: progressIndicatorTheme2024,
       sliderTheme: sliderTheme2024,
       pageTransitionsTheme: pageTransitionsTheme2024,
@@ -424,6 +426,17 @@ class _AppWidgetState extends State<AppWidget>
           themeMode: themeProvider.themeMode,
           scaffoldMessengerKey: rootScaffoldMessengerKey,
           routerConfig: ModularApp.routerConfigOf(context),
+          builder: (context, child) {
+            if (child == null) return const SizedBox.shrink();
+            if (!Platform.isAndroid && !Platform.isIOS) return child;
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: systemUiOverlayStyleForBrightness(
+                Theme.of(context).brightness,
+              ),
+              sized: false,
+              child: child,
+            );
+          },
         );
       },
     );
