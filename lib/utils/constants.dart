@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:kazumi/bean/widget/flclash_page_transition.dart';
 import 'package:kazumi/request/config/api_endpoints.dart';
 
 class StyleString {
@@ -27,24 +27,19 @@ const SliderThemeData sliderTheme2024 = SliderThemeData(
 );
 
 const _pageTransitionBuilders = <TargetPlatform, PageTransitionsBuilder>{
-  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-  TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
-  TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-  TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+  TargetPlatform.android: FlClashPageTransitionsBuilder(),
+  TargetPlatform.iOS: FlClashPageTransitionsBuilder(),
+  TargetPlatform.linux: FlClashPageTransitionsBuilder(),
+  TargetPlatform.macOS: FlClashPageTransitionsBuilder(),
+  TargetPlatform.windows: FlClashPageTransitionsBuilder(),
 };
 
 const PageTransitionsTheme pageTransitionsTheme2024 =
     PageTransitionsTheme(builders: _pageTransitionBuilders);
 
 // Applied only to the settings navigator; fullscreen routes use the app theme.
-final PageTransitionsTheme settingsPageTransitionsTheme = PageTransitionsTheme(
-  builders: {
-    ..._pageTransitionBuilders,
-    TargetPlatform.linux: const FadeForwardsPageTransitionsBuilder(),
-    TargetPlatform.windows: const FadeForwardsPageTransitionsBuilder(),
-  },
-);
+const PageTransitionsTheme settingsPageTransitionsTheme =
+    PageTransitionsTheme(builders: _pageTransitionBuilders);
 
 /// Layout breakpoint according to google:
 /// https://developer.android.com/develop/ui/compose/layouts/adaptive/use-window-size-classes.

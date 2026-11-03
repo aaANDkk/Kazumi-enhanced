@@ -24,13 +24,6 @@ import 'package:kazumi/pages/download/download_controller.dart';
 import 'package:kazumi/services/shaders/shader_asset_service.dart';
 import 'package:kazumi/services/sync/danmaku_shield_sync_service.dart';
 
-final _tabTransition = CustomTransition(
-  duration: const Duration(milliseconds: 70),
-  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    return FadeTransition(opacity: animation, child: child);
-  },
-);
-
 final _imagePreviewTransition = CustomTransition(
   duration: const Duration(milliseconds: 220),
   transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -48,7 +41,6 @@ final tabModule = createModule(
       ..route(
         '/',
         child: (context, state) => IndexPage(location: state.uri.path),
-        transition: _tabTransition,
         children: (sub) {
           sub
             ..route(
