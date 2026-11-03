@@ -29,18 +29,19 @@ class _BangumiInfoCardVState extends State<BangumiInfoCardV> {
 
   Widget get voteBarChart {
     return Flexible(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '  评分透视:',
-          ),
-          SizedBox(height: 16),
-          AspectRatio(
-            aspectRatio: 2,
-            child: BarChart(
-              duration: Duration(milliseconds: 80),
-              BarChartData(
+      child: RepaintBoundary(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '  评分透视:',
+            ),
+            const SizedBox(height: 16),
+            AspectRatio(
+              aspectRatio: 2,
+              child: BarChart(
+                duration: Duration.zero,
+                BarChartData(
                 // alignment: BarChartAlignment.spaceEvenly,
                 borderData: FlBorderData(show: false),
                 gridData: FlGridData(show: false),
@@ -113,7 +114,7 @@ class _BangumiInfoCardVState extends State<BangumiInfoCardV> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   @override

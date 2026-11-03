@@ -43,15 +43,11 @@ class NetworkImgLayer extends StatelessWidget {
   ) {
     final fromHero = fromHeroContext.widget as Hero;
     final toHero = toHeroContext.widget as Hero;
-    final heroContext = flightDirection == HeroFlightDirection.push
-        ? fromHeroContext
-        : toHeroContext;
     final hero =
         flightDirection == HeroFlightDirection.push ? fromHero : toHero;
 
-    return InheritedTheme.captureAll(
-      heroContext,
-      Material(
+    return RepaintBoundary(
+      child: Material(
         type: MaterialType.transparency,
         child: hero.child,
       ),

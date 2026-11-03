@@ -415,10 +415,12 @@ class _InfoPageState extends State<InfoPage>
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     16, kToolbarHeight, 16, 0),
-                                child: BangumiInfoCardV(
-                                  bangumiItem: infoController.bangumiItem,
-                                  isLoading: showBangumiInfoSkeleton,
-                                  showRating: showRating,
+                                child: RepaintBoundary(
+                                  child: BangumiInfoCardV(
+                                    bangumiItem: infoController.bangumiItem,
+                                    isLoading: showBangumiInfoSkeleton,
+                                    showRating: showRating,
+                                  ),
                                 ),
                               ),
                             ),
@@ -483,11 +485,8 @@ class _InfoHeaderBackground extends StatelessWidget {
     required this.imageUrl,
   });
 
-  static const double _downsample = 0.5;
-  static const double _blurSigma = 15.0;
-  static const double _opacity = 0.4;
-  static const double _edgeBleed = 32.0;
-  static const double _bottomFeatherHeight = 48.0;
+  static const double _blurSigma = 16.0;
+  static const double _opacity = 0.35;
 
   final String imageUrl;
 
@@ -497,90 +496,47 @@ class _InfoHeaderBackground extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final height = constraints.maxHeight;
-        if (width <= 0 || height <= 0) {
-          return const SizedBox.shrink();
-        }
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
-        final rasterWidth = width * _downsample;
-        final rasterHeight = (height + _edgeBleed) * _downsample;
-
-        final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-        return ClipRect(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Colors.transparent,
-                    ],
-                    stops: [0.8, 1],
-                  ).createShader(bounds);
-                },
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: RepaintBoundary(
-                    child: Transform.scale(
-                      scale: 1 / _downsample,
-                      alignment: Alignment.topCenter,
-                      filterQuality: FilterQuality.low,
-                      child: SizedBox(
-                        width: rasterWidth,
-                        height: rasterHeight,
-                        child: ImageFiltered(
-                          imageFilter: ImageFilter.blur(
-                            sigmaX: _blurSigma * _downsample,
-                            sigmaY: _blurSigma * _downsample,
-                          ),
-                          child: NetworkImgLayer(
-                            src: imageUrl,
-                            width: rasterWidth,
-                            height: rasterHeight,
-                            fadeInDuration: Duration.zero,
-                            fadeOutDuration: Duration.zero,
-                            filterQuality: FilterQuality.low,
-                            color: Colors.white.withValues(alpha: _opacity),
-                            colorBlendMode: BlendMode.modulate,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+    return RepaintBoundary(
+      child: ClipRect(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: _blurSigma,
+                sigmaY: _blurSigma,
+              ),
+              child: NetworkImgLayer(
+                src: imageUrl,
+                width: 360,
+                height: 240,
+                fit: BoxFit.cover,
+                fadeInDuration: Duration.zero,
+                fadeOutDuration: Duration.zero,
+                filterQuality: FilterQuality.low,
+                color: Colors.white.withValues(alpha: _opacity),
+                colorBlendMode: BlendMode.modulate,
+              ),
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    backgroundColor.withValues(alpha: 0.05),
+                    backgroundColor.withValues(alpha: 0.65),
+                    backgroundColor,
+                  ],
+                  stops: const [0.0, 0.75, 1.0],
                 ),
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: _bottomFeatherHeight,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        backgroundColor.withValues(alpha: 0),
-                        backgroundColor.withValues(alpha: 0.55),
-                        backgroundColor,
-                      ],
-                      stops: const [0, 0.72, 1],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
