@@ -6,13 +6,13 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 
 /// Critically damped spring tuned for secondary page card transitions so that
-/// push (450ms) and pop (400ms) start with zero dead-zone and decelerate
-/// smoothly across the full transition duration.
+/// push (375ms) and pop (350ms) balance crisp initial velocity with smooth
+/// settling deceleration.
 final SpringDescription _pushSpring = SpringDescription.withDurationAndBounce(
-  duration: const Duration(milliseconds: 420),
+  duration: const Duration(milliseconds: 360),
 );
-const double _pushSpeed = 3.2;
-const double _springSeconds = 0.42;
+const double _pushSpeed = 6.1;
+const double _springSeconds = 0.36;
 
 final SpringSimulation _pushSimulation = SpringSimulation(
   _pushSpring,
@@ -148,14 +148,14 @@ class FlClashPageTransitionsBuilder extends PageTransitionsBuilder {
   const FlClashPageTransitionsBuilder();
 
   static final Animatable<double> _rootFadeTween = CurveTween(
-    curve: const Interval(0.0, 70 / 450),
+    curve: const Interval(0.0, 70 / 375),
   );
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 450);
+  Duration get transitionDuration => const Duration(milliseconds: 375);
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 400);
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 350);
 
   @override
   Widget buildTransitions<T>(
