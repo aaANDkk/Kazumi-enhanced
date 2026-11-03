@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -8,7 +8,6 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:kazumi/bean/appbar/drag_to_move_bar.dart' as dtb;
 import 'package:kazumi/bean/card/bangumi_info_card.dart';
-import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/bean/dialog/adaptive_bottom_sheet.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/collect_button.dart';
@@ -16,6 +15,7 @@ import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/pages/info/info_actions_menu.dart';
 import 'package:kazumi/pages/info/info_controller.dart';
+import 'package:kazumi/pages/info/info_header_background.dart';
 import 'package:kazumi/pages/info/info_tabview.dart';
 import 'package:kazumi/pages/info/rating_review_dialog.dart';
 import 'package:kazumi/pages/info/source_sheet.dart';
@@ -50,8 +50,9 @@ class _InfoPageState extends State<InfoPage>
     '关联',
     '制作人员',
   ];
-  static const Duration _minimumBangumiInfoLoadingDuration =
-      Duration(milliseconds: 600);
+  static const Duration _minimumBangumiInfoLoadingDuration = Duration(
+    milliseconds: 600,
+  );
 
   InfoController get infoController => widget.infoController;
   late final TabController infoTabController;
@@ -67,6 +68,10 @@ class _InfoPageState extends State<InfoPage>
   bool staffQueryTimeout = false;
   bool staffIsEmpty = false;
   bool _showBangumiInfoSkeleton = false;
+  Animation<double>? _routeAnimation;
+  bool _entranceComplete = false;
+  bool _pageMoving = true;
+  bool _initialLoadStarted = false;
 
   bool get _isShowingBangumiInfoSkeleton =>
       infoController.isLoading || _showBangumiInfoSkeleton;
@@ -86,8 +91,9 @@ class _InfoPageState extends State<InfoPage>
       charactersIsEmpty = false;
     });
     try {
-      await infoController
-          .queryBangumiCharactersByID(infoController.bangumiItem.id);
+      await infoController.queryBangumiCharactersByID(
+        infoController.bangumiItem.id,
+      );
       if (mounted) {
         setState(() {
           charactersIsLoading = false;
@@ -115,8 +121,9 @@ class _InfoPageState extends State<InfoPage>
       staffIsEmpty = false;
     });
     try {
-      await infoController
-          .queryBangumiStaffsByID(infoController.bangumiItem.id);
+      await infoController.queryBangumiStaffsByID(
+        infoController.bangumiItem.id,
+      );
       if (mounted) {
         setState(() {
           staffIsLoading = false;
@@ -138,8 +145,9 @@ class _InfoPageState extends State<InfoPage>
 
   Future<void> loadRelations() async {
     try {
-      await infoController
-          .queryBangumiRelationsByID(infoController.bangumiItem.id);
+      await infoController.queryBangumiRelationsByID(
+        infoController.bangumiItem.id,
+      );
     } catch (e) {
       KazumiLogger().e('InfoPage: failed to load relations', error: e);
     }
@@ -153,8 +161,9 @@ class _InfoPageState extends State<InfoPage>
     });
     try {
       await infoController.queryBangumiCommentsByID(
-          infoController.bangumiItem.id,
-          refresh: !loadMore);
+        infoController.bangumiItem.id,
+        refresh: !loadMore,
+      );
       if (mounted) {
         setState(() {
           commentsIsLoading = false;
@@ -173,14 +182,16 @@ class _InfoPageState extends State<InfoPage>
   }
 
   Future<void> _openReviewEditor() async {
-    final token =
-        GStorage.getSetting(SettingsKeys.bangumiAccessToken).toString().trim();
+    final token = GStorage.getSetting(SettingsKeys.bangumiAccessToken)
+        .toString()
+        .trim();
     if (token.isEmpty) {
       KazumiDialog.showToast(message: '请先在同步设置中绑定 Bangumi');
       return;
     }
-    final localType = infoController.collectController
-        .getCollectType(infoController.bangumiItem);
+    final localType = infoController.collectController.getCollectType(
+      infoController.bangumiItem,
+    );
     if (localType == 0) {
       KazumiDialog.showToast(message: '请先追番');
       return;
@@ -215,11 +226,43 @@ class _InfoPageState extends State<InfoPage>
     infoController.pluginSearchResponseList.clear();
     if (_needsBangumiInfoRefresh(infoController.bangumiItem)) {
       _showBangumiInfoSkeleton = true;
-      _loadBangumiInfo();
     }
     infoTabController = TabController(length: _infoTabs.length, vsync: this);
     showRating = GStorage.getSetting(SettingsKeys.showRating);
     infoTabController.addListener(onInfoTabChanged);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = ModalRoute.of(context)?.animation;
+    if (!identical(animation, _routeAnimation)) {
+      _routeAnimation?.removeStatusListener(_onRouteStatus);
+      _routeAnimation = animation;
+      animation?.addStatusListener(_onRouteStatus);
+    }
+    _updateTransitionState();
+  }
+
+  void _onRouteStatus(AnimationStatus status) {
+    setState(_updateTransitionState);
+  }
+
+  void _updateTransitionState() {
+    _pageMoving = _routeAnimation != null && !_routeAnimation!.isCompleted;
+    if (_pageMoving) return;
+    _entranceComplete = true;
+    if (_initialLoadStarted) return;
+    _initialLoadStarted = true;
+    // A quick/cache-hit response also updates collection observers underneath
+    // this route. Start after the entrance, never in the first transition frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          _routeAnimation?.status != AnimationStatus.reverse &&
+          _showBangumiInfoSkeleton) {
+        _loadBangumiInfo();
+      }
+    });
   }
 
   void onInfoTabChanged() {
@@ -248,8 +291,9 @@ class _InfoPageState extends State<InfoPage>
 
   Future<void> onCommentsTabSelected() async {
     final interest = infoController.bangumiItem.interest;
-    final token =
-        GStorage.getSetting(SettingsKeys.bangumiAccessToken).toString().trim();
+    final token = GStorage.getSetting(SettingsKeys.bangumiAccessToken)
+        .toString()
+        .trim();
     if (interest != null && token.isNotEmpty) {
       final updated = await infoController.fillInterestUserProfileIfNeeded();
       if (!mounted) return;
@@ -267,6 +311,7 @@ class _InfoPageState extends State<InfoPage>
 
   @override
   void dispose() {
+    _routeAnimation?.removeStatusListener(_onRouteStatus);
     infoTabController.removeListener(onInfoTabChanged);
     infoController.characterList.clear();
     infoController.clearComments();
@@ -286,8 +331,10 @@ class _InfoPageState extends State<InfoPage>
         type: 'attach',
       );
     } catch (e) {
-      KazumiLogger()
-          .e('InfoPage: failed to query bangumi info by ID', error: e);
+      KazumiLogger().e(
+        'InfoPage: failed to query bangumi info by ID',
+        error: e,
+      );
     } finally {
       if (mounted) {
         await _waitForMinimumBangumiInfoLoadingDuration(loadingStartedAt);
@@ -321,7 +368,8 @@ class _InfoPageState extends State<InfoPage>
   }
 
   Future<void> _waitForMinimumBangumiInfoLoadingDuration(
-      DateTime loadingStartedAt) async {
+    DateTime loadingStartedAt,
+  ) async {
     final elapsed = DateTime.now().difference(loadingStartedAt);
     final remaining = _minimumBangumiInfoLoadingDuration - elapsed;
     if (remaining > Duration.zero) {
@@ -334,208 +382,171 @@ class _InfoPageState extends State<InfoPage>
     final showWindowButton = DesktopWindowConfig.showWindowButton;
     final topOffset = Platform.isMacOS && showWindowButton ? 22.0 : 0.0;
     return Scaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverOverlapAbsorber(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-              sliver: SliverAppBar.medium(
-                title: EmbeddedNativeControlArea(
-                  child: dtb.DragToMoveArea(
-                    child: Container(
-                      width: double.infinity,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        infoController.bangumiItem.nameCn == ''
-                            ? infoController.bangumiItem.name
-                            : infoController.bangumiItem.nameCn,
+      body: TickerMode(
+        // Skeleton shimmer must not invalidate the page's retained layer on
+        // every frame while the route (and its cover Hero) is sliding.
+        enabled: !_pageMoving,
+        child: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                  context,
+                ),
+                sliver: SliverAppBar.medium(
+                  title: EmbeddedNativeControlArea(
+                    child: dtb.DragToMoveArea(
+                      child: Container(
+                        width: double.infinity,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          infoController.bangumiItem.nameCn == ''
+                              ? infoController.bangumiItem.name
+                              : infoController.bangumiItem.nameCn,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                automaticallyImplyLeading: false,
-                scrolledUnderElevation: 0.0,
-                leading: EmbeddedNativeControlArea(
-                  child: IconButton(
-                    onPressed: () {
-                      context.maybePop();
-                    },
-                    icon: Icon(Icons.arrow_back),
+                  automaticallyImplyLeading: false,
+                  scrolledUnderElevation: 0.0,
+                  leading: EmbeddedNativeControlArea(
+                    child: IconButton(
+                      onPressed: () {
+                        context.maybePop();
+                      },
+                      icon: Icon(Icons.arrow_back),
+                    ),
                   ),
-                ),
-                actions: [
-                  if (innerBoxIsScrolled)
+                  actions: [
+                    if (innerBoxIsScrolled)
+                      EmbeddedNativeControlArea(
+                        child: CollectButton(
+                          bangumiItem: infoController.bangumiItem,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     EmbeddedNativeControlArea(
-                      child: CollectButton(
+                      child: InfoActionsMenu(
                         bangumiItem: infoController.bangumiItem,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  EmbeddedNativeControlArea(
-                    child: InfoActionsMenu(
-                      bangumiItem: infoController.bangumiItem,
-                    ),
-                  ),
-                  if (isDesktop() && !showWindowButton)
-                    CloseButton(onPressed: () => windowManager.close()),
-                  SizedBox(width: 8),
-                ],
-                toolbarHeight: kToolbarHeight + topOffset,
-                stretch: true,
-                centerTitle: false,
-                expandedHeight:
-                    308 + kTextTabBarHeight + kToolbarHeight + topOffset,
-                collapsedHeight: kTextTabBarHeight +
-                    kToolbarHeight +
-                    MediaQuery.paddingOf(context).top +
-                    topOffset,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.pin,
-                  background: Observer(builder: (context) {
-                    final showBangumiInfoSkeleton =
-                        _isShowingBangumiInfoSkeleton;
-                    return Stack(
-                      children: [
-                        if (!showBangumiInfoSkeleton)
-                          Positioned.fill(
-                            bottom: kTextTabBarHeight,
-                            child: IgnorePointer(
-                              child: _InfoHeaderBackground(
-                                imageUrl: infoController
-                                        .bangumiItem.images['large'] ??
-                                    '',
+                    if (isDesktop() && !showWindowButton)
+                      CloseButton(onPressed: () => windowManager.close()),
+                    SizedBox(width: 8),
+                  ],
+                  toolbarHeight: kToolbarHeight + topOffset,
+                  stretch: true,
+                  centerTitle: false,
+                  expandedHeight:
+                      308 + kTextTabBarHeight + kToolbarHeight + topOffset,
+                  collapsedHeight:
+                      kTextTabBarHeight +
+                      kToolbarHeight +
+                      MediaQuery.paddingOf(context).top +
+                      topOffset,
+                  flexibleSpace: FlexibleSpaceBar(
+                    collapseMode: CollapseMode.pin,
+                    background: Observer(
+                      builder: (context) {
+                        final showBangumiInfoSkeleton =
+                            _isShowingBangumiInfoSkeleton;
+                        return Stack(
+                          children: [
+                            if (_entranceComplete &&
+                                !showBangumiInfoSkeleton &&
+                                (infoController.bangumiItem.images['large'] ??
+                                        '')
+                                    .isNotEmpty)
+                              Positioned.fill(
+                                bottom: kTextTabBarHeight,
+                                child: IgnorePointer(
+                                  child: InfoHeaderBackground(
+                                    image: CachedNetworkImageProvider(
+                                      infoController
+                                          .bangumiItem
+                                          .images['large']!,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        SafeArea(
-                          bottom: false,
-                          child: EmbeddedNativeControlArea(
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                    16, kToolbarHeight, 16, 0),
-                                child: RepaintBoundary(
-                                  child: BangumiInfoCardV(
-                                    bangumiItem: infoController.bangumiItem,
-                                    isLoading: showBangumiInfoSkeleton,
-                                    showRating: showRating,
+                            SafeArea(
+                              bottom: false,
+                              child: EmbeddedNativeControlArea(
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      kToolbarHeight,
+                                      16,
+                                      0,
+                                    ),
+                                    child: RepaintBoundary(
+                                      child: BangumiInfoCardV(
+                                        bangumiItem: infoController.bangumiItem,
+                                        isLoading: showBangumiInfoSkeleton,
+                                        showRating: showRating,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-                forceElevated: innerBoxIsScrolled,
-                bottom: TabBar(
-                  controller: infoTabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.center,
-                  dividerHeight: 0,
-                  tabs: _infoTabs.map((name) => Tab(text: name)).toList(),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  forceElevated: innerBoxIsScrolled,
+                  bottom: TabBar(
+                    controller: infoTabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.center,
+                    dividerHeight: 0,
+                    tabs: _infoTabs.map((name) => Tab(text: name)).toList(),
+                  ),
                 ),
               ),
-            ),
-          ];
-        },
-        body: Observer(builder: (context) {
-          final showBangumiInfoSkeleton = _isShowingBangumiInfoSkeleton;
-          return InfoTabView(
-            tabController: infoTabController,
-            bangumiItem: infoController.bangumiItem,
-            commentsQueryTimeout: commentsQueryTimeout,
-            commentsHasLoaded: commentsHasLoaded,
-            charactersQueryTimeout: charactersQueryTimeout,
-            charactersIsEmpty: charactersIsEmpty,
-            staffQueryTimeout: staffQueryTimeout,
-            staffIsEmpty: staffIsEmpty,
-            loadMoreComments: loadMoreComments,
-            loadCharacters: loadCharacters,
-            loadStaff: loadStaff,
-            commentsList: infoController.commentsList.toList(growable: false),
-            commentsIsLoading: commentsIsLoading,
-            onWriteReview: _openReviewEditor,
-            characterList: infoController.characterList,
-            staffList: infoController.staffList,
-            relationList: infoController.relationList,
-            relationsIsLoading: infoController.relationsIsLoading,
-            relationsQueryTimeout: infoController.relationsQueryTimeout,
-            relationsHasLoaded: infoController.relationsHasLoaded,
-            loadRelations: loadRelations,
-            isLoading: showBangumiInfoSkeleton,
-          );
-        }),
+            ];
+          },
+          body: Observer(
+            builder: (context) {
+              final showBangumiInfoSkeleton = _isShowingBangumiInfoSkeleton;
+              return InfoTabView(
+                tabController: infoTabController,
+                bangumiItem: infoController.bangumiItem,
+                commentsQueryTimeout: commentsQueryTimeout,
+                commentsHasLoaded: commentsHasLoaded,
+                charactersQueryTimeout: charactersQueryTimeout,
+                charactersIsEmpty: charactersIsEmpty,
+                staffQueryTimeout: staffQueryTimeout,
+                staffIsEmpty: staffIsEmpty,
+                loadMoreComments: loadMoreComments,
+                loadCharacters: loadCharacters,
+                loadStaff: loadStaff,
+                commentsList: infoController.commentsList.toList(
+                  growable: false,
+                ),
+                commentsIsLoading: commentsIsLoading,
+                onWriteReview: _openReviewEditor,
+                characterList: infoController.characterList,
+                staffList: infoController.staffList,
+                relationList: infoController.relationList,
+                relationsIsLoading: infoController.relationsIsLoading,
+                relationsQueryTimeout: infoController.relationsQueryTimeout,
+                relationsHasLoaded: infoController.relationsHasLoaded,
+                loadRelations: loadRelations,
+                isLoading: showBangumiInfoSkeleton,
+              );
+            },
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         tooltip: '开始观看',
         onPressed: _startWatching,
         label: const Text('开始观看'),
         icon: const Icon(Icons.play_arrow_rounded),
-      ),
-    );
-  }
-}
-
-class _InfoHeaderBackground extends StatelessWidget {
-  const _InfoHeaderBackground({
-    required this.imageUrl,
-  });
-
-  static const double _blurSigma = 16.0;
-  static const double _opacity = 0.35;
-
-  final String imageUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    if (imageUrl.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-    return RepaintBoundary(
-      child: ClipRect(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: _blurSigma,
-                sigmaY: _blurSigma,
-              ),
-              child: NetworkImgLayer(
-                src: imageUrl,
-                width: 360,
-                height: 240,
-                fit: BoxFit.cover,
-                fadeInDuration: Duration.zero,
-                fadeOutDuration: Duration.zero,
-                filterQuality: FilterQuality.low,
-                color: Colors.white.withValues(alpha: _opacity),
-                colorBlendMode: BlendMode.modulate,
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    backgroundColor.withValues(alpha: 0.05),
-                    backgroundColor.withValues(alpha: 0.65),
-                    backgroundColor,
-                  ],
-                  stops: const [0.0, 0.75, 1.0],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
