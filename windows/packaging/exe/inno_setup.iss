@@ -4,7 +4,7 @@
 #define MyAppExeName "kazumi.exe"
 
 #ifndef AppVersion
-  #define AppVersion "2.3.9"
+  #define AppVersion "2.4.2"
 #endif
 
 #ifndef OutputBaseFilename
