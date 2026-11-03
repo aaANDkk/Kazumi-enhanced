@@ -12,6 +12,7 @@ import 'package:kazumi/bean/dialog/adaptive_bottom_sheet.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/collect_button.dart';
 import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
+import 'package:kazumi/bean/widget/route_entrance.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/pages/info/info_actions_menu.dart';
 import 'package:kazumi/pages/info/info_controller.dart';
@@ -68,10 +69,6 @@ class _InfoPageState extends State<InfoPage>
   bool staffQueryTimeout = false;
   bool staffIsEmpty = false;
   bool _showBangumiInfoSkeleton = false;
-  Animation<double>? _routeAnimation;
-  bool _entranceComplete = false;
-  bool _pageMoving = true;
-  bool _initialLoadStarted = false;
 
   bool get _isShowingBangumiInfoSkeleton =>
       infoController.isLoading || _showBangumiInfoSkeleton;
@@ -232,39 +229,6 @@ class _InfoPageState extends State<InfoPage>
     infoTabController.addListener(onInfoTabChanged);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final animation = ModalRoute.of(context)?.animation;
-    if (!identical(animation, _routeAnimation)) {
-      _routeAnimation?.removeStatusListener(_onRouteStatus);
-      _routeAnimation = animation;
-      animation?.addStatusListener(_onRouteStatus);
-    }
-    _updateTransitionState();
-  }
-
-  void _onRouteStatus(AnimationStatus status) {
-    setState(_updateTransitionState);
-  }
-
-  void _updateTransitionState() {
-    _pageMoving = _routeAnimation != null && !_routeAnimation!.isCompleted;
-    if (_pageMoving) return;
-    _entranceComplete = true;
-    if (_initialLoadStarted) return;
-    _initialLoadStarted = true;
-    // A quick/cache-hit response also updates collection observers underneath
-    // this route. Start after the entrance, never in the first transition frame.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted &&
-          _routeAnimation?.status != AnimationStatus.reverse &&
-          _showBangumiInfoSkeleton) {
-        _loadBangumiInfo();
-      }
-    });
-  }
-
   void onInfoTabChanged() {
     final index = infoTabController.index;
     if (index == 1) {
@@ -311,7 +275,6 @@ class _InfoPageState extends State<InfoPage>
 
   @override
   void dispose() {
-    _routeAnimation?.removeStatusListener(_onRouteStatus);
     infoTabController.removeListener(onInfoTabChanged);
     infoController.characterList.clear();
     infoController.clearComments();
@@ -378,14 +341,21 @@ class _InfoPageState extends State<InfoPage>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RouteEntrance(
+    onEntered: () {
+      if (_showBangumiInfoSkeleton) _loadBangumiInfo();
+    },
+    builder: _buildPage,
+  );
+
+  Widget _buildPage(BuildContext context, bool hasEntered) {
     final showWindowButton = DesktopWindowConfig.showWindowButton;
     final topOffset = Platform.isMacOS && showWindowButton ? 22.0 : 0.0;
     return Scaffold(
       body: TickerMode(
         // Skeleton shimmer must not invalidate the page's retained layer on
         // every frame while the route (and its cover Hero) is sliding.
-        enabled: !_pageMoving,
+        enabled: hasEntered,
         child: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
@@ -449,10 +419,10 @@ class _InfoPageState extends State<InfoPage>
                     background: Observer(
                       builder: (context) {
                         final showBangumiInfoSkeleton =
-                            _isShowingBangumiInfoSkeleton;
+                            !hasEntered || _isShowingBangumiInfoSkeleton;
                         return Stack(
                           children: [
-                            if (_entranceComplete &&
+                            if (hasEntered &&
                                 !showBangumiInfoSkeleton &&
                                 (infoController.bangumiItem.images['large'] ??
                                         '')
@@ -511,7 +481,8 @@ class _InfoPageState extends State<InfoPage>
           },
           body: Observer(
             builder: (context) {
-              final showBangumiInfoSkeleton = _isShowingBangumiInfoSkeleton;
+              final showBangumiInfoSkeleton =
+                  !hasEntered || _isShowingBangumiInfoSkeleton;
               return InfoTabView(
                 tabController: infoTabController,
                 bangumiItem: infoController.bangumiItem,

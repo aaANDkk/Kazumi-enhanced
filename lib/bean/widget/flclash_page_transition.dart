@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 
@@ -29,8 +30,7 @@ double _springTransform(double t) {
   if (t >= 1.0) {
     return 1.0;
   }
-  final value =
-      _pushSimulation.x(t * _springSeconds) + _springResidual * t;
+  final value = _pushSimulation.x(t * _springSeconds) + _springResidual * t;
   return value.clamp(0.0, 1.0);
 }
 
@@ -58,10 +58,7 @@ BorderRadius _displayRadiusOf(BuildContext context) =>
 /// progress, tracks the finger linearly (`1:1`).
 class _SpringPageAnimation extends Animation<double>
     with AnimationWithParentMixin<double> {
-  _SpringPageAnimation({
-    required this.parent,
-    this.navigator,
-  });
+  _SpringPageAnimation({required this.parent, this.navigator});
 
   @override
   final Animation<double> parent;
@@ -98,7 +95,8 @@ class _SpringPageAnimation extends Animation<double>
         if (_lastDirection == AnimationStatus.forward) {
           final span = 1.0 - _rawStart;
           final localT = span > 1e-6 ? (raw - _rawStart) / span : 1.0;
-          _transformedStart = _transformedStart +
+          _transformedStart =
+              _transformedStart +
               (1.0 - _transformedStart) * _springTransform(localT);
           _rawStart = raw;
         } else {
@@ -112,8 +110,10 @@ class _SpringPageAnimation extends Animation<double>
         return 0.0;
       }
       final localT = ((_rawStart - raw) / span).clamp(0.0, 1.0);
-      return (_transformedStart * (1.0 - _springTransform(localT)))
-          .clamp(0.0, 1.0);
+      return (_transformedStart * (1.0 - _springTransform(localT))).clamp(
+        0.0,
+        1.0,
+      );
     }
 
     if (_lastDirection != AnimationStatus.forward) {
@@ -180,7 +180,12 @@ class FlClashPageTransitionsBuilder extends PageTransitionsBuilder {
         settledFill: Colors.transparent,
         child: FadeTransition(
           opacity: animation.drive(_rootFadeTween),
-          child: RepaintBoundary(child: child),
+          child: _TransitionSnapshot(
+            route: route,
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            child: child,
+          ),
         ),
       );
     }
@@ -195,9 +200,92 @@ class FlClashPageTransitionsBuilder extends PageTransitionsBuilder {
       secondaryAnimation: effectiveSecondary,
       radius: _displayRadiusOf(context),
       settledFill: Colors.transparent,
-      child: RepaintBoundary(child: child),
+      child: _TransitionSnapshot(
+        route: route,
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      ),
     );
   }
+}
+
+/// A retained display list does not freeze image fades, ink effects or child
+/// repaints. Move one rasterized page during the transition instead. Start
+/// after the first frame so HeroController can install its placeholders first.
+class _TransitionSnapshot extends StatefulWidget {
+  const _TransitionSnapshot({
+    required this.route,
+    required this.animation,
+    required this.secondaryAnimation,
+    required this.child,
+  });
+
+  final PageRoute<dynamic> route;
+  final Animation<double> animation;
+  final Animation<double> secondaryAnimation;
+  final Widget child;
+
+  @override
+  State<_TransitionSnapshot> createState() => _TransitionSnapshotState();
+}
+
+class _TransitionSnapshotState extends State<_TransitionSnapshot> {
+  final _controller = SnapshotController();
+
+  void _listen(_TransitionSnapshot widget) {
+    widget.animation.addListener(_updateSnapshot);
+    widget.secondaryAnimation.addListener(_updateSnapshot);
+  }
+
+  void _unlisten(_TransitionSnapshot widget) {
+    widget.animation.removeListener(_updateSnapshot);
+    widget.secondaryAnimation.removeListener(_updateSnapshot);
+  }
+
+  bool _inFlight(Animation<double> animation) =>
+      animation.isAnimating && animation.value > 0 && animation.value < 1;
+
+  void _updateSnapshot() {
+    _controller.allowSnapshotting =
+        !kIsWeb &&
+        widget.route.allowSnapshotting &&
+        !widget.route.offstage &&
+        (_inFlight(widget.animation) || _inFlight(widget.secondaryAnimation));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _listen(widget);
+    _updateSnapshot();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TransitionSnapshot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation != widget.animation ||
+        oldWidget.secondaryAnimation != widget.secondaryAnimation) {
+      _unlisten(oldWidget);
+      _listen(widget);
+    }
+    _updateSnapshot();
+  }
+
+  @override
+  void dispose() {
+    _unlisten(widget);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SnapshotWidget(
+    controller: _controller,
+    mode: SnapshotMode.permissive,
+    autoresize: true,
+    child: RepaintBoundary(child: widget.child),
+  );
 }
 
 /// Moves the page by painting alone, so it is neither rebuilt nor laid out
@@ -262,15 +350,15 @@ class _RenderCardTransition extends RenderProxyBox {
     required bool shadow,
     required TextDirection textDirection,
     required double devicePixelRatio,
-  })  : _animation = animation,
-        _secondaryAnimation = secondaryAnimation,
-        _radius = radius,
-        _settledFill = settledFill,
-        _surface = surface,
-        _backdrop = backdrop,
-        _shadow = shadow,
-        _textDirection = textDirection,
-        _devicePixelRatio = devicePixelRatio;
+  }) : _animation = animation,
+       _secondaryAnimation = secondaryAnimation,
+       _radius = radius,
+       _settledFill = settledFill,
+       _surface = surface,
+       _backdrop = backdrop,
+       _shadow = shadow,
+       _textDirection = textDirection,
+       _devicePixelRatio = devicePixelRatio;
 
   Animation<double> _animation;
   set animation(Animation<double> value) {

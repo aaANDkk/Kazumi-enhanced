@@ -23,7 +23,24 @@ env:
   KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
 jobs:
+  validate-release-tag:
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Require the app version tag
+        run: |
+          version=$(sed -n 's/^version: *\([^+ ]*\).*/\1/p' pubspec.yaml)
+          if [[ "$GITHUB_REF" != "refs/tags/$version" ]]; then
+            echo "::error::Release must run from tag $version. Delete the old release and tag, then push the updated version tag."
+            exit 1
+          fi
+        shell: bash
+
   flutter-test:
+    needs: validate-release-tag
     runs-on: "ubuntu-latest"
     permissions:
       contents: read
@@ -48,6 +65,7 @@ jobs:
         shell: bash
 
   flutter-analyze:
+    needs: validate-release-tag
     runs-on: "ubuntu-latest"
     permissions:
       contents: read
