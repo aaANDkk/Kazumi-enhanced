@@ -131,16 +131,60 @@ jobs:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'kazumi123' }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'kazumi123' }}
         run: |
-          if [ -z "$SIGNING_KEY_BASE64" ]; then
-            echo "::error::Missing Android signing secret (expected KAZUMI, SIGNING_KEY_BASE64, or KEYSTORE)."
+          python3 - <<'PY'
+          import base64
+          import os
+          import re
+          import sys
+
+          raw = os.environ.get("SIGNING_KEY_BASE64", "")
+          if not raw.strip():
+              print("::error::Missing Android signing secret (expected KAZUMI, SIGNING_KEY_BASE64, or KEYSTORE).")
+              sys.exit(1)
+
+          text = raw.lstrip("\ufeff").strip()
+          has_pem = "-----BEGIN" in text
+          text = re.sub(r"-----[^-]+-----", "", text)
+          text = text.strip().strip("\"'")
+          cleaned = re.sub(r"\s+", "", text)
+          cleaned = cleaned.replace("-", "+").replace("_", "/")
+          bad_chars = sorted({c for c in cleaned if c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="})
+          if bad_chars:
+              print(f"::error::SIGNING_KEY_BASE64 contains invalid base64 characters (raw_len={len(raw)}, has_pem={has_pem}, bad_count={len(bad_chars)}).")
+              sys.exit(1)
+          if len(cleaned) % 4 != 0:
+              cleaned += "=" * (4 - len(cleaned) % 4)
+          try:
+              data = base64.b64decode(cleaned, validate=True)
+          except Exception as exc:
+              print(f"::error::Failed to decode SIGNING_KEY_BASE64 (raw_len={len(raw)}, clean_len={len(cleaned)}, has_pem={has_pem}): {exc}")
+              sys.exit(1)
+
+          if not data:
+              print("::error::Decoded Android keystore is empty.")
+              sys.exit(1)
+
+          magic = data[:4].hex()
+          if magic not in ("feedfeed", "cececece") and not magic.startswith("3082"):
+              try:
+                  nested = re.sub(r"\s+", "", data.decode("ascii"))
+                  if len(nested) % 4 != 0:
+                      nested += "=" * (4 - len(nested) % 4)
+                  data2 = base64.b64decode(nested, validate=True)
+                  if data2[:4].hex() in ("feedfeed", "cececece") or data2[:2].hex() == "3082":
+                      data = data2
+                      magic = data[:4].hex()
+              except Exception:
+                  pass
+
+          with open("android/app/kazumi.jks", "wb") as f:
+              f.write(data)
+          print(f"Keystore decoded successfully: {len(data)} bytes (magic={magic}, raw_len={len(raw)}, has_pem={has_pem}).")
+          PY
+          keytool -list -keystore android/app/kazumi.jks -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" || {
+            echo "::error::keytool failed to verify restored android/app/kazumi.jks with alias '$KEY_ALIAS'."
             exit 1
-          fi
-          echo "Restoring keystore from GitHub Secret..."
-          printf '%s' "$SIGNING_KEY_BASE64" | tr -d '\r\n ' | base64 -d > android/app/kazumi.jks
-          if [ ! -s android/app/kazumi.jks ]; then
-            echo "::error::Decoded Android keystore android/app/kazumi.jks is empty."
-            exit 1
-          fi
+          }
           echo "keyAlias=$KEY_ALIAS" > android/key.properties
           echo "storePassword=$STORE_PASSWORD" >> android/key.properties
           echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
