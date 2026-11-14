@@ -13,6 +13,7 @@ import 'package:kazumi/services/player/screenshot_candidate.dart';
 import 'package:kazumi/services/player/screenshot_export_service.dart';
 import 'package:kazumi/services/player/screenshot_image_cache.dart';
 import 'package:mobx/mobx.dart' as mobx;
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 Future<void> showPlayerScreenshotSheet(
   BuildContext context, {
@@ -436,7 +437,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
       IconButton(
         tooltip: '上一张',
         onPressed: _index > 0 ? () => _step(-1) : null,
-        icon: const Icon(Icons.chevron_left_rounded),
+        icon: const AppIcon(Icons.chevron_left_rounded),
       ),
       Text(
         '${_index + 1} / ${collection.candidates.length}',
@@ -447,7 +448,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
         onPressed: _index < collection.candidates.length - 1
             ? () => _step(1)
             : null,
-        icon: const Icon(Icons.chevron_right_rounded),
+        icon: const AppIcon(Icons.chevron_right_rounded),
       ),
     ],
   );
@@ -495,7 +496,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
             enabled: !collection.busy,
             builder: (context, toggle) => IconButton(
               tooltip: '管理截图',
-              icon: const Icon(Icons.more_vert_rounded),
+              icon: const AppIcon(Icons.more_vert_rounded),
               onPressed: toggle,
             ),
             menuChildren: [
@@ -517,7 +518,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
           IconButton(
             tooltip: _zoomed ? '还原大小' : '放大查看',
             onPressed: _toggleZoom,
-            icon: Icon(
+            icon: AppIcon(
               _zoomed ? Icons.zoom_out_rounded : Icons.zoom_in_rounded,
             ),
           ),
@@ -525,7 +526,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
           builder: (context) => IconButton(
             tooltip: '返回播放',
             onPressed: collection.saving ? null : _close,
-            icon: const Icon(Icons.close_rounded),
+            icon: const AppIcon(Icons.close_rounded),
           ),
         ),
       ],
@@ -617,7 +618,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
         child: FilledButton.tonalIcon(
           style: _toggleStyle(selected: selected),
           onPressed: collection.saving ? null : _toggle,
-          icon: Icon(
+          icon: AppIcon(
             selected
                 ? Icons.check_circle_rounded
                 : Icons.radio_button_unchecked_rounded,
@@ -650,7 +651,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
           padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
           child: Row(
             children: [
-              Icon(
+              AppIcon(
                 _noticeError
                     ? Icons.error_outline_rounded
                     : Icons.info_outline_rounded,
@@ -672,7 +673,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                 tooltip: '关闭提示',
                 color: colors.onInverseSurface,
                 onPressed: () => setState(() => _notice = null),
-                icon: const Icon(Icons.close_rounded, size: 20),
+                icon: const AppIcon(Icons.close_rounded, size: 20),
               ),
             ],
           ),
@@ -703,7 +704,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                   dimension: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.save_alt_rounded, size: 20),
+              : const AppIcon(Icons.save_alt_rounded, size: 20),
           label: Text(
             collection.saving
                 ? '${collection.saveCompleted}/${collection.saveTotal}'
@@ -790,7 +791,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
             return FilledButton.tonalIcon(
               style: style,
               onPressed: onPressed,
-              icon: Icon(
+              icon: AppIcon(
                 all ? Icons.deselect_rounded : Icons.select_all_rounded,
                 size: 20,
               ),
@@ -834,7 +835,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          AppIcon(
             Icons.photo_camera_outlined,
             size: 40,
             color: Theme.of(context).colorScheme.primary,
@@ -1032,7 +1033,7 @@ class _FrameThumbnail extends StatelessWidget {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(2),
-                            child: Icon(
+                            child: AppIcon(
                               Icons.check_rounded,
                               size: 14,
                               color: colors.onPrimary,

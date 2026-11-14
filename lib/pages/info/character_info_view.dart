@@ -7,6 +7,7 @@ import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/image_preview.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/modules/character/character_full_item.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class CharacterInfoView extends StatelessWidget {
   const CharacterInfoView({
@@ -275,7 +276,7 @@ class _CharacterPortrait extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.zoom_in_rounded,
+                      AppIcon(Icons.zoom_in_rounded,
                           size: 20, color: colors.primary),
                       const SizedBox(width: 8),
                       Flexible(

@@ -144,7 +144,7 @@ class _AliasPickerDialogState extends State<_AliasPickerDialog> {
                 title: Text(widget.aliases[index]),
                 trailing: IconButton(
                   onPressed: () => _confirmDelete(index),
-                  icon: const Icon(Icons.delete),
+                  icon: const AppIcon(Icons.delete),
                 ),
                 onTap: () => widget.onAliasSelected(widget.aliases[index]),
               ),

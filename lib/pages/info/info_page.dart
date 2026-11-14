@@ -25,6 +25,7 @@ import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/platform/desktop_window_config.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class InfoPage extends StatefulWidget {
   const InfoPage({
@@ -384,7 +385,7 @@ class _InfoPageState extends State<InfoPage>
                       onPressed: () {
                         context.maybePop();
                       },
-                      icon: Icon(Icons.arrow_back),
+                      icon: AppIcon(Icons.arrow_back),
                     ),
                   ),
                   actions: [
@@ -517,7 +518,7 @@ class _InfoPageState extends State<InfoPage>
         tooltip: '开始观看',
         onPressed: _startWatching,
         label: const Text('开始观看'),
-        icon: const Icon(Icons.play_arrow_rounded),
+        icon: const AppIcon(Icons.play_arrow_rounded),
       ),
     );
   }

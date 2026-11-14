@@ -4,6 +4,7 @@ import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/services/network/metered_network_service.dart';
 import 'package:kazumi/services/player/low_memory_mode.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class LowMemoryModeSettingsTile extends StatelessWidget {
   const LowMemoryModeSettingsTile({super.key});
@@ -16,7 +17,7 @@ class LowMemoryModeSettingsTile extends StatelessWidget {
         title: const Text('低内存模式'),
         description: Text(mode.statusDescription(isMetered)),
         value: Text(mode.label),
-        trailing: const Icon(Icons.chevron_right_rounded),
+        trailing: const AppIcon(Icons.chevron_right_rounded),
         onPressed: (_) => KazumiDialog.show<void>(
           builder: (_) => const _LowMemoryModeDialog(),
         ),
@@ -77,7 +78,7 @@ class _LowMemoryModeDialogState extends State<_LowMemoryModeDialog> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      AppIcon(
                         enabled
                             ? Icons.data_saver_on_rounded
                             : Icons.data_usage_rounded,

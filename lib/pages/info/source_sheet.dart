@@ -28,6 +28,7 @@ import 'package:kazumi/services/plugin/rule_engine_models.dart'
 import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/utils/episode_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 part 'source_alias_dialog.dart';
 part 'source_captcha_flow.dart';

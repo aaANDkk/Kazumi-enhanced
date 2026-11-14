@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/pages/onboarding/onboarding_step_layout.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class UpdateSourceStep extends StatelessWidget {
   const UpdateSourceStep({
@@ -95,7 +96,7 @@ class _OptionCard extends StatelessWidget {
           controlAffinity: ListTileControlAffinity.trailing,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          secondary: Icon(icon, size: 28, color: foreground),
+          secondary: AppIcon(icon, size: 28, color: foreground),
           title: Wrap(
             spacing: 10,
             runSpacing: 6,

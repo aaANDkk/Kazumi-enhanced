@@ -11,6 +11,7 @@ import 'package:kazumi/pages/download/download_widgets.dart';
 import 'package:kazumi/pages/video/video_playback_args.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/utils/format.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class DownloadPage extends StatefulWidget {
   const DownloadPage({
@@ -166,7 +167,7 @@ class _DownloadPageState extends State<DownloadPage> {
     switch (episode.status) {
       case DownloadStatus.completed:
         buttons.add(IconButton(
-          icon: Icon(Icons.play_circle_outline,
+          icon: AppIcon(Icons.play_circle_outline,
               size: 20, color: colorScheme.primary),
           onPressed: () => _playEpisode(record, episode),
           tooltip: '播放',
@@ -175,7 +176,7 @@ class _DownloadPageState extends State<DownloadPage> {
         break;
       case DownloadStatus.downloading:
         buttons.add(IconButton(
-          icon: const Icon(Icons.pause_rounded, size: 20),
+          icon: const AppIcon(Icons.pause_rounded, size: 20),
           onPressed: () => downloadController.pauseDownload(
             record.bangumiId,
             record.pluginName,
@@ -187,7 +188,7 @@ class _DownloadPageState extends State<DownloadPage> {
         break;
       case DownloadStatus.paused:
         buttons.add(IconButton(
-          icon: const Icon(Icons.play_arrow_rounded, size: 20),
+          icon: const AppIcon(Icons.play_arrow_rounded, size: 20),
           onPressed: () => downloadController.retryDownload(
             bangumiId: record.bangumiId,
             pluginName: record.pluginName,
@@ -199,7 +200,7 @@ class _DownloadPageState extends State<DownloadPage> {
         break;
       case DownloadStatus.failed:
         buttons.add(IconButton(
-          icon: const Icon(Icons.refresh_rounded, size: 20),
+          icon: const AppIcon(Icons.refresh_rounded, size: 20),
           onPressed: () => downloadController.retryDownload(
             bangumiId: record.bangumiId,
             pluginName: record.pluginName,
@@ -211,7 +212,7 @@ class _DownloadPageState extends State<DownloadPage> {
         break;
       case DownloadStatus.pending:
         buttons.add(IconButton(
-          icon: Icon(Icons.priority_high, size: 20, color: colorScheme.primary),
+          icon: AppIcon(Icons.priority_high, size: 20, color: colorScheme.primary),
           onPressed: () {
             downloadController.priorityDownload(
               bangumiId: record.bangumiId,
@@ -229,7 +230,7 @@ class _DownloadPageState extends State<DownloadPage> {
     }
 
     buttons.add(IconButton(
-      icon: Icon(Icons.delete_outline,
+      icon: AppIcon(Icons.delete_outline,
           size: 20, color: colorScheme.onSurfaceVariant),
       onPressed: () => _confirmDeleteEpisode(record, episode),
       tooltip: '删除',

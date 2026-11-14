@@ -6,6 +6,7 @@ import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 // 视频卡片 - 水平布局
 class BangumiInfoCardV extends StatefulWidget {
@@ -235,7 +236,7 @@ class _BangumiInfoCardVState extends State<BangumiInfoCardV> {
                                                       .toDouble() /
                                                   2
                                               : 0,
-                                          itemBuilder: (context, index) => Icon(
+                                          itemBuilder: (context, index) => AppIcon(
                                             Icons.star_rounded,
                                             color: Theme.of(context)
                                                 .colorScheme

@@ -10,6 +10,7 @@ import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/pages/player/player_controller.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 void showVideoDetailsSheet(
   BuildContext context, {
@@ -199,7 +200,7 @@ class _VideoDetailsSheetState extends State<_VideoDetailsSheet>
           ? null
           : IconButton(
               tooltip: '复制$label',
-              icon: const Icon(Icons.content_copy_rounded, size: 18),
+              icon: const AppIcon(Icons.content_copy_rounded, size: 18),
               onPressed: () => _copyToClipboard(context, value),
             ),
       onTap: value.isEmpty ? null : () => _copyToClipboard(context, value),
@@ -243,7 +244,7 @@ class _VideoDetailsSheetState extends State<_VideoDetailsSheet>
               onPressed: logs.isEmpty
                   ? null
                   : () => _copyToClipboard(context, logs.join('\n')),
-              icon: const Icon(Icons.content_copy_rounded, size: 18),
+              icon: const AppIcon(Icons.content_copy_rounded, size: 18),
               label: const Text('复制全部'),
             ),
           ]),

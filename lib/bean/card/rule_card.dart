@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class RuleCard extends StatelessWidget {
   const RuleCard({
@@ -83,7 +84,7 @@ class RuleCard extends StatelessWidget {
                           borderRadius:
                               BorderRadius.circular(installed ? 24 : 16),
                         ),
-                        child: Icon(
+                        child: AppIcon(
                           selected
                               ? Icons.check_rounded
                               : Icons.extension_rounded,

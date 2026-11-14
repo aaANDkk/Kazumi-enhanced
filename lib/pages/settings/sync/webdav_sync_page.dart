@@ -9,6 +9,7 @@ import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/webdav.dart';
 import 'package:kazumi/services/sync/danmaku_shield_sync_service.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class WebDavSyncPage extends StatefulWidget {
   const WebDavSyncPage({super.key, required this.danmakuShieldSync});
@@ -107,7 +108,7 @@ class _WebDavSyncPageState extends State<WebDavSyncPage> {
                   description: Text(configured
                       ? (host == null || host.isEmpty ? '已保存服务器地址' : host)
                       : '需要支持 WebDAV 的云盘或服务器'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const AppIcon(Icons.chevron_right_rounded),
                   enabled: !_busy,
                   onPressed: (_) => _configure(),
                 ),

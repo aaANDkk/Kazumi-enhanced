@@ -19,6 +19,7 @@ import 'package:kazumi/pages/player/controller/player_danmaku_controller.dart';
 import 'package:kazumi/request/apis/danmaku_api.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 const _episodeToolThreshold = 25;
 const _episodeSegmentSize = 100;
@@ -370,13 +371,13 @@ class _DanmakuSourceSheetState extends State<_DanmakuSourceSheet> {
               onSubmitted: (_) => _searchAnime(),
               decoration: InputDecoration(
                 hintText: '番剧名称',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const AppIcon(Icons.search),
                 suffixIcon: value.text.isEmpty
                     ? null
                     : IconButton(
                         tooltip: '清空',
                         onPressed: () => _keywordController.clear(),
-                        icon: const Icon(Icons.close, size: 18),
+                        icon: const AppIcon(Icons.close, size: 18),
                       ),
               ),
             ),
@@ -404,7 +405,7 @@ class _DanmakuSourceSheetState extends State<_DanmakuSourceSheet> {
                     children: [
                       for (final keyword in _recentKeywords)
                         ActionChip(
-                          avatar: const Icon(Icons.history, size: 16),
+                          avatar: const AppIcon(Icons.history, size: 16),
                           label: Text(keyword),
                           onPressed: () {
                             _keywordController.text = keyword;
@@ -491,7 +492,7 @@ class _DanmakuSourceSheetState extends State<_DanmakuSourceSheet> {
                   subtitle: anime.typeDescription.isEmpty
                       ? null
                       : Text(anime.typeDescription),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const AppIcon(Icons.chevron_right_rounded),
                 ),
               );
             },
@@ -610,7 +611,7 @@ class _SheetHeader extends StatelessWidget {
                 : IconButton(
                     tooltip: '返回',
                     onPressed: onBack,
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const AppIcon(Icons.arrow_back),
                   ),
             onClose: onClose,
             compact: true,
@@ -703,7 +704,7 @@ class _EpisodeToolbar extends StatelessWidget {
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: '标题或集号',
-                      prefixIcon: const Icon(Icons.search, size: 18),
+                      prefixIcon: const AppIcon(Icons.search, size: 18),
                       suffixIcon: searchController.text.isEmpty
                           ? null
                           : IconButton(
@@ -712,7 +713,7 @@ class _EpisodeToolbar extends StatelessWidget {
                                 searchController.clear();
                                 onSearch('');
                               },
-                              icon: const Icon(Icons.close, size: 18),
+                              icon: const AppIcon(Icons.close, size: 18),
                             ),
                     ),
                   ),
@@ -735,7 +736,7 @@ class _EpisodeToolbar extends StatelessWidget {
                       suffixIcon: IconButton(
                         tooltip: '跳转',
                         onPressed: onJump,
-                        icon: const Icon(Icons.arrow_forward, size: 18),
+                        icon: const AppIcon(Icons.arrow_forward, size: 18),
                       ),
                     ),
                   ),

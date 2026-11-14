@@ -39,7 +39,7 @@ class _TimelineOptionsButton extends StatelessWidget {
     final icon = Badge(
       isLabelVisible: filterCount > 0,
       label: Text('$filterCount'),
-      child: const Icon(Icons.tune_rounded, size: 20),
+      child: const AppIcon(Icons.tune_rounded, size: 20),
     );
     return Semantics(
       label: _timelineOptionsTitle,

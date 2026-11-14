@@ -4,6 +4,7 @@ import 'package:kazumi/modules/comments/comment_item.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:kazumi/utils/date_time.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class CommentsCard extends StatelessWidget {
   const CommentsCard({
@@ -103,7 +104,7 @@ class CommentsCard extends StatelessWidget {
                 RatingBarIndicator(
                   itemCount: 5,
                   rating: item.comment.rate.toDouble() / 2,
-                  itemBuilder: (context, index) => const Icon(
+                  itemBuilder: (context, index) => const AppIcon(
                     Icons.star_rounded,
                   ),
                   itemSize: 20.0,

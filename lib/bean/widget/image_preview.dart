@@ -8,6 +8,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/media_error_widget.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class ImageViewerRouteArgs {
   ImageViewerRouteArgs({
@@ -183,7 +184,7 @@ class _ImageViewerState extends State<ImageViewer> {
       ),
       child: IconButton(
         onPressed: onPressed,
-        icon: Icon(
+        icon: AppIcon(
           icon,
           color: onPressed != null ? Colors.white : Colors.white38,
           size: 32,
@@ -209,7 +210,7 @@ class _ImageViewerState extends State<ImageViewer> {
               ),
               child: IconButton(
                 onPressed: _closePreview,
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: const AppIcon(Icons.close, color: Colors.white),
               ),
             ),
           ),

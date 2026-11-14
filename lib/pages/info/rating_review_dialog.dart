@@ -8,6 +8,7 @@ import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/bangumi/bangumi_review.dart';
 import 'package:kazumi/services/logging/logger.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class RatingReviewDialog extends StatefulWidget {
   const RatingReviewDialog({
@@ -166,7 +167,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
     final discard = await KazumiDialog.show<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.edit_note_rounded),
+        icon: const AppIcon(Icons.edit_note_rounded),
         title: const Text('放弃编辑？'),
         content: const Text('未保存的修改将丢失。'),
         actions: [
@@ -324,7 +325,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
           IconButton(
             tooltip: '关闭',
             onPressed: _submitting ? null : _requestClose,
-            icon: const Icon(Icons.close_rounded),
+            icon: const AppIcon(Icons.close_rounded),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -413,7 +414,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
             IconButton(
               tooltip: '清除评分',
               onPressed: _submitting ? null : () => _setScore(0),
-              icon: Icon(Icons.restart_alt_rounded,
+              icon: AppIcon(Icons.restart_alt_rounded,
                   color: colors.onSecondaryContainer),
             ),
         ]),
@@ -530,7 +531,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
           ),
         if (_popularTags.length > 6)
           ActionChip(
-            avatar: Icon(
+            avatar: AppIcon(
                 _showAllTags
                     ? Icons.expand_less_rounded
                     : Icons.expand_more_rounded,
@@ -542,7 +543,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
           ),
         if (!_showCustomTag)
           ActionChip(
-            avatar: const Icon(Icons.add_rounded, size: 18),
+            avatar: const AppIcon(Icons.add_rounded, size: 18),
             label: const Text('自定义标签'),
             onPressed: _submitting
                 ? null
@@ -578,7 +579,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
                     suffixIcon: IconButton(
                       tooltip: '添加标签',
                       onPressed: _submitting ? null : _addCustomTag,
-                      icon: const Icon(Icons.add_rounded),
+                      icon: const AppIcon(Icons.add_rounded),
                     ),
                   ),
                 ),
@@ -607,7 +608,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
               color: colors.errorContainer,
               borderRadius: BorderRadius.circular(16)),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Icon(Icons.error_outline_rounded, color: colors.onErrorContainer),
+            AppIcon(Icons.error_outline_rounded, color: colors.onErrorContainer),
             const SizedBox(width: 12),
             Expanded(
                 child: Text(_submitError!,

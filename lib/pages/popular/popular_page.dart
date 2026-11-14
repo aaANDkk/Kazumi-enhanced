@@ -13,6 +13,7 @@ import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/platform/desktop_window_config.dart';
 import 'package:kazumi/bean/appbar/drag_to_move_bar.dart' as dtb;
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PopularPage extends StatefulWidget {
   const PopularPage({
@@ -232,7 +233,7 @@ class _PopularPageState extends State<PopularPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Icon(Icons.keyboard_arrow_down,
+                                AppIcon(Icons.keyboard_arrow_down,
                                     size: fontSize, color: theme.iconTheme.color),
                               ],
                             ),
@@ -256,18 +257,18 @@ class _PopularPageState extends State<PopularPage> {
         IconButton(
           tooltip: '搜索',
           onPressed: () => context.pushNamed('/search/'),
-          icon: const Icon(Icons.search),
+          icon: const AppIcon(Icons.search),
         ),
       IconButton(
         tooltip: '历史记录',
         onPressed: () => context.pushNamed('/settings/history/'),
-        icon: const Icon(Icons.history),
+        icon: const AppIcon(Icons.history),
       ),
       if (isDesktop() && !DesktopWindowConfig.showWindowButton)
         IconButton(
           tooltip: '退出',
           onPressed: () => windowManager.close(),
-          icon: const Icon(Icons.close),
+          icon: const AppIcon(Icons.close),
         ),
     ];
   }

@@ -260,7 +260,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                         suffixIcon: IconButton(
                             tooltip: '添加标签',
                             onPressed: () => _addTag(_tagController.text),
-                            icon: const Icon(Icons.add_rounded))),
+                            icon: const AppIcon(Icons.add_rounded))),
                     onSubmitted: _addTag,
                   ),
                 ],
@@ -294,7 +294,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                       child: Wrap(spacing: 8, children: [
                         TextButton.icon(
                             onPressed: _pickCustomDateRange,
-                            icon: const Icon(Icons.date_range_outlined),
+                            icon: const AppIcon(Icons.date_range_outlined),
                             label: const Text('自定义日期')),
                         if (_draft.dateRange != null ||
                             _draft.season.isNotEmpty)

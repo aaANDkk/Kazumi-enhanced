@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class BangumiTimelineCard extends StatelessWidget {
   const BangumiTimelineCard({
@@ -153,7 +154,7 @@ class BangumiTimelineCard extends StatelessWidget {
                 if (showRating) const SizedBox(width: 8),
                 Tooltip(
                   message: '正在追',
-                  child: Icon(Icons.bookmark_rounded,
+                  child: AppIcon(Icons.bookmark_rounded,
                       size: 20, color: colors.primary),
                 ),
               ],
@@ -181,7 +182,7 @@ class BangumiTimelineCard extends StatelessWidget {
                   ? ColoredBox(
                       color: colors.surfaceContainerHighest,
                       child: Center(
-                        child: Icon(Icons.movie_outlined,
+                        child: AppIcon(Icons.movie_outlined,
                             color: colors.onSurfaceVariant),
                       ),
                     )
@@ -223,7 +224,7 @@ class BangumiTimelineCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.star_rounded,
+            AppIcon(Icons.star_rounded,
                 size: _ratingIconSize, color: colors.onSecondaryContainer),
             const SizedBox(width: 4),
             Flexible(

@@ -29,6 +29,7 @@ import 'package:kazumi/utils/format.dart';
 import 'package:kazumi/pages/player/player_transport_bar.dart';
 import 'package:kazumi/pages/player/player_screenshot_controls.dart';
 import 'package:kazumi/pages/player/player_progress_bar.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PlayerItemPanel extends StatefulWidget {
   const PlayerItemPanel({
@@ -713,14 +714,14 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
           items: _speedItems,
         ),
         _menuButton(
-          child: const Icon(Icons.aspect_ratio_rounded, color: Colors.white),
+          child: const AppIcon(Icons.aspect_ratio_rounded, color: Colors.white),
           tooltip: '视频比例',
           items: _aspectRatioItems,
         ),
         if (widget.onToggleSidePanel != null)
           IconButton(
             color: Colors.white,
-            icon: const Icon(Icons.menu_open_rounded),
+            icon: const AppIcon(Icons.menu_open_rounded),
             tooltip: '选集面板',
             onPressed: widget.onToggleSidePanel,
           ),
@@ -753,7 +754,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
             ),
             nextEpisode: IconButton(
               color: Colors.white,
-              icon: const Icon(Icons.skip_next_rounded),
+              icon: const AppIcon(Icons.skip_next_rounded),
               tooltip: '下一集',
               onPressed: widget.onNextEpisode,
             ),
@@ -796,7 +797,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
     }
     return IconButton(
       color: Colors.white,
-      icon: Icon(videoPageController.isFullscreen
+      icon: AppIcon(videoPageController.isFullscreen
           ? Icons.fullscreen_exit_rounded
           : Icons.fullscreen_rounded),
       tooltip: videoPageController.isFullscreen ? '退出全屏' : '全屏',
@@ -822,7 +823,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
             children: [
               IconButton(
                 color: Colors.white,
-                icon: const Icon(Icons.arrow_back_rounded),
+                icon: const AppIcon(Icons.arrow_back_rounded),
                 tooltip: '返回',
                 onPressed: widget.onBackPressed,
               ),
@@ -870,7 +871,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                     await widget.enterAndroidPictureInPicture();
                   },
                   tooltip: '画中画',
-                  icon: const Icon(
+                  icon: const AppIcon(
                     Icons.picture_in_picture,
                     color: Colors.white,
                   ),
@@ -887,7 +888,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                   return IconButton(
                     onPressed: toggle,
                     tooltip: '更多选项',
-                    icon: const Icon(
+                    icon: const AppIcon(
                       Icons.more_vert,
                       color: Colors.white,
                     ),
@@ -1006,7 +1007,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
             const Spacer(),
             if (!playerController.panel.lockPanel)
               IconButton(
-                icon: const Icon(
+                icon: const AppIcon(
                   Icons.photo_camera_outlined,
                   color: Colors.white,
                 ),
@@ -1014,7 +1015,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                 onPressed: widget.handleScreenShot,
               ),
             IconButton(
-              icon: Icon(
+              icon: AppIcon(
                 playerController.panel.lockPanel
                     ? Icons.lock_outline
                     : Icons.lock_open,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PaletteCard extends StatefulWidget {
   final Color color;
@@ -72,7 +73,7 @@ class _PaletteCardState extends State<PaletteCard> {
                   color: checkbox,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: AppIcon(
                   Icons.check_rounded,
                   color: Theme.of(context).colorScheme.surfaceContainerLow,
                   size: 12,

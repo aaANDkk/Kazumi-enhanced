@@ -13,6 +13,7 @@ import 'package:kazumi/pages/player/player_controller.dart';
 import 'package:kazumi/services/player/syncplay_endpoint.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 // Close each step before opening the next to avoid stacked modal routes.
 enum _SyncPlayDestination { create, join, server }
@@ -116,7 +117,7 @@ class _SyncPlaySheetScaffold extends StatelessWidget {
                       IconButton(
                         onPressed: () => Navigator.of(context).pop(),
                         tooltip: '关闭',
-                        icon: const Icon(Icons.close_rounded),
+                        icon: const AppIcon(Icons.close_rounded),
                       ),
                     ],
                   )
@@ -183,7 +184,7 @@ class _SyncPlayHomeSheet extends StatelessWidget {
                   backgroundColor: colorScheme.errorContainer,
                   foregroundColor: colorScheme.onErrorContainer,
                 ),
-                icon: const Icon(Icons.logout_rounded),
+                icon: const AppIcon(Icons.logout_rounded),
                 label: Text(connecting ? '取消连接' : '断开连接'),
               )
             : null,
@@ -274,7 +275,7 @@ class _SyncPlayHomeSheet extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           title: const Text('同步服务器'),
           subtitle: Text(_readEndPoint(), overflow: TextOverflow.ellipsis),
-          trailing: const Icon(Icons.chevron_right_rounded),
+          trailing: const AppIcon(Icons.chevron_right_rounded),
           onTap: () => Navigator.of(context).pop(_SyncPlayDestination.server),
         ),
       ],
@@ -341,7 +342,7 @@ class _SyncPlayHomeSheet extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          Icon(icon, size: 22, color: colorScheme.onSurfaceVariant),
+          AppIcon(icon, size: 22, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 16),
           Text(
             label,
@@ -389,7 +390,7 @@ class _ChoiceCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: theme.colorScheme.primary, size: 28),
+              AppIcon(icon, color: theme.colorScheme.primary, size: 28),
               const SizedBox(height: 20),
               Text(title, style: theme.textTheme.titleMedium),
               const SizedBox(height: 4),
@@ -486,7 +487,7 @@ class _SyncPlayRoomSheetState extends State<_SyncPlayRoomSheet> {
       showCancel: true,
       primaryAction: FilledButton.icon(
         onPressed: _submit,
-        icon: Icon(
+        icon: AppIcon(
             isCreate ? Icons.play_circle_outline_rounded : Icons.login_rounded),
         label: Text(isCreate ? '创建并加入' : '加入房间'),
       ),
@@ -501,7 +502,7 @@ class _SyncPlayRoomSheetState extends State<_SyncPlayRoomSheet> {
                         setState(() => _createdRoom = _generateRoomNumber()),
                     tooltip: '重新生成',
                     color: Theme.of(context).colorScheme.onSurface,
-                    icon: const Icon(Icons.refresh_rounded),
+                    icon: const AppIcon(Icons.refresh_rounded),
                   ),
                   _CopyButton(value: _createdRoom),
                 ],
@@ -687,7 +688,7 @@ class _SyncPlayServerSheetState extends State<_SyncPlayServerSheet> {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 18),
-      leading: Icon(
+      leading: AppIcon(
         isCustom ? Icons.edit_outlined : Icons.public_rounded,
         color: selected ? colorScheme.primary : colorScheme.onSurfaceVariant,
       ),
@@ -699,7 +700,7 @@ class _SyncPlayServerSheetState extends State<_SyncPlayServerSheet> {
         ),
       ),
       trailing: selected
-          ? Icon(Icons.check_rounded, color: colorScheme.primary)
+          ? AppIcon(Icons.check_rounded, color: colorScheme.primary)
           : null,
       onTap: () => setState(() {
         _selectedEndPoint = endPoint;
@@ -801,7 +802,7 @@ class _CopyButtonState extends State<_CopyButton> {
       onPressed: _copy,
       tooltip: _copied ? '已复制' : '复制',
       color: Theme.of(context).colorScheme.onSurface,
-      icon: Icon(_copied ? Icons.check_rounded : Icons.copy_rounded),
+      icon: AppIcon(_copied ? Icons.check_rounded : Icons.copy_rounded),
     );
   }
 }

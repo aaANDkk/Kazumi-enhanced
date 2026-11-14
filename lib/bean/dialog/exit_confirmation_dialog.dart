@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum ExitDialogAction { exit, minimizeToTray }
 
@@ -63,7 +64,7 @@ class _ExitConfirmationDialogState extends State<ExitConfirmationDialog> {
             color: colors.primaryContainer,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Icon(
+          child: AppIcon(
             Icons.exit_to_app_rounded,
             color: colors.onPrimaryContainer,
             size: 28,
@@ -197,7 +198,7 @@ class _ExitConfirmationDialogState extends State<ExitConfirmationDialog> {
         controlAffinity: ListTileControlAffinity.trailing,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: borderRadius),
-        secondary: Icon(icon, color: foreground),
+        secondary: AppIcon(icon, color: foreground),
         title: Text(
           title,
           style: theme.textTheme.titleSmall?.copyWith(color: foreground),

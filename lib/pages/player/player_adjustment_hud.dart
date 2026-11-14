@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/utils/format.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum PlayerAdjustmentHudType {
   brightness,
@@ -203,7 +204,7 @@ class _PlayerAdjustmentHudState extends State<PlayerAdjustmentHud> {
                             ),
                           );
                         },
-                        child: Icon(
+                        child: AppIcon(
                           _icon,
                           key: ValueKey(_icon),
                           color: onContainer,
@@ -724,7 +725,7 @@ class _PlayerSeekHudState extends State<PlayerSeekHud> {
                                   ),
                                 );
                               },
-                              child: Icon(
+                              child: AppIcon(
                                 icon,
                                 key: ValueKey(icon),
                                 color: onContainer,
@@ -900,7 +901,7 @@ class _PlayerSpeedHudState extends State<PlayerSpeedHud> {
                         color: container,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(
+                      child: AppIcon(
                         Icons.speed_rounded,
                         color: onContainer,
                         size: 15,

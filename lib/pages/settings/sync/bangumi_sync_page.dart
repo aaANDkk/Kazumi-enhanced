@@ -9,6 +9,7 @@ import 'package:kazumi/modules/bangumi/sync_priority.dart';
 import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/bangumi_sync_service.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum _BangumiAction { verify, connect, sync }
 
@@ -188,7 +189,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
                     child: ExpansionTile(
                       shape: const Border(),
                       collapsedShape: const Border(),
-                      leading: const Icon(Icons.tune_rounded),
+                      leading: const AppIcon(Icons.tune_rounded),
                       title: const Text('同步偏好'),
                       subtitle: Text('状态冲突时：${priority.label}'),
                       tilePadding: const EdgeInsets.symmetric(
@@ -305,7 +306,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
           collapsedShape: const Border(),
           tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          leading: const Icon(Icons.account_circle_outlined),
+          leading: const AppIcon(Icons.account_circle_outlined),
           title: Text(configured ? 'Bangumi 账号' : '连接 Bangumi 账号'),
           subtitle: Text(_bangumi.initialized
               ? _bangumi.username
@@ -337,7 +338,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
                   tooltip: _passwordVisible ? '隐藏授权码' : '显示授权码',
                   onPressed: () =>
                       setState(() => _passwordVisible = !_passwordVisible),
-                  icon: Icon(_passwordVisible
+                  icon: AppIcon(_passwordVisible
                       ? Icons.visibility_off_rounded
                       : Icons.visibility_rounded),
                 ),
@@ -351,7 +352,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
               children: [
                 TextButton.icon(
                   onPressed: _busy ? null : _getToken,
-                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                  icon: const AppIcon(Icons.open_in_new_rounded, size: 18),
                   label: const Text('获取授权码'),
                 ),
                 StateActionButton.tonal(

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 const double _barHeight = 65.0;
 const double _barPadding = 6.0;
@@ -593,7 +594,7 @@ class _FloatingBarItem extends StatelessWidget {
               children: [
                 Opacity(
                   opacity: (1.0 - fillEmphasis).clamp(0.0, 1.0),
-                  child: Icon(
+                  child: AppIcon(
                     item.icon,
                     size: 24.0,
                     color: color,
@@ -601,7 +602,7 @@ class _FloatingBarItem extends StatelessWidget {
                 ),
                 Opacity(
                   opacity: fillEmphasis.clamp(0.0, 1.0),
-                  child: Icon(
+                  child: AppIcon(
                     item.selectedIcon!,
                     size: 24.0,
                     color: color,
@@ -611,7 +612,7 @@ class _FloatingBarItem extends StatelessWidget {
             ),
           );
         } else {
-          iconWidget = Icon(
+          iconWidget = AppIcon(
             item.icon,
             size: 24.0,
             color: color,

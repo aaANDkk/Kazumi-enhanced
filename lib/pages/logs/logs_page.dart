@@ -10,6 +10,7 @@ import 'package:kazumi/bean/settings/settings_detail_scaffold.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/error_widget.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class LogsPage extends StatefulWidget {
   const LogsPage({super.key});
@@ -233,14 +234,14 @@ class _LogsPageState extends State<LogsPage> {
           heroTag: null,
           onPressed: _clearLogs,
           tooltip: '清空日志',
-          child: const Icon(Icons.clear_all),
+          child: const AppIcon(Icons.clear_all),
         ),
         const SizedBox(width: 15),
         FloatingActionButton(
           heroTag: null,
           onPressed: _copyLogs,
           tooltip: '复制日志',
-          child: const Icon(Icons.copy),
+          child: const AppIcon(Icons.copy),
         ),
       ],
     );

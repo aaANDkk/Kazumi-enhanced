@@ -15,6 +15,7 @@ import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/services/platform/app_exit.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/update/startup_update_check.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({
@@ -157,7 +158,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
         onPressed: () => _navigate(forward: true),
         iconAlignment: IconAlignment.end,
-        icon: Icon(
+        icon: AppIcon(
             _isLastStep ? Icons.check_rounded : Icons.arrow_forward_rounded),
         label: Text(_primaryLabel),
       );
@@ -232,7 +233,7 @@ class _SkipRulesDialog extends StatelessWidget {
   Widget build(BuildContext context) => AlertDialog(
         scrollable: true,
         constraints: const BoxConstraints(maxWidth: 560),
-        icon: const Icon(Icons.warning_amber_rounded),
+        icon: const AppIcon(Icons.warning_amber_rounded),
         title: const Text('暂不添加规则？'),
         content: const Text(
           '没有规则时无法搜索和播放番剧。之后也可以在规则管理中添加。',

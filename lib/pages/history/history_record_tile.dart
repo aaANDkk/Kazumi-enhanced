@@ -4,6 +4,7 @@ import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/modules/history/history_module.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class HistoryRecordTile extends StatelessWidget {
   const HistoryRecordTile({
@@ -84,7 +85,7 @@ class HistoryRecordTile extends StatelessWidget {
           borderRadius: borderRadius,
         ),
         child:
-            Icon(Icons.delete_outline_rounded, color: colors.onErrorContainer),
+            AppIcon(Icons.delete_outline_rounded, color: colors.onErrorContainer),
       ),
       child: Material(
         color: colors.surfaceContainerLow,
@@ -188,7 +189,7 @@ class HistoryRecordTile extends StatelessWidget {
                                       width: coverWidth,
                                       height: coverHeight,
                                       color: colors.surfaceContainerHighest,
-                                      child: Icon(Icons.movie_outlined,
+                                      child: AppIcon(Icons.movie_outlined,
                                           color: colors.onSurfaceVariant),
                                     )
                                   : NetworkImgLayer(
@@ -262,7 +263,7 @@ class HistoryRecordTile extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             ),
             onPressed: onDelete,
-            icon: Icon(Icons.delete_outline_rounded, size: iconSize),
+            icon: AppIcon(Icons.delete_outline_rounded, size: iconSize),
           ),
         ),
       );
@@ -282,7 +283,7 @@ class HistoryRecordTile extends StatelessWidget {
           visualDensity: VisualDensity.compact,
         ),
         onPressed: onPlay,
-        icon: Icon(Icons.play_arrow_rounded, size: iconSize),
+        icon: AppIcon(Icons.play_arrow_rounded, size: iconSize),
       ),
       if (onPlayNext != null)
         IconButton.filledTonal(
@@ -298,7 +299,7 @@ class HistoryRecordTile extends StatelessWidget {
             visualDensity: VisualDensity.compact,
           ),
           onPressed: onPlayNext,
-          icon: Icon(Icons.skip_next_rounded, size: iconSize),
+          icon: AppIcon(Icons.skip_next_rounded, size: iconSize),
         ),
       KazumiMenuButton(
         menuChildren: [
@@ -339,7 +340,7 @@ class HistoryRecordTile extends StatelessWidget {
             visualDensity: VisualDensity.compact,
           ),
           onPressed: toggle,
-          icon: Icon(Icons.more_horiz_rounded, size: iconSize),
+          icon: AppIcon(Icons.more_horiz_rounded, size: iconSize),
         ),
       ),
     ];

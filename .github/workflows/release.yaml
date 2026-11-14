@@ -17,7 +17,7 @@ env:
   DANDANAPI_KEY: ${{ secrets.DANDANAPI_KEY || '4y2waS6A6yb4uw7Dhd9pmdTzvrF7YUsg' }}
   KAZUMI_APPID: ${{ secrets.KAZUMI_APPID || 'kazumi-hh47hcih6xfodp50' }}
   KAZUMI_KEY: ${{ secrets.KAZUMI_KEY || 'EKlABDVRMb8g5OkCH78SL14riZU4zmkR' }}
-  SIGNING_KEY_BASE64: ${{ secrets.SIGNING_KEY_BASE64 || secrets.KEYSTORE }}
+  SIGNING_KEY_BASE64: ${{ secrets.KAZUMI || secrets.SIGNING_KEY_BASE64 || secrets.KEYSTORE }}
   KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
   STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
   KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -126,24 +126,28 @@ jobs:
         run: sed -i -e 's/-Wl,/-Wl,--build-id=none,/' ${{ steps.flutter-action.outputs.PUB-CACHE-PATH }}/hosted/pub.dev/jni-*/src/CMakeLists.txt
       - name: Setup Android Keystore
         env:
-          SIGNING_KEY_BASE64: ${{ secrets.SIGNING_KEY_BASE64 || secrets.KEYSTORE }}
+          SIGNING_KEY_BASE64: ${{ secrets.KAZUMI || secrets.SIGNING_KEY_BASE64 || secrets.KEYSTORE }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'kazumi' }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'kazumi123' }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'kazumi123' }}
         run: |
-          if [ -n "$SIGNING_KEY_BASE64" ]; then
-            echo "Restoring keystore from GitHub Secret..."
-            echo "$SIGNING_KEY_BASE64" | base64 -d > android/app/kazumi.jks
-            echo "keyAlias=$KEY_ALIAS" > android/key.properties
-            echo "storePassword=$STORE_PASSWORD" >> android/key.properties
-            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
-            echo "storeFile=app/kazumi.jks" >> android/key.properties
-            cp android/key.properties key.properties
-            cp android/key.properties android/app/key.properties
-            echo "Keystore restored successfully. Size: $(wc -c < android/app/kazumi.jks) bytes."
-          else
-            echo "WARNING: No SIGNING_KEY_BASE64 secret provided, building with debug fallback."
+          if [ -z "$SIGNING_KEY_BASE64" ]; then
+            echo "::error::Missing Android signing secret (expected KAZUMI, SIGNING_KEY_BASE64, or KEYSTORE)."
+            exit 1
           fi
+          echo "Restoring keystore from GitHub Secret..."
+          printf '%s' "$SIGNING_KEY_BASE64" | tr -d '\r\n ' | base64 -d > android/app/kazumi.jks
+          if [ ! -s android/app/kazumi.jks ]; then
+            echo "::error::Decoded Android keystore android/app/kazumi.jks is empty."
+            exit 1
+          fi
+          echo "keyAlias=$KEY_ALIAS" > android/key.properties
+          echo "storePassword=$STORE_PASSWORD" >> android/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "storeFile=app/kazumi.jks" >> android/key.properties
+          cp android/key.properties key.properties
+          cp android/key.properties android/app/key.properties
+          echo "Keystore restored successfully. Size: $(wc -c < android/app/kazumi.jks) bytes."
         shell: bash
       - name: Build Flutter for Android
         env:
@@ -163,7 +167,12 @@ jobs:
       - name: Verify APK Signature
         run: |
           echo "Verifying APK Signature Details:"
-          $ANDROID_HOME/build-tools/34.0.0/apksigner verify -v --print-certs Kazumi_android_arm64-v8a_${{ env.tag }}.apk
+          VERIFY_OUT=$($ANDROID_HOME/build-tools/34.0.0/apksigner verify -v --print-certs Kazumi_android_arm64-v8a_${{ env.tag }}.apk)
+          echo "$VERIFY_OUT"
+          if echo "$VERIFY_OUT" | grep -q "CN=Android Debug"; then
+            echo "::error::APK was signed with debug certificate instead of release keystore!"
+            exit 1
+          fi
         shell: bash
       - name: Upload android outputs
         uses: actions/upload-artifact@v4

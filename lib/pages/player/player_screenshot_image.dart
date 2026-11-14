@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PlayerScreenshotImage extends StatelessWidget {
   const PlayerScreenshotImage({
@@ -38,7 +39,7 @@ class PlayerScreenshotImage extends StatelessWidget {
       );
     },
     errorBuilder: (context, error, stack) => Center(
-      child: Icon(
+      child: AppIcon(
         Icons.broken_image_outlined,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),

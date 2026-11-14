@@ -60,7 +60,7 @@ class _SearchSortMenu extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           ),
           iconAlignment: IconAlignment.end,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 20),
+          icon: const AppIcon(Icons.keyboard_arrow_down_rounded, size: 20),
           label: Text(_sortLabel(value)),
         ),
       ),
@@ -181,7 +181,7 @@ class _SearchResultCard extends StatelessWidget {
             const SizedBox(height: metadataSpacing),
             Row(children: [
               if (showRating && item.ratingScore > 0) ...[
-                Icon(Icons.star_rounded,
+                AppIcon(Icons.star_rounded,
                     size: ratingIconSize, color: theme.colorScheme.primary),
                 const SizedBox(width: 3),
                 Text(item.ratingScore.toStringAsFixed(1),

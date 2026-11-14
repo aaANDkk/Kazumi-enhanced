@@ -3,6 +3,7 @@ import 'package:kazumi/bean/settings/settings_detail_scaffold.dart';
 import 'package:kazumi/pages/plugin_editor/plugin_catalog_view.dart';
 import 'package:kazumi/pages/plugin_editor/rule_dialogs.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PluginShopPage extends StatefulWidget {
   const PluginShopPage({super.key, required this.controller});
@@ -26,7 +27,7 @@ class _PluginShopPageState extends State<PluginShopPage> {
           IconButton(
             onPressed: _editRepository,
             tooltip: '规则仓库地址',
-            icon: const Icon(Icons.link_rounded),
+            icon: const AppIcon(Icons.link_rounded),
           ),
         ],
         body: SafeArea(

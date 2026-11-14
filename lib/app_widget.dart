@@ -18,6 +18,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/dialog/exit_confirmation_dialog.dart';
 import 'package:kazumi/bean/settings/theme_provider.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 import 'package:kazumi/navigation.dart';
 import 'package:kazumi/utils/constants.dart';
 import 'package:kazumi/utils/device.dart';
@@ -205,6 +206,11 @@ class _AppWidgetState extends State<AppWidget>
       colorSchemeSeed: color,
       colorScheme: colorScheme,
       appBarTheme: appBarThemeForBrightness(brightness),
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (_) => const AppIcon(Icons.arrow_back_rounded),
+        closeButtonIconBuilder: (_) => const AppIcon(Icons.close_rounded),
+        drawerButtonIconBuilder: (_) => const AppIcon(Icons.menu_open_rounded),
+      ),
       progressIndicatorTheme: progressIndicatorTheme2024,
       sliderTheme: sliderTheme2024,
       pageTransitionsTheme: pageTransitionsTheme2024,

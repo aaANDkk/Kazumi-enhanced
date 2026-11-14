@@ -6,6 +6,7 @@ import 'package:kazumi/services/network/proxy_utils.dart';
 import 'package:kazumi/services/network/proxy_manager.dart';
 import 'package:kazumi/request/core/dio_factory.dart';
 import 'package:kazumi/request/core/network_config.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class ProxyEditorPage extends StatefulWidget {
   const ProxyEditorPage({super.key});
@@ -137,7 +138,7 @@ class _ProxyEditorPageState extends State<ProxyEditorPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: saveAndTest,
-        icon: const Icon(Icons.save),
+        icon: const AppIcon(Icons.save),
         label: const Text('保存并测试'),
       ),
     );

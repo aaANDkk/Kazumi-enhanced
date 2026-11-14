@@ -7,6 +7,7 @@ import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/bangumi/episode_item.dart';
 import 'package:kazumi/modules/comments/comment_item.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 class EpisodeCommentsView extends StatelessWidget {
   const EpisodeCommentsView({
@@ -181,7 +182,7 @@ class EpisodeCommentsView extends StatelessWidget {
         TextButton.icon(
           onPressed: comments.length > 1 ? onToggleSort : null,
           style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-          icon: Icon(
+          icon: AppIcon(
               isAscending
                   ? Icons.arrow_upward_rounded
                   : Icons.arrow_downward_rounded,
@@ -206,7 +207,7 @@ class EpisodeCommentsView extends StatelessWidget {
                     color: colors.onSecondaryContainer,
                     semanticsLabel: '正在加载评论',
                   )
-                : const Icon(Icons.refresh_rounded, size: 24),
+                : const AppIcon(Icons.refresh_rounded, size: 24),
           ),
         ),
       ]);
@@ -288,7 +289,7 @@ class _EpisodeHeader extends StatelessWidget {
                       foregroundColor: colors.primary,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    icon: const Icon(Icons.video_library_outlined, size: 18),
+                    icon: const AppIcon(Icons.video_library_outlined, size: 18),
                     label: const Text('切换分集'),
                   ),
                 ],

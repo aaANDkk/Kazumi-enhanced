@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
+import 'package:kazumi/bean/widget/app_icon.dart';
 
 void _showMessage(BuildContext context, String message) {
   KazumiDialog.showToast(context: context, message: message);
@@ -114,7 +115,7 @@ class AboutLinkTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Icon(
+              AppIcon(
                 _url == null
                     ? Icons.chevron_right_rounded
                     : Icons.open_in_new_rounded,
