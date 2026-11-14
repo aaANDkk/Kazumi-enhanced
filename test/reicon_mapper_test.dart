@@ -29,19 +29,67 @@ void main() {
     expect(ReiconMapper.resolveSpec(Icons.home)?.filled, isTrue);
     expect(ReiconMapper.resolveSpec(Icons.favorite_border)?.filled, isFalse);
     expect(ReiconMapper.resolveSpec(Icons.favorite)?.filled, isTrue);
+    final outlineClock = ReiconMapper.resolveSpec(Icons.access_time_outlined);
+    final filledClock = ReiconMapper.resolveSpec(Icons.access_time_filled);
+    expect(outlineClock?.filled, isFalse);
+    expect(filledClock?.filled, isTrue);
+    expect(outlineClock?.name, equals(filledClock?.name));
     expect(
-      ReiconMapper.resolveSpec(Icons.access_time_outlined)?.filled,
-      isFalse,
-    );
-    expect(
-      ReiconMapper.resolveSpec(Icons.access_time_filled)?.filled,
-      isTrue,
+      ReiconMapper.resolveSvg(Icons.access_time_outlined),
+      isNot(equals(ReiconMapper.resolveSvg(Icons.access_time_filled))),
     );
     expect(ReiconMapper.resolveSpec(Icons.person_outline)?.filled, isFalse);
     expect(ReiconMapper.resolveSpec(Icons.person)?.filled, isTrue);
     expect(ReiconMapper.resolveSpec(Icons.settings_outlined)?.filled, isFalse);
-    expect(ReiconMapper.resolveSpec(Icons.settings_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.settings_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.extension_rounded)?.filled, isFalse);
+    expect(
+      ReiconMapper.resolveSpec(Icons.drag_indicator_rounded)?.name,
+      equals('reorder'),
+    );
+    expect(ReiconMapper.resolveSpec(Icons.more_horiz_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.tune_rounded)?.name, equals('setting4'));
     expect(ReiconMapper.resolveSpec(Icons.star_rounded)?.filled, isTrue);
+  });
+
+  testWidgets('AppIcon preserves requested size inside oversized constraints',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              SizedBox.square(
+                dimension: 72,
+                child: AppIcon(Icons.image_search_rounded, size: 31.68),
+              ),
+              SizedBox.square(
+                dimension: 48,
+                child: AppIcon(Icons.drag_indicator_rounded, size: 24),
+              ),
+              TextField(
+                decoration: InputDecoration(
+                  prefixIcon: AppIcon(Icons.search_rounded),
+                ),
+              ),
+              AppIcon(Icons.access_time_outlined, size: 24),
+              AppIcon(Icons.access_time_filled, size: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
+    expect(svgs, hasLength(5));
+    final badgeSvgSize = tester.getSize(find.byType(SvgPicture).at(0));
+    final dragSvgSize = tester.getSize(find.byType(SvgPicture).at(1));
+    final searchSvgSize = tester.getSize(find.byType(SvgPicture).at(2));
+    expect(badgeSvgSize.width, lessThan(32));
+    expect(badgeSvgSize.height, lessThan(32));
+    expect(dragSvgSize.width, lessThan(24));
+    expect(searchSvgSize.width, lessThan(24));
   });
 
   testWidgets('AppIcon renders SvgPicture for mapped icons and falls back cleanly',

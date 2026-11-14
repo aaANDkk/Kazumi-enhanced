@@ -47,7 +47,11 @@ class AppIcon extends StatelessWidget {
         : tentativeIconSize;
 
     if (iconData == null) {
-      return SizedBox.square(dimension: effectiveSize);
+      return Center(
+        widthFactor: 1.0,
+        heightFactor: 1.0,
+        child: SizedBox.square(dimension: effectiveSize),
+      );
     }
 
     final String? svg = ReiconMapper.resolveSvg(iconData);
@@ -74,10 +78,14 @@ class AppIcon extends StatelessWidget {
       iconColor = iconColor.withValues(alpha: iconColor.a * iconOpacity);
     }
 
+    // Reicon glyphs fill ~90-98% of their 24x24 viewBox versus Material's ~78%,
+    // so apply a slight optical inset and loosen tight/minimum parent constraints
+    // with Center so large badges, prefix slots, and avatars do not stretch the SVG.
+    final double glyphSize = effectiveSize * 0.88;
     Widget result = SvgPicture.string(
       svg,
-      width: effectiveSize,
-      height: effectiveSize,
+      width: glyphSize,
+      height: glyphSize,
       fit: BoxFit.contain,
       colorFilter: iconColor != null
           ? ColorFilter.mode(iconColor, blendMode ?? BlendMode.srcIn)
@@ -92,6 +100,15 @@ class AppIcon extends StatelessWidget {
         result = Transform.flip(flipX: true, child: result);
       }
     }
+
+    result = Center(
+      widthFactor: 1.0,
+      heightFactor: 1.0,
+      child: SizedBox.square(
+        dimension: effectiveSize,
+        child: Center(child: result),
+      ),
+    );
 
     if (semanticLabel != null) {
       result = Semantics(label: semanticLabel, child: result);
