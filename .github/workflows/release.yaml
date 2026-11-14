@@ -177,14 +177,31 @@ jobs:
               except Exception:
                   pass
 
+          if magic not in ("feedfeed", "cececece") and not magic.startswith("3082"):
+              print(f"::error::Decoded KAZUMI secret is not a valid JKS/PKCS12 keystore (raw_len={len(raw)}, dec_len={len(data)}, magic={magic}, has_pem={has_pem}). Expected base64 of android/app/kazumi.jks.")
+              sys.exit(1)
+
           with open("android/app/kazumi.jks", "wb") as f:
               f.write(data)
           print(f"Keystore decoded successfully: {len(data)} bytes (magic={magic}, raw_len={len(raw)}, has_pem={has_pem}).")
           PY
-          keytool -list -keystore android/app/kazumi.jks -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" || {
-            echo "::error::keytool failed to verify restored android/app/kazumi.jks with alias '$KEY_ALIAS'."
+          KEYTOOL_OUT=$(keytool -list -keystore android/app/kazumi.jks -storepass "$STORE_PASSWORD" 2>&1) || {
+            ERR_ONE_LINE=$(printf '%s' "$KEYTOOL_OUT" | tr '\r\n' ' ')
+            echo "::error::keytool failed to open android/app/kazumi.jks with configured STORE_PASSWORD: $ERR_ONE_LINE"
             exit 1
           }
+          echo "$KEYTOOL_OUT"
+          if ! printf '%s\n' "$KEYTOOL_OUT" | grep -qi "^${KEY_ALIAS},"; then
+            DETECTED_ALIAS=$(printf '%s\n' "$KEYTOOL_OUT" | awk -F',' '/PrivateKeyEntry/{print $1; exit}')
+            if [ -n "$DETECTED_ALIAS" ]; then
+              echo "Alias '$KEY_ALIAS' not found; using detected PrivateKeyEntry alias '$DETECTED_ALIAS'."
+              KEY_ALIAS="$DETECTED_ALIAS"
+            else
+              echo "::error::No PrivateKeyEntry found for alias '$KEY_ALIAS' in android/app/kazumi.jks."
+              exit 1
+            fi
+          fi
+          echo "KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
           echo "keyAlias=$KEY_ALIAS" > android/key.properties
           echo "storePassword=$STORE_PASSWORD" >> android/key.properties
           echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
@@ -195,7 +212,7 @@ jobs:
         shell: bash
       - name: Build Flutter for Android
         env:
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'kazumi' }}
+          KEY_ALIAS: ${{ env.KEY_ALIAS || secrets.KEY_ALIAS || 'kazumi' }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD || 'kazumi123' }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'kazumi123' }}
         run: >-
