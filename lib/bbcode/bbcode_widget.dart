@@ -9,7 +9,6 @@ import 'bbcode_base_listener.dart';
 import 'bbcode_elements.dart';
 import 'generated/BBCodeParser.dart';
 import 'generated/BBCodeLexer.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class BBCodeWidget extends StatefulWidget {
   const BBCodeWidget({
@@ -196,8 +195,8 @@ class _BBCodeWidgetState extends State<BBCodeWidget> {
                 );
               } else {
                 return WidgetSpan(
-                  child: AppIcon(
-                    (e as AppIcon).icon,
+                  child: Icon(
+                    (e as Icon).icon,
                     color: Theme.of(context).colorScheme.outline,
                   ),
                   alignment: PlaceholderAlignment.top,

@@ -7,7 +7,6 @@ import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/pages/settings/player_settings.dart';
 import 'package:kazumi/utils/constants.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class _SettingsCategory {
   const _SettingsCategory({
@@ -387,7 +386,7 @@ class _RailDestination extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 16),
-                AppIcon(category.icon, size: 24, color: foreground),
+                Icon(category.icon, size: 24, color: foreground),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

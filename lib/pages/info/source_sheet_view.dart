@@ -230,7 +230,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                                 turns: collapsed ? 0 : 0.5,
                                 duration: duration,
                                 curve: splitListMotionCurve,
-                                child: AppIcon(Icons.expand_more_rounded,
+                                child: Icon(Icons.expand_more_rounded,
                                     size: 20, color: colors.onSurfaceVariant),
                               ),
                             ],
@@ -330,7 +330,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    AppIcon(
+                    Icon(
                       showAll
                           ? Icons.unfold_less_rounded
                           : Icons.expand_more_rounded,
@@ -353,7 +353,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
           animated: true,
           builder: (context, toggle) => IconButton(
             tooltip: '${group.name} 的更多操作',
-            icon: const AppIcon(Icons.more_horiz_rounded, size: 20),
+            icon: const Icon(Icons.more_horiz_rounded, size: 20),
             onPressed: toggle,
           ),
           menuChildren: [
@@ -403,7 +403,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                       )),
                 ),
                 const SizedBox(width: 16),
-                AppIcon(Icons.play_arrow_rounded,
+                Icon(Icons.play_arrow_rounded,
                     color: theme.colorScheme.primary),
               ],
             ),
@@ -458,10 +458,9 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: AppIcon(
+                child: Icon(
                   icon,
                   size: 20,
-                  fill: 1,
                   color: requiresVerification
                       ? colors.onSurfaceVariant
                       : colors.error,

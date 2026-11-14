@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class RulePageIntro extends StatelessWidget {
   const RulePageIntro({
@@ -37,7 +36,7 @@ class RulePageIntro extends StatelessWidget {
                       color: colors.onPrimaryContainer)),
             ),
             const SizedBox(width: 16),
-            AppIcon(icon, size: 32, color: colors.onPrimaryContainer, fill: 1),
+            Icon(icon, size: 32, color: colors.onPrimaryContainer),
           ]),
           const SizedBox(height: 8),
           Text(description,
@@ -81,7 +80,7 @@ class RuleSection extends StatelessWidget {
           children: [
             Row(children: [
               if (icon != null) ...[
-                AppIcon(icon, color: theme.colorScheme.primary, fill: 1),
+                Icon(icon, color: theme.colorScheme.primary),
                 const SizedBox(width: 12),
               ],
               Expanded(

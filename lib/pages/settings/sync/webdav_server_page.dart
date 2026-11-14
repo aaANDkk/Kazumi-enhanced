@@ -8,7 +8,6 @@ import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/webdav.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class WebDavServerPage extends StatefulWidget {
   const WebDavServerPage({super.key});
@@ -139,7 +138,7 @@ class _WebDavServerPageState extends State<WebDavServerPage> {
                             tooltip: _passwordVisible ? '隐藏密码' : '显示密码',
                             onPressed: () => setState(
                                 () => _passwordVisible = !_passwordVisible),
-                            icon: AppIcon(_passwordVisible
+                            icon: Icon(_passwordVisible
                                 ? Icons.visibility_off_rounded
                                 : Icons.visibility_rounded),
                           ),

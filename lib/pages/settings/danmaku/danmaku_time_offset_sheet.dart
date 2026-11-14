@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:kazumi/bean/dialog/material_bottom_sheet.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/services/storage/storage.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 const double _minDanmakuTimeOffset = -180;
 const double _maxDanmakuTimeOffset = 180;
@@ -104,7 +103,7 @@ class _DanmakuTimeOffsetSheetState extends State<DanmakuTimeOffsetSheet> {
                       onPressed: _offset > _minDanmakuTimeOffset
                           ? () => _updateOffset(_offset - 1)
                           : null,
-                      icon: const AppIcon(Icons.remove_rounded),
+                      icon: const Icon(Icons.remove_rounded),
                     ),
                     Expanded(
                         child: FittedBox(
@@ -120,7 +119,7 @@ class _DanmakuTimeOffsetSheetState extends State<DanmakuTimeOffsetSheet> {
                       onPressed: _offset < _maxDanmakuTimeOffset
                           ? () => _updateOffset(_offset + 1)
                           : null,
-                      icon: const AppIcon(Icons.add_rounded),
+                      icon: const Icon(Icons.add_rounded),
                     ),
                   ]),
                   const SizedBox(height: 16),

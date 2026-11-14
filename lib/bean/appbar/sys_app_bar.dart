@@ -6,7 +6,6 @@ import 'package:kazumi/bean/widget/embedded_native_control_area.dart';
 import 'package:kazumi/services/platform/desktop_window_config.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:kazumi/utils/device.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class SysAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double? toolbarHeight;
@@ -41,7 +40,7 @@ class SysAppBar extends StatelessWidget implements PreferredSizeWidget {
         ((ModalRoute.of(context)?.impliesAppBarDismissal ?? false)
             ? IconButton(
                 onPressed: () => context.maybePop(),
-                icon: const AppIcon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
               )
             : null);
 

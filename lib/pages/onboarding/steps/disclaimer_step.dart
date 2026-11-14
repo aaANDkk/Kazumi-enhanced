@@ -5,7 +5,6 @@ import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/pages/onboarding/onboarding_step_layout.dart';
 import 'package:kazumi/services/logging/logger.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class DisclaimerStep extends StatefulWidget {
   const DisclaimerStep({super.key});
@@ -60,7 +59,7 @@ class _DisclaimerStepState extends State<DisclaimerStep> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    AppIcon(Icons.description_outlined,
+                    Icon(Icons.description_outlined,
                         color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 12),
                     Expanded(

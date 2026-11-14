@@ -4,7 +4,6 @@ import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/sync_priority.dart';
 import 'package:kazumi/modules/collect/collect_sync_plan.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum CollectSyncDestination { webDavSettings, bangumiSettings }
 
@@ -309,10 +308,10 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
       clipBehavior: Clip.antiAlias,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: AppIcon(icon, color: colors.primary),
+        leading: Icon(icon, color: colors.primary),
         title: Text(title, style: theme.textTheme.titleSmall),
         subtitle: Text(description),
-        trailing: const AppIcon(Icons.chevron_right_rounded),
+        trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => Navigator.of(context).pop(destination),
       ),
     );
@@ -360,7 +359,7 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: AppIcon(icon, size: 24, color: foreground, fill: 1),
+                child: Icon(icon, size: 24, color: foreground),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -402,7 +401,7 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
                         ),
                         onPressed: () =>
                             Navigator.of(context).pop(state.step._settings),
-                        icon: const AppIcon(Icons.settings_rounded, size: 18),
+                        icon: const Icon(Icons.settings_rounded, size: 18),
                         label: const Text('检查设置'),
                       ),
                     ],

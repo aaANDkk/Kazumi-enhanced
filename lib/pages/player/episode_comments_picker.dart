@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/modules/bangumi/episode_item.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class EpisodeCommentsPicker extends StatelessWidget {
   const EpisodeCommentsPicker({
@@ -85,7 +84,7 @@ class EpisodeCommentsPicker extends StatelessWidget {
                                     ? colors.onPrimaryContainer
                                     : colors.onSurface,
                               )),
-                      trailing: AppIcon(
+                      trailing: Icon(
                         selected
                             ? Icons.check_circle_rounded
                             : Icons.chevron_right_rounded,

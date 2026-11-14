@@ -133,7 +133,7 @@ class _VerifyDialogFrame extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppIcon(Icons.verified_user_outlined,
+              Icon(Icons.verified_user_outlined,
                   size: 20, color: colors.onSurfaceVariant),
               const SizedBox(width: 8),
               Expanded(
@@ -313,7 +313,7 @@ class _CaptchaDialogState extends State<_CaptchaDialog> {
               child: TextButton.icon(
                 style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: _submitting ? null : _reload,
-                icon: const AppIcon(Icons.refresh_rounded, size: 18),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('换一张'),
               ),
             ),
@@ -348,14 +348,14 @@ class _CaptchaDialogState extends State<_CaptchaDialog> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppIcon(Icons.broken_image_outlined,
+          Icon(Icons.broken_image_outlined,
               color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(height: 8),
           Text(_imageError!, textAlign: TextAlign.center),
           TextButton.icon(
             style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
             onPressed: _reload,
-            icon: const AppIcon(Icons.refresh_rounded, size: 18),
+            icon: const Icon(Icons.refresh_rounded, size: 18),
             label: const Text('重新加载'),
           ),
         ],
@@ -464,7 +464,7 @@ class _VerificationCompleteDialogState
               color: colors.primaryContainer,
               shape: BoxShape.circle,
             ),
-            child: AppIcon(Icons.check_rounded,
+            child: Icon(Icons.check_rounded,
                 color: colors.onPrimaryContainer, size: 32),
           ),
         ),

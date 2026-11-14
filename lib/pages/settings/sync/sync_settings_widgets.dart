@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/state_presentation.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class SyncPageBody extends StatelessWidget {
   const SyncPageBody({super.key, required this.children, this.maxWidth = 880});
@@ -114,7 +113,7 @@ class SyncFeedback extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppIcon(
+                Icon(
                   error
                       ? Icons.error_outline_rounded
                       : busy
@@ -124,7 +123,6 @@ class SyncFeedback extends StatelessWidget {
                   color: error
                       ? colors.onErrorContainer
                       : colors.onSecondaryContainer,
-                  fill: 1,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

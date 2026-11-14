@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class StateIconBadge extends StatelessWidget {
   const StateIconBadge({
@@ -26,7 +25,7 @@ class StateIconBadge extends StatelessWidget {
             color: backgroundColor,
             child: SizedBox.square(
               dimension: size,
-              child: AppIcon(icon, size: iconSize, color: foregroundColor, fill: 1),
+              child: Icon(icon, size: iconSize, color: foregroundColor),
             ),
           ),
         ),
@@ -93,7 +92,7 @@ class StateActionButton extends StatelessWidget {
     return button(
       onPressed: onPressed,
       style: styleOf(context),
-      icon: icon == null ? null : AppIcon(icon, size: 20),
+      icon: icon == null ? null : Icon(icon, size: 20),
       label: reserveText == null
           ? label
           : Stack(

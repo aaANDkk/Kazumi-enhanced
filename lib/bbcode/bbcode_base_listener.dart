@@ -5,7 +5,6 @@ import 'package:kazumi/bbcode/bbcode_elements.dart';
 
 import 'generated/BBCodeListener.dart';
 import 'generated/BBCodeParser.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class BBCodeBaseListener implements BBCodeListener {
   final List<dynamic> bbcode = [];
@@ -101,7 +100,7 @@ class BBCodeBaseListener implements BBCodeListener {
           }
         }
         // Add icon to the end of quoted text
-        bbcode.add(const AppIcon(Icons.format_quote));
+        bbcode.add(const Icon(Icons.format_quote));
         break;
       case 'B':
       case 'b':

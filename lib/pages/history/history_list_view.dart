@@ -4,7 +4,6 @@ import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/history/history_module.dart';
 import 'package:kazumi/pages/history/history_list_query.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class HistoryListView extends StatefulWidget {
   const HistoryListView({
@@ -123,13 +122,13 @@ class _HistoryListViewState extends State<HistoryListView> {
                             textInputAction: TextInputAction.search,
                             decoration: InputDecoration(
                               hintText: '搜索番剧、别名或来源',
-                              prefixIcon: const AppIcon(Icons.search_rounded),
+                              prefixIcon: const Icon(Icons.search_rounded),
                               suffixIcon: _query.isEmpty
                                   ? null
                                   : IconButton(
                                       tooltip: '清除搜索',
                                       onPressed: _clearSearch,
-                                      icon: const AppIcon(Icons.close_rounded),
+                                      icon: const Icon(Icons.close_rounded),
                                     ),
                               filled: true,
                               fillColor: colors.surfaceContainerHigh,
@@ -266,7 +265,7 @@ class _HistoryListViewState extends State<HistoryListView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (selected) ...[
-                      AppIcon(Icons.check_rounded,
+                      Icon(Icons.check_rounded,
                           size: 18, color: colors.onSecondaryContainer),
                       const SizedBox(width: 8),
                     ],

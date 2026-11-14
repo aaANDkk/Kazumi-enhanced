@@ -10,7 +10,6 @@ import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/request/config/api_endpoints.dart';
 import 'package:kazumi/services/plugin/plugin_import_parser.dart';
 import 'package:kazumi/utils/encoding.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum RuleAddSource { catalog, clipboard, file, create }
 
@@ -65,12 +64,11 @@ Future<RuleAddSource?> showRuleAddDialog(BuildContext context) =>
                     clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       minVerticalPadding: 14,
-                      leading: AppIcon(option.$2,
-                          color: colors.onSurfaceVariant, fill: 1),
+                      leading: Icon(option.$2, color: colors.onSurfaceVariant),
                       title: Text(option.$3),
                       subtitle: Text(option.$4),
                       trailing:
-                          const AppIcon(Icons.arrow_forward_rounded, size: 20),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
                       onTap: () => Navigator.of(context).pop(option.$1),
                     ),
                   ),
@@ -156,7 +154,7 @@ Future<void> showRuleShareDialog(BuildContext context, Plugin plugin) async {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('关闭')),
         FilledButton.icon(
-          icon: const AppIcon(Icons.copy_rounded, size: 18),
+          icon: const Icon(Icons.copy_rounded, size: 18),
           label: const Text('复制链接'),
           onPressed: () async {
             try {
@@ -275,7 +273,7 @@ class _RuleImportDialogState extends State<_RuleImportDialog> {
               onPressed: _saving || _text.text.trim().isEmpty ? null : _import,
               icon: _saving
                   ? const LoadingIndicator(size: 20)
-                  : const AppIcon(Icons.download_rounded, size: 18),
+                  : const Icon(Icons.download_rounded, size: 18),
               label: Text(_saving ? '正在导入' : '导入规则'),
             ),
           ],
@@ -389,7 +387,7 @@ class _RuleDialog extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 560),
       insetPadding: const EdgeInsets.all(24),
       scrollable: true,
-      icon: AppIcon(icon, color: colors.secondary, size: 32, fill: 1),
+      icon: Icon(icon, color: colors.secondary, size: 32),
       title: Text(title),
       content: SizedBox(width: 480, child: content),
       actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),

@@ -13,7 +13,6 @@ import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/request/config/api_endpoints.dart';
 import 'package:kazumi/services/plugin/api_rule_engine.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 abstract final class _RuleEditorText {
   static const pageTitle = '规则编辑器';
@@ -509,7 +508,7 @@ class _PluginEditorPageState extends State<PluginEditorPage> {
                           style: FilledButton.styleFrom(
                               minimumSize: const Size(0, 48)),
                           onPressed: _saving ? null : _testRule,
-                          icon: const AppIcon(Icons.science_outlined, fill: 1),
+                          icon: const Icon(Icons.science_outlined),
                           label: Text(
                               MediaQuery.textScalerOf(context).scale(14) > 20
                                   ? '测试'
@@ -522,7 +521,7 @@ class _PluginEditorPageState extends State<PluginEditorPage> {
                           onPressed: _saving ? null : _save,
                           icon: _saving
                               ? const LoadingIndicator(size: 20)
-                              : const AppIcon(Icons.check_rounded),
+                              : const Icon(Icons.check_rounded),
                           label: Text(_saving ? '保存中' : _RuleEditorText.save))),
                 ]),
               ),

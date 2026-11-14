@@ -5,7 +5,6 @@ import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/settings/settings_detail_scaffold.dart';
 import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/services/storage/image_cache_service.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class StorageSettingsPage extends StatefulWidget {
   const StorageSettingsPage({super.key});
@@ -30,7 +29,7 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
     final confirmed = await KazumiDialog.show<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const AppIcon(Icons.cleaning_services_rounded),
+        icon: const Icon(Icons.cleaning_services_rounded),
         title: const Text('清除图片缓存？'),
         content: const Text('图片会在下次加载时重新下载。视频、记录和设置不会删除。'),
         actions: [
@@ -90,9 +89,9 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
                             ? IconButton(
                                 tooltip: '重新统计',
                                 onPressed: _refreshSize,
-                                icon: const AppIcon(Icons.refresh_rounded),
+                                icon: const Icon(Icons.refresh_rounded),
                               )
-                            : const AppIcon(Icons.cleaning_services_rounded),
+                            : const Icon(Icons.cleaning_services_rounded),
                   ),
                 ],
               ),
@@ -102,7 +101,7 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
                   SettingsTile(
                     leading: Icons.receipt_long_rounded,
                     title: const Text('错误日志'),
-                    trailing: const AppIcon(Icons.chevron_right_rounded),
+                    trailing: const Icon(Icons.chevron_right_rounded),
                     onPressed: (_) =>
                         context.pushNamed('/settings/storage/logs'),
                   ),

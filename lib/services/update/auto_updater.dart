@@ -16,7 +16,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/utils/version.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum InstallationType {
   windowsMsix('MSIX'),
@@ -334,7 +333,7 @@ class AutoUpdater {
             children: [
               Row(
                 children: [
-                  AppIcon(
+                  Icon(
                     Icons.check_circle,
                     color: Theme.of(context).colorScheme.primary,
                     size: 20,

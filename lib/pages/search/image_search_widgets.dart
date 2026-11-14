@@ -58,14 +58,13 @@ class _ImageSourceSelector extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 4,
                   children: [
-                    AppIcon(
+                    Icon(
                         selected
                             ? Icons.check_rounded
                             : url
                                 ? Icons.link_rounded
                                 : Icons.photo_library_outlined,
-                        size: 20,
-                        fill: 1),
+                        size: 20),
                     Text(url ? '图片链接' : '本地图片'),
                   ]),
             ),
@@ -98,7 +97,7 @@ class _ScreenshotTip extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final type = Theme.of(context).textTheme;
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      AppIcon(Icons.aspect_ratio_rounded, size: 24, color: colors.primary),
+      Icon(Icons.aspect_ratio_rounded, size: 24, color: colors.primary),
       const SizedBox(width: 12),
       Expanded(
           child:
@@ -243,7 +242,7 @@ class _BestMatch extends StatelessWidget {
           FilledButton.icon(
             onPressed: () => onSelect(_title(result)),
             style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-            icon: const AppIcon(Icons.search_rounded, size: 20),
+            icon: const Icon(Icons.search_rounded, size: 20),
             label: const Text('搜索这部番'),
           ),
           if (video != null)
@@ -254,7 +253,7 @@ class _BestMatch extends StatelessWidget {
                 side: BorderSide(color: colors.onSurface.withValues(alpha: .5)),
                 minimumSize: const Size(0, 48),
               ),
-              icon: const AppIcon(Icons.play_arrow_rounded, size: 20),
+              icon: const Icon(Icons.play_arrow_rounded, size: 20),
               label: const Text('预览片段'),
             ),
         ]),
@@ -380,7 +379,7 @@ class _OtherMatch extends StatelessWidget {
                                     ?.copyWith(color: colors.onSurfaceVariant)),
                           ])),
                       const SizedBox(width: 8),
-                      AppIcon(Icons.arrow_outward_rounded,
+                      Icon(Icons.arrow_outward_rounded,
                           size: 20, color: colors.onSurfaceVariant),
                     ])),
           ),
@@ -403,7 +402,7 @@ class _Metadata extends StatelessWidget {
           TextSpan(children: [
             WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
-                child: AppIcon(icon, size: 16, color: colors.onSurface)),
+                child: Icon(icon, size: 16, color: colors.onSurface)),
             TextSpan(text: '  $label'),
           ]),
           style: Theme.of(context)
@@ -422,7 +421,7 @@ class _TraceFrame extends StatelessWidget {
     final source = result.image;
     final colors = Theme.of(context).colorScheme;
     final placeholder = Center(
-        child: AppIcon(Icons.movie_outlined,
+        child: Icon(Icons.movie_outlined,
             size: 40, color: colors.onSurfaceVariant));
     return AspectRatio(
         aspectRatio: 16 / 9,

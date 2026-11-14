@@ -6,7 +6,6 @@ import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/bangumi_sync_service.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum _SyncStatus {
   unconnected('未连接', Icons.link_off_rounded),
@@ -242,7 +241,7 @@ class _SyncStatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppIcon(status.icon, size: 16, color: foreground, fill: 1),
+          Icon(status.icon, size: 16, color: foreground),
           const SizedBox(width: 6),
           Flexible(
             child: Text(status.label,

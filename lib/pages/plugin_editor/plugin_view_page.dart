@@ -21,7 +21,6 @@ import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/plugin/plugin_import_parser.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PluginViewPage extends StatefulWidget {
   const PluginViewPage({super.key, required this.controller});
@@ -201,7 +200,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
               ? IconButton(
                   tooltip: '退出多选',
                   onPressed: _leaveSelection,
-                  icon: const AppIcon(Icons.close_rounded))
+                  icon: const Icon(Icons.close_rounded))
               : null,
           actions: [
             if (_selecting)
@@ -210,13 +209,13 @@ class _PluginViewPageState extends State<PluginViewPage> {
                 onPressed: _selected.isEmpty || _deleting
                     ? null
                     : () => _delete(Set.of(_selected)),
-                icon: const AppIcon(Icons.delete_outline_rounded, fill: 1),
+                icon: const Icon(Icons.delete_outline_rounded),
               )
             else
               IconButton(
                 tooltip: '批量选择',
                 onPressed: () => setState(() => _selecting = true),
-                icon: const AppIcon(Icons.checklist_rounded),
+                icon: const Icon(Icons.checklist_rounded),
               ),
             const SizedBox(width: 8),
           ],
@@ -270,14 +269,14 @@ class _PluginViewPageState extends State<PluginViewPage> {
                                 style: FilledButton.styleFrom(
                                     minimumSize: const Size(120, 48)),
                                 onPressed: _add,
-                                icon: const AppIcon(Icons.add_rounded),
+                                icon: const Icon(Icons.add_rounded),
                                 label: const Text('添加规则')),
                             FilledButton.tonalIcon(
                                 style: FilledButton.styleFrom(
                                     minimumSize: const Size(120, 48)),
                                 onPressed: () =>
                                     context.pushNamed('/settings/plugin/shop'),
-                                icon: const AppIcon(Icons.travel_explore_rounded),
+                                icon: const Icon(Icons.travel_explore_rounded),
                                 label: const Text('规则仓库')),
                           ],
                         ),
@@ -287,13 +286,13 @@ class _PluginViewPageState extends State<PluginViewPage> {
                           onChanged: (_) => setState(() {}),
                           decoration: ruleInputDecoration(context,
                               hint: '搜索名称或站点',
-                              prefix: const AppIcon(Icons.search_rounded),
+                              prefix: const Icon(Icons.search_rounded),
                               suffix: query.isEmpty
                                   ? null
                                   : IconButton(
                                       tooltip: '清除搜索',
                                       onPressed: () => setState(_search.clear),
-                                      icon: const AppIcon(Icons.close_rounded))),
+                                      icon: const Icon(Icons.close_rounded))),
                         ),
                         const SizedBox(height: 12),
                         Wrap(
@@ -318,7 +317,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
                                         : _updateAll,
                                 icon: _updating
                                     ? const LoadingIndicator(size: 20)
-                                    : const AppIcon(Icons.sync_rounded, size: 20),
+                                    : const Icon(Icons.sync_rounded, size: 20),
                                 label: Text(_updating ? '正在更新' : '更新全部')),
                             if (_selecting)
                               TextButton(
@@ -434,7 +433,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
                                 index: index,
                                 child: const SizedBox.square(
                                     dimension: 48,
-                                    child: AppIcon(Icons.drag_indicator_rounded)),
+                                    child: Icon(Icons.drag_indicator_rounded)),
                               ),
                             ),
                         ]),
@@ -457,7 +456,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
         builder: (context, toggle) => IconButton(
             tooltip: '${plugin.name} 的更多操作',
             onPressed: toggle,
-            icon: const AppIcon(Icons.more_horiz_rounded)),
+            icon: const Icon(Icons.more_horiz_rounded)),
         menuChildren: [
           KazumiMenuItem(
               onPressed: () => context.pushNamed('/settings/plugin/editor',

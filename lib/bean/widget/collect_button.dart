@@ -4,7 +4,6 @@ import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/pages/collect/collect_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class CollectButton extends StatefulWidget {
   const CollectButton({
@@ -81,7 +80,7 @@ class _CollectButtonState extends State<CollectButton> {
       builder: (context, toggle) => widget._isExtended
           ? FilledButton.icon(
               onPressed: toggle,
-              icon: AppIcon(_iconFor(collectType)),
+              icon: Icon(_iconFor(collectType)),
               label: Text(_labelFor(collectType)),
             )
           : IconButton(
@@ -91,7 +90,7 @@ class _CollectButtonState extends State<CollectButton> {
               iconSize: widget.iconSize,
               onPressed: toggle,
               tooltip: _labelFor(collectType),
-              icon: AppIcon(
+              icon: Icon(
                 _iconFor(collectType),
                 size: widget.iconSize,
                 color: widget.color,

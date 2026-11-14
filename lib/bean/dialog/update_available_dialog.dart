@@ -8,7 +8,6 @@ import 'package:kazumi/services/update/auto_updater.dart';
 import 'package:kazumi/services/update/update_download_source.dart';
 import 'package:kazumi/utils/date_time.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 typedef UpdateDialogChoice = ({
   InstallationType type,
@@ -182,7 +181,7 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
                         mode: LaunchMode.externalApplication,
                       ),
                       iconAlignment: IconAlignment.end,
-                      icon: const AppIcon(Icons.open_in_new_rounded, size: 16),
+                      icon: const Icon(Icons.open_in_new_rounded, size: 16),
                       label: const Text('更新日志'),
                     ),
                 ],

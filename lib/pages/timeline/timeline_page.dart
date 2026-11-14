@@ -15,7 +15,6 @@ import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/pages/timeline/timeline_controller.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/anime_season.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 part 'timeline_options.dart';
 part 'timeline_week_selector.dart';
@@ -362,13 +361,13 @@ class _TimelinePageState extends State<TimelinePage> {
                 ),
                 SizedBox(width: inAppBar ? 4 : 12),
                 if (inAppBar)
-                  const AppIcon(Icons.expand_more_rounded, size: 20)
+                  const Icon(Icons.expand_more_rounded, size: 20)
                 else
                   CircleAvatar(
                     radius: 18,
                     backgroundColor: colors.secondaryContainer,
                     foregroundColor: colors.onSecondaryContainer,
-                    child: const AppIcon(Icons.expand_more_rounded, size: 24),
+                    child: const Icon(Icons.expand_more_rounded, size: 24),
                   ),
               ],
             ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum _TileKind { plain, toggle, radio }
 
@@ -128,7 +127,7 @@ class _TileLabel extends StatelessWidget {
     return Row(
       children: [
         if (leading != null) ...[
-          AppIcon(leading, size: 24, color: secondary, fill: 1),
+          Icon(leading, size: 24, color: secondary),
           const SizedBox(width: 16),
         ],
         Expanded(
@@ -187,11 +186,10 @@ class SettingsCategoryTile extends StatelessWidget {
                 color: colorScheme.secondaryContainer,
                 shape: BoxShape.circle,
               ),
-              child: AppIcon(
+              child: Icon(
                 icon,
                 size: 18,
                 color: colorScheme.onSecondaryContainer,
-                fill: 1,
               ),
             ),
             const SizedBox(width: 16),
@@ -211,7 +209,7 @@ class SettingsCategoryTile extends StatelessWidget {
                 ],
               ),
             ),
-            AppIcon(
+            Icon(
               Icons.chevron_right_rounded,
               color: colorScheme.onSurfaceVariant,
             ),

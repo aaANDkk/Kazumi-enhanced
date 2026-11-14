@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/bean/widget/kazumi_menu.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class SettingsDropdownTile<T> extends StatefulWidget {
   const SettingsDropdownTile({
@@ -57,13 +56,13 @@ class _SettingsDropdownTileState<T> extends State<SettingsDropdownTile<T>> {
               selected: entry.key == widget.value,
               leadingIcon: widget.icons[entry.key] == null
                   ? null
-                  : AppIcon(widget.icons[entry.key]),
+                  : Icon(widget.icons[entry.key]),
               requestFocusOnHover: false,
               onPressed: enabled ? () => widget.onChanged(entry.key) : null,
             ),
         ],
       ),
-      trailing: const AppIcon(Icons.arrow_drop_down_rounded),
+      trailing: const Icon(Icons.arrow_drop_down_rounded),
     );
   }
 }

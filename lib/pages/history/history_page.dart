@@ -13,7 +13,6 @@ import 'package:kazumi/services/player/history_playback_service.dart';
 import 'package:kazumi/services/plugin/rule_engine_models.dart'
     show RuleCancelToken;
 import 'package:kazumi/utils/device.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key, required this.controller});
@@ -57,7 +56,7 @@ class _HistoryPageState extends State<HistoryPage> {
     final confirmed = await KazumiDialog.show<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const AppIcon(Icons.delete_sweep_outlined),
+        icon: const Icon(Icons.delete_sweep_outlined),
         title: const Text('清空历史记录？'),
         content: Text(
             '将删除全部 ${widget.controller.histories.length} 条观看记录，包括在线和缓存记录。此操作无法撤销。'),
@@ -122,7 +121,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       : IconButton.filledTonal(
                           tooltip: '管理历史记录',
                           onPressed: () => setState(() => _editing = true),
-                          icon: const AppIcon(Icons.edit_outlined),
+                          icon: const Icon(Icons.edit_outlined),
                         ),
                 ),
                 if (_editing)
@@ -131,7 +130,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     onPressed: _clearing || _deleting.isNotEmpty
                         ? null
                         : _clearHistory,
-                    icon: const AppIcon(Icons.delete_sweep_outlined),
+                    icon: const Icon(Icons.delete_sweep_outlined),
                   ),
               ],
             ],

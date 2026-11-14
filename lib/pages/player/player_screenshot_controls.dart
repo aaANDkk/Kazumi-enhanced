@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:kazumi/pages/player/controller/player_screenshot_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class PlayerScreenshotControls extends StatelessWidget {
   const PlayerScreenshotControls({
@@ -34,7 +33,7 @@ class PlayerScreenshotControls extends StatelessWidget {
                     color: Colors.white,
                   ),
                 )
-              : const AppIcon(Icons.photo_camera_outlined),
+              : const Icon(Icons.photo_camera_outlined),
         ),
         if (controller.candidates.isNotEmpty)
           IconButton(
@@ -48,7 +47,7 @@ class PlayerScreenshotControls extends StatelessWidget {
               count: controller.candidates.length,
               backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-              child: const AppIcon(Icons.photo_library_outlined),
+              child: const Icon(Icons.photo_library_outlined),
             ),
           ),
       ],

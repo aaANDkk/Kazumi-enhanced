@@ -18,7 +18,6 @@ import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/constants.dart';
 import 'package:kazumi/utils/date_time.dart';
 import 'package:kazumi/utils/search_parser.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 part 'search_filter_sheet.dart';
 part 'search_widgets.dart';
@@ -152,18 +151,18 @@ class _SearchPageState extends State<SearchPage> {
         leading: IconButton(
           tooltip: '搜索',
           onPressed: () => _submit(_input.text),
-          icon: const AppIcon(Icons.search_rounded),
+          icon: const Icon(Icons.search_rounded),
         ),
         trailing: [
           if (value.text.isNotEmpty || _hasSearched)
             IconButton(
                 tooltip: '清空搜索',
                 onPressed: _clearSearch,
-                icon: const AppIcon(Icons.close_rounded)),
+                icon: const Icon(Icons.close_rounded)),
           IconButton(
             tooltip: '以图搜番',
             onPressed: _imageSearch,
-            icon: const AppIcon(Icons.image_search_rounded),
+            icon: const Icon(Icons.image_search_rounded),
           ),
         ],
         onSubmitted: _submit,
@@ -187,10 +186,10 @@ class _SearchPageState extends State<SearchPage> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            leading: const AppIcon(Icons.tune_rounded),
+            leading: const Icon(Icons.tune_rounded),
             title: const Text('按条件查找'),
             subtitle: const Text('题材、放送时间与评分'),
-            trailing: const AppIcon(Icons.chevron_right_rounded),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: _showFilters,
           )),
       const SizedBox(height: 28),
@@ -229,7 +228,7 @@ class _SearchPageState extends State<SearchPage> {
                           horizontal: 16, vertical: 4),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
-                      leading: AppIcon(Icons.history_rounded,
+                      leading: Icon(Icons.history_rounded,
                           color: theme.colorScheme.onSurfaceVariant, size: 22),
                       title: Text(_readableQuery(history.keyword),
                           maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -238,8 +237,8 @@ class _SearchPageState extends State<SearchPage> {
                               tooltip: '删除这条搜索记录',
                               onPressed: () =>
                                   _controller.deleteSearchHistory(history),
-                              icon: const AppIcon(Icons.close_rounded, size: 20))
-                          : AppIcon(Icons.north_west_rounded,
+                              icon: const Icon(Icons.close_rounded, size: 20))
+                          : Icon(Icons.north_west_rounded,
                               size: 18,
                               color: theme.colorScheme.onSurfaceVariant),
                       onTap: () => _submit(history.keyword),
@@ -292,7 +291,7 @@ class _SearchPageState extends State<SearchPage> {
                       _controller.notShowWatchedBangumis ||
                       _controller.notShowAbandonedBangumis,
                   smallSize: 6,
-                  child: const AppIcon(Icons.tune_rounded)),
+                  child: const Icon(Icons.tune_rounded)),
             ),
           ]),
           Text(
@@ -331,7 +330,7 @@ class _SearchPageState extends State<SearchPage> {
                 await _controller.setNotShowWatchedBangumis(false);
                 await _controller.setNotShowAbandonedBangumis(false);
               },
-              icon: Icons.visibility_rounded,
+              icon: Icons.visibility_outlined,
               text: '显示全部',
             ),
           ],
@@ -354,7 +353,7 @@ class _SearchPageState extends State<SearchPage> {
                       : _controller.hasMoreSearchResults
                           ? TextButton.icon(
                               onPressed: _loadMore,
-                              icon: const AppIcon(Icons.expand_more_rounded),
+                              icon: const Icon(Icons.expand_more_rounded),
                               label: const Text('加载更多'))
                           : Text('已经看到全部结果',
                               style: Theme.of(context)

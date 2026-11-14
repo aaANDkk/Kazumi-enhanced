@@ -4,7 +4,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/pages/my/my_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class DanmakuShieldEditor extends StatefulWidget {
   const DanmakuShieldEditor({
@@ -57,7 +56,7 @@ class _DanmakuShieldEditorState extends State<DanmakuShieldEditor> {
                 suffixIcon: IconButton(
                   tooltip: '添加规则',
                   onPressed: _addRule,
-                  icon: const AppIcon(Icons.add_rounded),
+                  icon: const Icon(Icons.add_rounded),
                 ),
               ),
               onSubmitted: (_) => _addRule(),
@@ -90,7 +89,7 @@ class _DanmakuShieldEditorState extends State<DanmakuShieldEditor> {
                       : null,
                   trailing: IconButton(
                     tooltip: '删除规则',
-                    icon: const AppIcon(Icons.close_rounded, size: 20),
+                    icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => myController.removeShieldList(rule),
                   ),
                 ),

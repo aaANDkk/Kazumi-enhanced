@@ -7,7 +7,6 @@ import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/modules/download/download_module.dart';
 import 'package:kazumi/modules/roads/road_module.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class EpisodeSelectionPanel extends StatefulWidget {
   const EpisodeSelectionPanel({
@@ -172,7 +171,7 @@ class EpisodeSelectionPanelState extends State<EpisodeSelectionPanel> {
                         IconButton(
                           tooltip: '定位当前集',
                           onPressed: _canLocate ? revealCurrentEpisode : null,
-                          icon: const AppIcon(Icons.my_location_rounded, size: 20),
+                          icon: const Icon(Icons.my_location_rounded, size: 20),
                         ),
                         if (!widget.isOffline)
                           IconButton.filledTonal(
@@ -180,7 +179,7 @@ class EpisodeSelectionPanelState extends State<EpisodeSelectionPanel> {
                             onPressed: count > 0 && widget.onDownload != null
                                 ? () => widget.onDownload!(_visibleRoad)
                                 : null,
-                            icon: const AppIcon(Icons.download_rounded, size: 20),
+                            icon: const Icon(Icons.download_rounded, size: 20),
                           ),
                       ],
                     ),
@@ -493,7 +492,7 @@ class _RoadSelectorState extends State<_RoadSelector> {
                           turns: open ? 0.5 : 0,
                           duration: duration,
                           curve: Curves.easeOutCubic,
-                          child: AppIcon(Icons.keyboard_arrow_down_rounded,
+                          child: Icon(Icons.keyboard_arrow_down_rounded,
                               color: foreground),
                         ),
                       ],

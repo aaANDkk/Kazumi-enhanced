@@ -10,7 +10,6 @@ import 'package:kazumi/modules/download/download_module.dart';
 import 'package:kazumi/modules/roads/road_module.dart';
 import 'package:kazumi/pages/download/download_controller.dart';
 import 'package:kazumi/pages/video/video_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class DownloadEpisodeSheet extends StatefulWidget {
   final int road;
@@ -187,7 +186,7 @@ class _DownloadEpisodeSheetState extends State<DownloadEpisodeSheet> {
                           onPressed: _selectedEpisodes.isEmpty
                               ? null
                               : () => _startBatchDownload(context),
-                          icon: const AppIcon(Icons.download_rounded),
+                          icon: const Icon(Icons.download_rounded),
                           label: Text(_selectedEpisodes.isEmpty
                               ? '选择集数'
                               : '下载 ${_selectedEpisodes.length} 集'),
@@ -297,7 +296,7 @@ class _EpisodeTile extends StatelessWidget {
                 Positioned(
                   top: 4,
                   right: 4,
-                  child: AppIcon(
+                  child: Icon(
                     Icons.download_done_rounded,
                     size: 14,
                     color: colorScheme.outline,
@@ -311,7 +310,7 @@ class _EpisodeTile extends StatelessWidget {
                     scale: isSelected ? 1 : 0,
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeInOutCubic,
-                    child: AppIcon(
+                    child: Icon(
                       Icons.check_circle_rounded,
                       size: 14,
                       color: colorScheme.onSecondaryContainer,

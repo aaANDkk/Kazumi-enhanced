@@ -6,7 +6,6 @@ import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/download/download_module.dart';
 import 'package:kazumi/utils/format.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 const Duration _kExpandDuration = Duration(milliseconds: 250);
 const Curve _kExpandCurve = Curves.easeInOutCubic;
@@ -125,7 +124,7 @@ class DownloadRecordCard extends StatelessWidget {
                   KazumiMenuButton(
                     animated: false,
                     builder: (context, toggle) => IconButton(
-                      icon: AppIcon(Icons.more_vert,
+                      icon: Icon(Icons.more_vert,
                           color: colorScheme.onSurfaceVariant),
                       tooltip: '更多操作',
                       onPressed: toggle,
@@ -145,7 +144,7 @@ class DownloadRecordCard extends StatelessWidget {
                       turns: expanded ? 0.5 : 0,
                       duration: _kExpandDuration,
                       curve: _kExpandCurve,
-                      child: AppIcon(
+                      child: Icon(
                         Icons.expand_more,
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -263,7 +262,7 @@ class _EpisodeStatusBadge extends StatelessWidget {
     switch (episode.status) {
       case DownloadStatus.completed:
         background = colorScheme.secondaryContainer;
-        child = AppIcon(
+        child = Icon(
           Icons.check_rounded,
           size: 18,
           color: colorScheme.onSecondaryContainer,
@@ -290,16 +289,15 @@ class _EpisodeStatusBadge extends StatelessWidget {
         break;
       case DownloadStatus.failed:
         background = colorScheme.errorContainer;
-        child = AppIcon(
+        child = Icon(
           Icons.error_outline_rounded,
           size: 18,
           color: colorScheme.onErrorContainer,
-          fill: 1,
         );
         break;
       case DownloadStatus.paused:
         background = colorScheme.surfaceContainerHighest;
-        child = AppIcon(
+        child = Icon(
           Icons.pause_rounded,
           size: 18,
           color: colorScheme.onSurfaceVariant,
@@ -308,7 +306,7 @@ class _EpisodeStatusBadge extends StatelessWidget {
       case DownloadStatus.pending:
       default:
         background = colorScheme.surfaceContainerHighest;
-        child = AppIcon(
+        child = Icon(
           Icons.schedule_rounded,
           size: 18,
           color: colorScheme.onSurfaceVariant,

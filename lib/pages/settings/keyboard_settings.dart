@@ -6,7 +6,6 @@ import 'package:kazumi/bean/settings/settings_detail_scaffold.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/constants.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class _ShortcutGroup {
   const _ShortcutGroup(this.title, this.functions);
@@ -212,7 +211,7 @@ class _KeyboardSettingsPageState extends State<KeyboardSettingsPage> {
       title: const Text('操作设置'),
       actions: [
         IconButton(
-          icon: const AppIcon(Icons.settings_backup_restore_rounded),
+          icon: const Icon(Icons.settings_backup_restore_rounded),
           tooltip: '恢复默认',
           onPressed: restoreDefaults,
         ),
@@ -367,7 +366,7 @@ class _KeyCap extends StatelessWidget {
                 GestureDetector(
                   onTap: onDelete,
                   behavior: HitTestBehavior.opaque,
-                  child: AppIcon(
+                  child: Icon(
                     Icons.close_rounded,
                     size: 14,
                     color: colorScheme.onSurfaceVariant,
@@ -406,7 +405,7 @@ class _AddKeyButton extends StatelessWidget {
           customBorder: shape,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: AppIcon(
+            child: Icon(
               Icons.add_rounded,
               size: 16,
               color: colorScheme.onSurfaceVariant,

@@ -18,7 +18,6 @@ import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/search/image_search_module.dart';
 import 'package:kazumi/pages/search/search_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 part 'image_search_widgets.dart';
 
@@ -209,7 +208,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
     KazumiDialog.show<void>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const AppIcon(Icons.image_search_rounded),
+        icon: const Icon(Icons.image_search_rounded),
         title: const Text('让截图更容易被找到'),
         content: const SingleChildScrollView(
           child: Column(
@@ -247,7 +246,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
           IconButton(
               onPressed: _showHelp,
               tooltip: '搜图小贴士',
-              icon: const AppIcon(Icons.help_outline_rounded)),
+              icon: const Icon(Icons.help_outline_rounded)),
         ],
       ),
       body: SafeArea(
@@ -454,7 +453,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
               suffixIcon: IconButton(
                 onPressed: busy ? null : _pasteUrl,
                 tooltip: '粘贴图片链接',
-                icon: const AppIcon(Icons.content_paste_rounded),
+                icon: const Icon(Icons.content_paste_rounded),
               ),
             ),
           ),
@@ -505,7 +504,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
                 TextButton.icon(
                     onPressed: busy ? null : _pickImage,
                     label: const Text('更换截图'),
-                    icon: const AppIcon(Icons.swap_horiz_rounded, size: 20)),
+                    icon: const Icon(Icons.swap_horiz_rounded, size: 20)),
               ],
             )
           else
@@ -563,11 +562,9 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ),
       icon: searching || _isPicking
           ? LoadingIndicator(size: 24, color: colors.onSurfaceVariant)
-          : AppIcon(
-              _hasImage
-                  ? Icons.image_search_rounded
-                  : Icons.add_photo_alternate_outlined,
-              fill: 1),
+          : Icon(_hasImage
+              ? Icons.image_search_rounded
+              : Icons.add_photo_alternate_outlined),
       label: Text(searching
           ? '正在识别'
           : _isPicking

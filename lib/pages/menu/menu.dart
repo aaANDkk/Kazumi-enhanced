@@ -11,7 +11,6 @@ import 'package:kazumi/pages/my/my_controller.dart';
 import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/pages/router.dart';
 import 'package:kazumi/pages/timeline/timeline_controller.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key, required this.location});
@@ -240,28 +239,28 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
                 elevation: 0,
                 heroTag: null,
                 onPressed: () => context.pushNamed('/search/'),
-                child: const AppIcon(Icons.search),
+                child: const Icon(Icons.search),
               ),
               labelType: NavigationRailLabelType.selected,
               destinations: const <NavigationRailDestination>[
                 NavigationRailDestination(
-                  selectedIcon: AppIcon(Icons.home),
-                  icon: AppIcon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  icon: Icon(Icons.home_outlined),
                   label: Text('推荐'),
                 ),
                 NavigationRailDestination(
-                  selectedIcon: AppIcon(Icons.access_time_filled),
-                  icon: AppIcon(Icons.access_time_outlined),
+                  selectedIcon: Icon(Icons.access_time_filled),
+                  icon: Icon(Icons.access_time_outlined),
                   label: Text('时间表'),
                 ),
                 NavigationRailDestination(
-                  selectedIcon: AppIcon(Icons.favorite),
-                  icon: AppIcon(Icons.favorite_border),
+                  selectedIcon: Icon(Icons.favorite),
+                  icon: Icon(Icons.favorite_border),
                   label: Text('追番'),
                 ),
                 NavigationRailDestination(
-                  selectedIcon: AppIcon(Icons.person),
-                  icon: AppIcon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  icon: Icon(Icons.person_outline),
                   label: Text('我的'),
                 ),
               ],

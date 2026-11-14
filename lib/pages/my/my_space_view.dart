@@ -4,7 +4,6 @@ import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/my/watch_stats.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum MyDestination {
   theme,
@@ -143,7 +142,7 @@ class _WideSpaceLayout extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppIcon(Icons.info_outline_rounded, size: 20, fill: 1),
+                  Icon(Icons.info_outline_rounded, size: 20),
                   SizedBox(width: 8),
                   Flexible(child: Text('关于 Kazumi')),
                 ],
@@ -231,7 +230,7 @@ class _CompactSpaceLayout extends StatelessWidget {
       SettingsTile(
         title: Text(title),
         leading: icon,
-        trailing: const AppIcon(Icons.chevron_right_rounded, size: 20),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 20),
         onPressed: (_) => onOpen(destination),
       );
 }
@@ -310,7 +309,7 @@ class _WatchStatsPanel extends StatelessWidget {
                 else
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: AppIcon(Icons.auto_awesome_rounded,
+                    child: Icon(Icons.auto_awesome_rounded,
                         color: colors.primary, size: 20),
                   ),
                 Expanded(
@@ -482,9 +481,9 @@ class _ToolTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                AppIcon(icon, size: compact ? 24 : 30),
+                Icon(icon, size: compact ? 24 : 30),
                 const Spacer(),
-                const AppIcon(Icons.arrow_forward_rounded, size: 20),
+                const Icon(Icons.arrow_forward_rounded, size: 20),
               ],
             ),
             SizedBox(height: compact ? 12 : 26),
@@ -592,7 +591,7 @@ class _PreferenceAction extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppIcon(icon, size: 28),
+            Icon(icon, size: 28),
             const SizedBox(height: 10),
             Text(label,
                 textAlign: TextAlign.center,
@@ -625,7 +624,7 @@ class MySettingsButton extends StatelessWidget {
           ),
         ),
         onPressed: onTap,
-        icon: const AppIcon(Icons.tune_rounded, size: 20),
+        icon: const Icon(Icons.tune_rounded, size: 20),
         label: const Text('设置'),
       ),
     );
@@ -645,7 +644,7 @@ class _ArrowCue extends StatelessWidget {
           height: 32,
           decoration: BoxDecoration(
               color: color, borderRadius: BorderRadius.circular(20)),
-          child: AppIcon(Icons.arrow_forward_rounded, color: foreground, size: 20),
+          child: Icon(Icons.arrow_forward_rounded, color: foreground, size: 20),
         ),
       );
 }
@@ -675,7 +674,7 @@ class _ShapeIcon extends StatelessWidget {
             color: color,
             child: SizedBox.square(
               dimension: size,
-              child: AppIcon(icon, color: foreground, size: size * .44),
+              child: Icon(icon, color: foreground, size: size * .44),
             ),
           ),
         ),

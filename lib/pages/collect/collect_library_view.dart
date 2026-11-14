@@ -9,7 +9,6 @@ import 'package:kazumi/modules/collect/collect_layout.dart';
 import 'package:kazumi/modules/collect/collect_module.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/pages/collect/collect_library_query.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 part 'collect_library_card.dart';
 part 'collect_library_controls.dart';
@@ -284,8 +283,8 @@ class CollectLibraryViewState extends State<CollectLibraryView>
               IconButton(
                 tooltip: _searchExpanded ? '收起搜索' : '搜索收藏',
                 isSelected: _searchExpanded,
-                selectedIcon: const AppIcon(Icons.search_off_rounded),
-                icon: const AppIcon(Icons.search_rounded),
+                selectedIcon: const Icon(Icons.search_off_rounded),
+                icon: const Icon(Icons.search_rounded),
                 onPressed: _searchExpanded ? _closeSearch : _focusSearch,
               ),
             const SizedBox(width: 8),
@@ -321,7 +320,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
         child: SearchBar(
           controller: _searchController,
           focusNode: _searchFocus,
-          leading: const AppIcon(Icons.search_rounded, size: 22),
+          leading: const Icon(Icons.search_rounded, size: 22),
           trailing: [
             if (_query.isNotEmpty)
               IconButton(
@@ -330,7 +329,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
                   _searchController.clear();
                   _search('');
                 },
-                icon: const AppIcon(Icons.close_rounded),
+                icon: const Icon(Icons.close_rounded),
               ),
           ],
           elevation: const WidgetStatePropertyAll(0),

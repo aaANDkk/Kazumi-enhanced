@@ -31,7 +31,6 @@ import 'package:kazumi/services/player/pip_utils.dart';
 import 'package:kazumi/services/player/timed_shutdown_service.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/device.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class VideoPage extends StatefulWidget {
   const VideoPage({
@@ -429,7 +428,7 @@ class _VideoPageState extends State<VideoPage>
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const AppIcon(Icons.arrow_back,
+                            icon: const Icon(Icons.arrow_back,
                                 color: Colors.white),
                             onPressed: _onBackPressed,
                           ),
@@ -437,7 +436,7 @@ class _VideoPageState extends State<VideoPage>
                               child: dtb.DragToMoveArea(
                                   child: SizedBox(height: 40))),
                           IconButton(
-                            icon: const AppIcon(Icons.refresh_outlined,
+                            icon: const Icon(Icons.refresh_outlined,
                                 color: Colors.white),
                             onPressed: () {
                               changeEpisode(
@@ -449,13 +448,13 @@ class _VideoPageState extends State<VideoPage>
                           if (layout.hasSidePanel)
                             IconButton(
                               onPressed: _toggleSidePanel,
-                              icon: const AppIcon(
+                              icon: const Icon(
                                 Icons.menu_open_rounded,
                                 color: Colors.white,
                               ),
                             ),
                           IconButton(
-                            icon: AppIcon(
+                            icon: Icon(
                                 showDebugLog
                                     ? Icons.bug_report
                                     : Icons.bug_report_outlined,

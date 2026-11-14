@@ -218,7 +218,6 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                 key: ValueKey('sort-${_draft.sort}'),
                 initialValue: _draft.sort,
                 isExpanded: true,
-                icon: const AppIcon(Icons.arrow_drop_down_rounded),
                 decoration: _fieldDecoration('排序方式'),
                 items: [
                   for (final sort in _searchSortLabels.entries)
@@ -261,7 +260,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                         suffixIcon: IconButton(
                             tooltip: '添加标签',
                             onPressed: () => _addTag(_tagController.text),
-                            icon: const AppIcon(Icons.add_rounded))),
+                            icon: const Icon(Icons.add_rounded))),
                     onSubmitted: _addTag,
                   ),
                 ],
@@ -279,7 +278,6 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                     key: ValueKey('season-${_draft.season}'),
                     initialValue: _draft.season,
                     isExpanded: true,
-                    icon: const AppIcon(Icons.arrow_drop_down_rounded),
                     decoration: _fieldDecoration('放送季度'),
                     items: [
                       const DropdownMenuItem(value: '', child: Text('不限季度')),
@@ -296,7 +294,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                       child: Wrap(spacing: 8, children: [
                         TextButton.icon(
                             onPressed: _pickCustomDateRange,
-                            icon: const AppIcon(Icons.date_range_outlined),
+                            icon: const Icon(Icons.date_range_outlined),
                             label: const Text('自定义日期')),
                         if (_draft.dateRange != null ||
                             _draft.season.isNotEmpty)
@@ -429,7 +427,6 @@ class _SearchFilterGroup extends StatelessWidget {
   Widget build(BuildContext context) => ExpansionTile(
         key: PageStorageKey(title),
         title: Text(title),
-        trailing: const AppIcon(Icons.expand_more_rounded),
         subtitle: Text(summary),
         initiallyExpanded: initiallyExpanded,
         tilePadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),

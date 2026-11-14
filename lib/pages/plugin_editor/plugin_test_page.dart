@@ -12,7 +12,6 @@ import 'package:kazumi/pages/plugin_editor/rule_management_widgets.dart';
 import 'package:kazumi/plugins/api_rule_config.dart';
 import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/services/logging/logger.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 const _h8 = SizedBox(height: 8.0);
 const _h12 = SizedBox(height: 12.0);
@@ -154,7 +153,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
       actions: [
         IconButton(
           onPressed: _resetState,
-          icon: const AppIcon(Icons.restart_alt_rounded),
+          icon: const Icon(Icons.restart_alt_rounded),
           tooltip: '重置测试',
         ),
         const SizedBox(width: 8),
@@ -195,7 +194,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
                             style: FilledButton.styleFrom(
                                 minimumSize: const Size(132, 48)),
                             onPressed: isTesting ? _resetState : _startTest,
-                            icon: AppIcon(isTesting
+                            icon: Icon(isTesting
                                 ? Icons.stop_rounded
                                 : Icons.play_arrow_rounded),
                             label: Text(isTesting ? '停止测试' : '开始测试'),
@@ -277,7 +276,6 @@ class _PluginTestPageState extends State<PluginTestPage> {
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         key: ValueKey('$number-$_hasRun-$completed'),
-        trailing: const AppIcon(Icons.expand_more_rounded),
         tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         leading: Container(
@@ -292,10 +290,9 @@ class _PluginTestPageState extends State<PluginTestPage> {
               borderRadius: BorderRadius.circular(completed ? 20 : 12)),
           child: Center(
               child: completed
-                  ? AppIcon(Icons.check_rounded, color: foreground)
+                  ? Icon(Icons.check_rounded, color: foreground)
                   : failed
-                      ? AppIcon(Icons.error_outline_rounded,
-                          color: foreground, fill: 1)
+                      ? Icon(Icons.error_outline_rounded, color: foreground)
                       : Text('$number',
                           style: theme.textTheme.titleMedium
                               ?.copyWith(color: foreground))),
@@ -319,7 +316,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
         decoration: ruleInputDecoration(context,
             label: '测试关键词',
             hint: '输入番剧名称',
-            prefix: const AppIcon(Icons.search_rounded)),
+            prefix: const Icon(Icons.search_rounded)),
         enabled: !isTesting,
         textInputAction: TextInputAction.search,
         onSubmitted: (_) => _startTest(),
@@ -332,8 +329,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          AppIcon(Icons.error_outline,
-              color: theme.colorScheme.error, size: 20, fill: 1),
+          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child:
@@ -412,7 +408,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
                       }
                     }
                   },
-                  icon: const AppIcon(Icons.copy_rounded, size: 18)),
+                  icon: const Icon(Icons.copy_rounded, size: 18)),
             ]),
           ),
           SizedBox(
@@ -483,8 +479,8 @@ class _PluginTestPageState extends State<PluginTestPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(children: [
-            AppIcon(Icons.warning_amber_outlined,
-                color: theme.colorScheme.error, size: 20, fill: 1),
+            Icon(Icons.warning_amber_outlined,
+                color: theme.colorScheme.error, size: 20),
             const SizedBox(width: 8.0),
             Expanded(
                 child: Text('部分节点被跳过（${diagnostics.length}）',
@@ -532,7 +528,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
               ),
               IconButton(
                 onPressed: isTesting ? null : () => _toggleFragment(i),
-                icon: AppIcon(
+                icon: Icon(
                   isShowingFragment ? Icons.keyboard_arrow_up : Icons.code,
                   size: 18,
                   color: theme.colorScheme.primary,

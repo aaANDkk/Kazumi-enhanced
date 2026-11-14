@@ -4,7 +4,6 @@ import 'package:dlna_dart/dlna.dart';
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/services/logging/logger.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 class RemotePlay {
   Future<void> castVideo(String video, {required String title}) async {
@@ -103,30 +102,30 @@ class RemotePlay {
     return parts.length > 3 ? parts[3] : deviceType;
   }
 
-  AppIcon _deviceUPnPIcon(String deviceType) {
+  Icon _deviceUPnPIcon(String deviceType) {
     switch (deviceType) {
       case 'MediaRenderer':
-        return const AppIcon(Icons.cast_connected);
+        return const Icon(Icons.cast_connected);
       case 'MediaServer':
-        return const AppIcon(Icons.cast_connected);
+        return const Icon(Icons.cast_connected);
       case 'InternetGatewayDevice':
-        return const AppIcon(Icons.router);
+        return const Icon(Icons.router);
       case 'BasicDevice':
-        return const AppIcon(Icons.device_hub);
+        return const Icon(Icons.device_hub);
       case 'DimmableLight':
-        return const AppIcon(Icons.lightbulb);
+        return const Icon(Icons.lightbulb);
       case 'WLANAccessPoint':
-        return const AppIcon(Icons.lan);
+        return const Icon(Icons.lan);
       case 'WLANConnectionDevice':
-        return const AppIcon(Icons.wifi_tethering);
+        return const Icon(Icons.wifi_tethering);
       case 'Printer':
-        return const AppIcon(Icons.print);
+        return const Icon(Icons.print);
       case 'Scanner':
-        return const AppIcon(Icons.scanner);
+        return const Icon(Icons.scanner);
       case 'DigitalSecurityCamera':
-        return const AppIcon(Icons.camera_enhance_outlined);
+        return const Icon(Icons.camera_enhance_outlined);
       default:
-        return const AppIcon(Icons.question_mark);
+        return const Icon(Icons.question_mark);
     }
   }
 }

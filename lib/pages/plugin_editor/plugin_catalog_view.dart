@@ -16,7 +16,6 @@ import 'package:kazumi/pages/plugin_editor/rule_management_widgets.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/services/network/rules_mirror.dart';
 import 'package:kazumi/services/storage/storage.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 enum _CatalogSort { lastUpdate, name }
 
@@ -154,7 +153,7 @@ class _PluginCatalogViewState extends State<PluginCatalogView> {
   Widget _sortButton() => KazumiMenuButton(
         builder: (context, toggle) => TextButton.icon(
           onPressed: toggle,
-          icon: const AppIcon(Icons.sort_rounded, size: 20),
+          icon: const Icon(Icons.sort_rounded, size: 20),
           label: Text(_sort == _CatalogSort.name ? '名称排序' : '最近更新'),
         ),
         menuChildren: [
@@ -182,13 +181,13 @@ class _PluginCatalogViewState extends State<PluginCatalogView> {
           onChanged: (_) => setState(() {}),
           decoration: ruleInputDecoration(context,
               hint: '搜索规则或作者',
-              prefix: const AppIcon(Icons.search_rounded),
+              prefix: const Icon(Icons.search_rounded),
               suffix: _search.text.isEmpty
                   ? null
                   : IconButton(
                       tooltip: '清除搜索',
                       onPressed: () => setState(_search.clear),
-                      icon: const AppIcon(Icons.close_rounded))),
+                      icon: const Icon(Icons.close_rounded))),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -223,7 +222,7 @@ class _PluginCatalogViewState extends State<PluginCatalogView> {
         IconButton.filledTonal(
             tooltip: '刷新规则列表',
             onPressed: _loading ? null : _refresh,
-            icon: const AppIcon(Icons.refresh_rounded)),
+            icon: const Icon(Icons.refresh_rounded)),
       ]),
       if (_loading && total > 0)
         const Padding(
@@ -364,7 +363,7 @@ class _CatalogRuleAction extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          AppIcon(Icons.check_rounded, size: 18, color: colors.onSurfaceVariant),
+          Icon(Icons.check_rounded, size: 18, color: colors.onSurfaceVariant),
           const SizedBox(width: 6),
           Text('已安装',
               style: Theme.of(context)
@@ -385,7 +384,7 @@ class _CatalogRuleAction extends StatelessWidget {
         if (busy)
           const LoadingIndicator(size: 20)
         else
-          AppIcon(installing ? Icons.add_rounded : Icons.sync_rounded, size: 18),
+          Icon(installing ? Icons.add_rounded : Icons.sync_rounded, size: 18),
         const SizedBox(width: 6),
         Text(installing ? (busy ? '安装中' : '安装') : (busy ? '更新中' : '更新')),
       ]),

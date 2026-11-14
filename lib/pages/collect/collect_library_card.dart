@@ -405,7 +405,7 @@ class _CollectEntryMenu extends StatelessWidget {
                   ),
                   onPressed: toggle,
                   iconAlignment: IconAlignment.end,
-                  icon: const AppIcon(Icons.expand_more_rounded, size: 18),
+                  icon: const Icon(Icons.expand_more_rounded, size: 18),
                   label: Text(type.label),
                 ),
               )
@@ -417,7 +417,7 @@ class _CollectEntryMenu extends StatelessWidget {
                   minimumSize: const Size(48, 48),
                   visualDensity: VisualDensity.standard,
                 ),
-                icon: const AppIcon(Icons.more_horiz_rounded, size: 20),
+                icon: const Icon(Icons.more_horiz_rounded, size: 20),
               );
       },
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
-import 'package:kazumi/bean/widget/app_icon.dart';
 
 /// Keeps the rule catalog lazy within the responsive onboarding scroll surface.
 class OnboardingStepLayout extends StatelessWidget {
@@ -170,7 +169,7 @@ class OnboardingStepIcon extends StatelessWidget {
         color: background,
         child: SizedBox.square(
           dimension: 88,
-          child: AppIcon(icon, size: 36, color: foreground),
+          child: Icon(icon, size: 36, color: foreground),
         ),
       ),
     );
@@ -209,7 +208,7 @@ class OnboardingHint extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppIcon(Icons.info_outline_rounded,
+          Icon(Icons.info_outline_rounded,
               size: 20, color: theme.colorScheme.onSurfaceVariant),
           const SizedBox(width: 10),
           Expanded(
