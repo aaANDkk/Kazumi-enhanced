@@ -41,15 +41,35 @@ void main() {
     expect(ReiconMapper.resolveSpec(Icons.person_outline)?.filled, isFalse);
     expect(ReiconMapper.resolveSpec(Icons.person)?.filled, isTrue);
     expect(ReiconMapper.resolveSpec(Icons.settings_outlined)?.filled, isFalse);
-    expect(ReiconMapper.resolveSpec(Icons.settings_rounded)?.filled, isFalse);
-    expect(ReiconMapper.resolveSpec(Icons.extension_rounded)?.filled, isFalse);
-    expect(
-      ReiconMapper.resolveSpec(Icons.drag_indicator_rounded)?.name,
-      equals('reorder'),
-    );
-    expect(ReiconMapper.resolveSpec(Icons.more_horiz_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.settings_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.extension_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.dark_mode_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.contrast_rounded)?.name, equals('moonStars'));
+    expect(ReiconMapper.resolveSpec(Icons.contrast_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.palette_rounded)?.filled, isTrue);
     expect(ReiconMapper.resolveSpec(Icons.tune_rounded)?.name, equals('setting4'));
+    expect(ReiconMapper.resolveSpec(Icons.tune_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.search_rounded)?.name, equals('search4'));
+    expect(ReiconMapper.resolveSpec(Icons.search_rounded)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.search)?.name, equals('search4'));
+    expect(ReiconMapper.resolveSpec(Icons.search)?.filled, isTrue);
+    expect(ReiconMapper.resolveSpec(Icons.add_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.drag_indicator_rounded)?.name, equals('reorder'));
+    expect(ReiconMapper.resolveSpec(Icons.drag_indicator_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.sort_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.menu_open_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.swap_horiz_rounded)?.filled, isFalse);
+    expect(ReiconMapper.resolveSpec(Icons.more_horiz_rounded)?.filled, isTrue);
     expect(ReiconMapper.resolveSpec(Icons.star_rounded)?.filled, isTrue);
+
+    expect(
+      ReiconMapper.resolveSvg(Icons.info_outline_rounded, filled: true),
+      equals(ReiconMapper.resolveSvgByName('infoCircle', filled: true)),
+    );
+    expect(
+      ReiconMapper.resolveSvg(Icons.lock_open, filled: false),
+      equals(ReiconMapper.resolveSvgByName('lockOpen', filled: false)),
+    );
   });
 
   testWidgets('AppIcon preserves requested size inside oversized constraints',
@@ -112,6 +132,35 @@ void main() {
 
     expect(find.byType(SvgPicture), findsOneWidget);
     expect(find.byIcon(unmapped), findsOneWidget);
+  });
+
+  testWidgets('AppIcon fill parameter overrides default outline/filled variant',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Row(
+            children: [
+              AppIcon(Icons.info_outline_rounded, size: 20, fill: 1),
+              AppIcon(Icons.lock_open, size: 20, fill: 0),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
+    expect(svgs, hasLength(2));
+    final infoLoader = svgs[0].bytesLoader as SvgStringLoader;
+    final lockLoader = svgs[1].bytesLoader as SvgStringLoader;
+    expect(
+      infoLoader.provideSvg(null),
+      equals(ReiconMapper.resolveSvgByName('infoCircle', filled: true)),
+    );
+    expect(
+      lockLoader.provideSvg(null),
+      equals(ReiconMapper.resolveSvgByName('lockOpen', filled: false)),
+    );
   });
 
   testWidgets('PlayPauseIcon toggles between Reicon play and pause',

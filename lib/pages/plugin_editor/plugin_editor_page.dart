@@ -509,7 +509,7 @@ class _PluginEditorPageState extends State<PluginEditorPage> {
                           style: FilledButton.styleFrom(
                               minimumSize: const Size(0, 48)),
                           onPressed: _saving ? null : _testRule,
-                          icon: const AppIcon(Icons.science_outlined),
+                          icon: const AppIcon(Icons.science_outlined, fill: 1),
                           label: Text(
                               MediaQuery.textScalerOf(context).scale(14) > 20
                                   ? '测试'

@@ -461,6 +461,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                 child: AppIcon(
                   icon,
                   size: 20,
+                  fill: 1,
                   color: requiresVerification
                       ? colors.onSurfaceVariant
                       : colors.error,

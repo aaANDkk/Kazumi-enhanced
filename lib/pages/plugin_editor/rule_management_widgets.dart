@@ -37,7 +37,7 @@ class RulePageIntro extends StatelessWidget {
                       color: colors.onPrimaryContainer)),
             ),
             const SizedBox(width: 16),
-            AppIcon(icon, size: 32, color: colors.onPrimaryContainer),
+            AppIcon(icon, size: 32, color: colors.onPrimaryContainer, fill: 1),
           ]),
           const SizedBox(height: 8),
           Text(description,
@@ -81,7 +81,7 @@ class RuleSection extends StatelessWidget {
           children: [
             Row(children: [
               if (icon != null) ...[
-                AppIcon(icon, color: theme.colorScheme.primary),
+                AppIcon(icon, color: theme.colorScheme.primary, fill: 1),
                 const SizedBox(width: 12),
               ],
               Expanded(

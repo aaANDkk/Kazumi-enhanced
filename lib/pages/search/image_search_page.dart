@@ -563,9 +563,11 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       ),
       icon: searching || _isPicking
           ? LoadingIndicator(size: 24, color: colors.onSurfaceVariant)
-          : AppIcon(_hasImage
-              ? Icons.image_search_rounded
-              : Icons.add_photo_alternate_outlined),
+          : AppIcon(
+              _hasImage
+                  ? Icons.image_search_rounded
+                  : Icons.add_photo_alternate_outlined,
+              fill: 1),
       label: Text(searching
           ? '正在识别'
           : _isPicking

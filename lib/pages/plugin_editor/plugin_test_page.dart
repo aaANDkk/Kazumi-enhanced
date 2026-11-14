@@ -277,6 +277,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         key: ValueKey('$number-$_hasRun-$completed'),
+        trailing: const AppIcon(Icons.expand_more_rounded),
         tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         leading: Container(
@@ -293,7 +294,8 @@ class _PluginTestPageState extends State<PluginTestPage> {
               child: completed
                   ? AppIcon(Icons.check_rounded, color: foreground)
                   : failed
-                      ? AppIcon(Icons.error_outline_rounded, color: foreground)
+                      ? AppIcon(Icons.error_outline_rounded,
+                          color: foreground, fill: 1)
                       : Text('$number',
                           style: theme.textTheme.titleMedium
                               ?.copyWith(color: foreground))),
@@ -330,7 +332,8 @@ class _PluginTestPageState extends State<PluginTestPage> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          AppIcon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
+          AppIcon(Icons.error_outline,
+              color: theme.colorScheme.error, size: 20, fill: 1),
           const SizedBox(width: 12),
           Expanded(
             child:
@@ -481,7 +484,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
         children: [
           Row(children: [
             AppIcon(Icons.warning_amber_outlined,
-                color: theme.colorScheme.error, size: 20),
+                color: theme.colorScheme.error, size: 20, fill: 1),
             const SizedBox(width: 8.0),
             Expanded(
                 child: Text('部分节点被跳过（${diagnostics.length}）',

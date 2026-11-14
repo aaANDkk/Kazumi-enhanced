@@ -509,6 +509,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
               label: Text(tag, overflow: TextOverflow.ellipsis),
               selected: true,
               showCheckmark: false,
+              deleteIcon: const AppIcon(Icons.close_rounded, size: 18),
               deleteButtonTooltipMessage: '移除标签 $tag',
               onDeleted: _submitting ? null : () => _toggleTag(tag),
             ),
@@ -608,7 +609,8 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
               color: colors.errorContainer,
               borderRadius: BorderRadius.circular(16)),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AppIcon(Icons.error_outline_rounded, color: colors.onErrorContainer),
+            AppIcon(Icons.error_outline_rounded,
+                color: colors.onErrorContainer, fill: 1),
             const SizedBox(width: 12),
             Expanded(
                 child: Text(_submitError!,

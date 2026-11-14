@@ -242,7 +242,7 @@ class _SyncStatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppIcon(status.icon, size: 16, color: foreground),
+          AppIcon(status.icon, size: 16, color: foreground, fill: 1),
           const SizedBox(width: 6),
           Flexible(
             child: Text(status.label,

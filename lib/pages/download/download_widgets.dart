@@ -294,6 +294,7 @@ class _EpisodeStatusBadge extends StatelessWidget {
           Icons.error_outline_rounded,
           size: 18,
           color: colorScheme.onErrorContainer,
+          fill: 1,
         );
         break;
       case DownloadStatus.paused:

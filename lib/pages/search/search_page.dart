@@ -331,7 +331,7 @@ class _SearchPageState extends State<SearchPage> {
                 await _controller.setNotShowWatchedBangumis(false);
                 await _controller.setNotShowAbandonedBangumis(false);
               },
-              icon: Icons.visibility_outlined,
+              icon: Icons.visibility_rounded,
               text: '显示全部',
             ),
           ],

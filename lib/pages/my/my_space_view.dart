@@ -143,7 +143,7 @@ class _WideSpaceLayout extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppIcon(Icons.info_outline_rounded, size: 20),
+                  AppIcon(Icons.info_outline_rounded, size: 20, fill: 1),
                   SizedBox(width: 8),
                   Flexible(child: Text('关于 Kazumi')),
                 ],

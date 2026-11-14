@@ -183,7 +183,7 @@ class BangumiTimelineCard extends StatelessWidget {
                       color: colors.surfaceContainerHighest,
                       child: Center(
                         child: AppIcon(Icons.movie_outlined,
-                            color: colors.onSurfaceVariant),
+                            color: colors.onSurfaceVariant, fill: 1),
                       ),
                     )
                   : NetworkImgLayer(

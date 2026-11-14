@@ -54,7 +54,9 @@ class AppIcon extends StatelessWidget {
       );
     }
 
-    final String? svg = ReiconMapper.resolveSvg(iconData);
+    final bool? filledOverride = fill == null ? null : fill! >= 0.5;
+    final String? svg =
+        ReiconMapper.resolveSvg(iconData, filled: filledOverride);
     if (svg == null) {
       return Icon(
         iconData,

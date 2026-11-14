@@ -168,7 +168,7 @@ class _DownloadPageState extends State<DownloadPage> {
       case DownloadStatus.completed:
         buttons.add(IconButton(
           icon: AppIcon(Icons.play_circle_outline,
-              size: 20, color: colorScheme.primary),
+              size: 20, color: colorScheme.primary, fill: 1),
           onPressed: () => _playEpisode(record, episode),
           tooltip: '播放',
           visualDensity: VisualDensity.compact,
@@ -231,7 +231,7 @@ class _DownloadPageState extends State<DownloadPage> {
 
     buttons.add(IconButton(
       icon: AppIcon(Icons.delete_outline,
-          size: 20, color: colorScheme.onSurfaceVariant),
+          size: 20, color: colorScheme.onSurfaceVariant, fill: 1),
       onPressed: () => _confirmDeleteEpisode(record, episode),
       tooltip: '删除',
       visualDensity: VisualDensity.compact,

@@ -33,7 +33,7 @@ Future<DanmakuDestination?> showDanmakuDestinationSheet(BuildContext context) {
                       Navigator.of(context).pop(DanmakuDestination.chatRoom),
                 ),
                 ListTile(
-                  leading: const AppIcon(Icons.subtitles_outlined),
+                  leading: const AppIcon(Icons.subtitles_outlined, fill: 1),
                   title: const Text('视频弹幕'),
                   subtitle: const Text('发送至远程弹幕库'),
                   onTap: () => Navigator.of(context)

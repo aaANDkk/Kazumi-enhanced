@@ -217,7 +217,7 @@ class _DanmakuSettingsSheetState extends State<_DanmakuSettingsSheet> {
                         .pop(_DanmakuSettingsDestination.timeOffset),
                   ),
                   SettingsTile(
-                    leading: Icons.filter_alt_outlined,
+                    leading: Icons.filter_alt_rounded,
                     title: const Text('屏蔽规则'),
                     description: const Text('关键词与正则表达式'),
                     onPressed: (context) => Navigator.of(context)

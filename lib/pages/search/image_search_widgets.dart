@@ -64,7 +64,8 @@ class _ImageSourceSelector extends StatelessWidget {
                             : url
                                 ? Icons.link_rounded
                                 : Icons.photo_library_outlined,
-                        size: 20),
+                        size: 20,
+                        fill: 1),
                     Text(url ? '图片链接' : '本地图片'),
                   ]),
             ),

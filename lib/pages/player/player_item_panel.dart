@@ -1020,6 +1020,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                     ? Icons.lock_outline
                     : Icons.lock_open,
                 color: Colors.white,
+                fill: 0,
               ),
               tooltip: playerController.panel.lockPanel ? '解锁面板' : '锁定面板',
               onPressed: () {

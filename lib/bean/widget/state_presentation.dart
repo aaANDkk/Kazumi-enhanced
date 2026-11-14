@@ -26,7 +26,7 @@ class StateIconBadge extends StatelessWidget {
             color: backgroundColor,
             child: SizedBox.square(
               dimension: size,
-              child: AppIcon(icon, size: iconSize, color: foregroundColor),
+              child: AppIcon(icon, size: iconSize, color: foregroundColor, fill: 1),
             ),
           ),
         ),

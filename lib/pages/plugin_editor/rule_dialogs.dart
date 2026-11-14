@@ -65,7 +65,8 @@ Future<RuleAddSource?> showRuleAddDialog(BuildContext context) =>
                     clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       minVerticalPadding: 14,
-                      leading: AppIcon(option.$2, color: colors.onSurfaceVariant),
+                      leading: AppIcon(option.$2,
+                          color: colors.onSurfaceVariant, fill: 1),
                       title: Text(option.$3),
                       subtitle: Text(option.$4),
                       trailing:
@@ -388,7 +389,7 @@ class _RuleDialog extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 560),
       insetPadding: const EdgeInsets.all(24),
       scrollable: true,
-      icon: AppIcon(icon, color: colors.secondary, size: 32),
+      icon: AppIcon(icon, color: colors.secondary, size: 32, fill: 1),
       title: Text(title),
       content: SizedBox(width: 480, child: content),
       actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 24),

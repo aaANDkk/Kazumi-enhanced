@@ -153,6 +153,7 @@ class _VideoDetailsSheetState extends State<_VideoDetailsSheet>
             ExpansionTile(
               key: const PageStorageKey('video-parameters'),
               title: const Text('视频参数'),
+              trailing: const AppIcon(Icons.expand_more_rounded),
               shape: const Border(),
               collapsedShape: const Border(),
               children: [
@@ -163,6 +164,7 @@ class _VideoDetailsSheetState extends State<_VideoDetailsSheet>
             ExpansionTile(
               key: const PageStorageKey('audio-parameters'),
               title: const Text('音频参数'),
+              trailing: const AppIcon(Icons.expand_more_rounded),
               shape: const Border(),
               collapsedShape: const Border(),
               children: [

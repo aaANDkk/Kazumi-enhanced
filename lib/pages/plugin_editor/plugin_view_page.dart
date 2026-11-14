@@ -210,7 +210,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
                 onPressed: _selected.isEmpty || _deleting
                     ? null
                     : () => _delete(Set.of(_selected)),
-                icon: const AppIcon(Icons.delete_outline_rounded),
+                icon: const AppIcon(Icons.delete_outline_rounded, fill: 1),
               )
             else
               IconButton(

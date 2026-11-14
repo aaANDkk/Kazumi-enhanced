@@ -124,6 +124,7 @@ class SyncFeedback extends StatelessWidget {
                   color: error
                       ? colors.onErrorContainer
                       : colors.onSecondaryContainer,
+                  fill: 1,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

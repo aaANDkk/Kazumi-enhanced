@@ -190,6 +190,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
                       shape: const Border(),
                       collapsedShape: const Border(),
                       leading: const AppIcon(Icons.tune_rounded),
+                      trailing: const AppIcon(Icons.expand_more_rounded),
                       title: const Text('同步偏好'),
                       subtitle: Text('状态冲突时：${priority.label}'),
                       tilePadding: const EdgeInsets.symmetric(
@@ -306,7 +307,8 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
           collapsedShape: const Border(),
           tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          leading: const AppIcon(Icons.account_circle_outlined),
+          leading: const AppIcon(Icons.account_circle_outlined, fill: 1),
+          trailing: const AppIcon(Icons.expand_more_rounded),
           title: Text(configured ? 'Bangumi 账号' : '连接 Bangumi 账号'),
           subtitle: Text(_bangumi.initialized
               ? _bangumi.username

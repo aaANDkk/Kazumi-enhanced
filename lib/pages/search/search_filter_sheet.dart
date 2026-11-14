@@ -218,6 +218,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                 key: ValueKey('sort-${_draft.sort}'),
                 initialValue: _draft.sort,
                 isExpanded: true,
+                icon: const AppIcon(Icons.arrow_drop_down_rounded),
                 decoration: _fieldDecoration('排序方式'),
                 items: [
                   for (final sort in _searchSortLabels.entries)
@@ -278,6 +279,7 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
                     key: ValueKey('season-${_draft.season}'),
                     initialValue: _draft.season,
                     isExpanded: true,
+                    icon: const AppIcon(Icons.arrow_drop_down_rounded),
                     decoration: _fieldDecoration('放送季度'),
                     items: [
                       const DropdownMenuItem(value: '', child: Text('不限季度')),
@@ -427,6 +429,7 @@ class _SearchFilterGroup extends StatelessWidget {
   Widget build(BuildContext context) => ExpansionTile(
         key: PageStorageKey(title),
         title: Text(title),
+        trailing: const AppIcon(Icons.expand_more_rounded),
         subtitle: Text(summary),
         initiallyExpanded: initiallyExpanded,
         tilePadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),

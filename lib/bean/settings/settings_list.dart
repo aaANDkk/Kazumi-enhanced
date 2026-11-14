@@ -128,7 +128,7 @@ class _TileLabel extends StatelessWidget {
     return Row(
       children: [
         if (leading != null) ...[
-          AppIcon(leading, size: 24, color: secondary),
+          AppIcon(leading, size: 24, color: secondary, fill: 1),
           const SizedBox(width: 16),
         ],
         Expanded(
@@ -191,6 +191,7 @@ class SettingsCategoryTile extends StatelessWidget {
                 icon,
                 size: 18,
                 color: colorScheme.onSecondaryContainer,
+                fill: 1,
               ),
             ),
             const SizedBox(width: 16),

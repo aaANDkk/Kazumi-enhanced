@@ -657,6 +657,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                     : Icons.info_outline_rounded,
                 size: 20,
                 color: colors.onInverseSurface,
+                fill: 1,
               ),
               const SizedBox(width: 12),
               Expanded(

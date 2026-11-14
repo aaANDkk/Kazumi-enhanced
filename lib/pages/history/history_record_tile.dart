@@ -84,8 +84,8 @@ class HistoryRecordTile extends StatelessWidget {
           color: colors.errorContainer,
           borderRadius: borderRadius,
         ),
-        child:
-            AppIcon(Icons.delete_outline_rounded, color: colors.onErrorContainer),
+        child: AppIcon(Icons.delete_outline_rounded,
+            color: colors.onErrorContainer, fill: 1),
       ),
       child: Material(
         color: colors.surfaceContainerLow,
@@ -190,7 +190,8 @@ class HistoryRecordTile extends StatelessWidget {
                                       height: coverHeight,
                                       color: colors.surfaceContainerHighest,
                                       child: AppIcon(Icons.movie_outlined,
-                                          color: colors.onSurfaceVariant),
+                                          color: colors.onSurfaceVariant,
+                                          fill: 1),
                                     )
                                   : NetworkImgLayer(
                                       src: image,
@@ -263,7 +264,8 @@ class HistoryRecordTile extends StatelessWidget {
               visualDensity: VisualDensity.compact,
             ),
             onPressed: onDelete,
-            icon: AppIcon(Icons.delete_outline_rounded, size: iconSize),
+            icon: AppIcon(Icons.delete_outline_rounded,
+                size: iconSize, fill: 1),
           ),
         ),
       );

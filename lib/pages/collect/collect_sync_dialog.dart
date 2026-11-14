@@ -360,7 +360,7 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: AppIcon(icon, size: 24, color: foreground),
+                child: AppIcon(icon, size: 24, color: foreground, fill: 1),
               ),
               const SizedBox(width: 12),
               Expanded(
