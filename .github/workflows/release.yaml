@@ -51,7 +51,6 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml
       - name: Get Flutter dependencies
         run: flutter pub get
         shell: bash
@@ -76,7 +75,6 @@ jobs:
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml
       - name: Get Flutter dependencies
         run: flutter pub get
         shell: bash
@@ -118,7 +116,6 @@ jobs:
         id: flutter-action
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml
       - name: Get Flutter dependencies
         run: flutter pub get
         shell: bash
@@ -258,14 +255,12 @@ jobs:
           }
           echo "tag=$tag" >> $env:GITHUB_ENV
       - run: echo "Kazumi_windows_x64_${env:tag}.exe build progress"
-      - run: choco install yq
       - name: Enable Git longpaths
         run: git config --system core.longpaths true
       - name: Set up Flutter
         uses: subosito/flutter-action@v2.16.0
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml
       - name: Set up Java
         uses: actions/setup-java@v4
         with:

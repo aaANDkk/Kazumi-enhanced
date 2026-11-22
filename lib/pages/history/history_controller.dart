@@ -80,6 +80,13 @@ abstract class _HistoryController with Store {
     init();
   }
 
+  Future<void> deleteHistories(Iterable<History> items) async {
+    for (final item in items) {
+      await _historyRepository.deleteHistory(item);
+    }
+    init();
+  }
+
   Future<void> clearAll() async {
     await _historyRepository.clearAllHistories();
     histories.clear();

@@ -97,7 +97,11 @@ void main() async {
       title: 'Kazumi',
     );
     await DesktopWindowService.applyInitialWindowPosition(initialSize);
+    // Hidden title bar resizes twice here; a frame rasterized in between can
+    // pin the Windows swap chain to a stale size, stretching every later frame.
+    if (Platform.isWindows) WidgetsBinding.instance.deferFirstFrame();
     windowManager.waitUntilReadyToShow(windowOptions, () async {
+      if (Platform.isWindows) WidgetsBinding.instance.allowFirstFrame();
       if (DesktopWindowService.isSavedMaximized()) {
         await windowManager.maximize();
       }

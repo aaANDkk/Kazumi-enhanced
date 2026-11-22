@@ -1,11 +1,11 @@
 name: kazumi
 description: "A new Flutter project."
 publish_to: "none"
-version: 2.4.4+20404
+version: 2.4.5+20405
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
-  flutter: 3.50.0
+  flutter: ">=3.50.1"
 
 dependencies:
   flutter:
@@ -92,7 +92,7 @@ dependencies:
   desktop_webview_window:
     git:
       url: https://github.com/Predidit/linux_webview_window.git
-      ref: b429f8ba6b8a99cd0f7eb5fe8d1621f325635c3d
+      ref: 8b0d1a625795f2ec679f844349e11f77249f41b0
   media_kit:
     git:
       url: https://github.com/Predidit/media-kit.git

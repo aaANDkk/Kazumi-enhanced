@@ -15,8 +15,11 @@ class HistoryRecordTile extends StatelessWidget {
     required this.onDelete,
     required this.collectType,
     required this.onChangeCollect,
-    this.borderRadius = const BorderRadius.all(Radius.circular(24)),
+    required this.borderRadius,
     this.editing = false,
+    this.selected = false,
+    this.batchMode = false,
+    this.onToggleSelect,
     this.busy = false,
   });
 
@@ -29,28 +32,32 @@ class HistoryRecordTile extends StatelessWidget {
   final ValueChanged<CollectType>? onChangeCollect;
   final BorderRadius borderRadius;
   final bool editing;
+  final bool selected;
+  final bool batchMode;
+  final VoidCallback? onToggleSelect;
   final bool busy;
 
-  double get _progressRatio {
-    final progress = history.progresses[history.lastWatchEpisode];
-    return progress?.progressRatio ?? 0.0;
-  }
+  Progress? get _currentProgress => history.progresses[history.lastWatchEpisode];
 
-  String get _position {
-    final progress = history.progresses[history.lastWatchEpisode]?.progress;
-    if (progress == null || progress.inSeconds <= 0) return '';
-    final seconds = (progress.inSeconds % 60).toString().padLeft(2, '0');
-    final minutes = (progress.inMinutes % 60).toString().padLeft(2, '0');
-    final position = progress.inHours > 0
-        ? '${progress.inHours}:$minutes:$seconds'
-        : '${progress.inMinutes}:$seconds';
-    return '看到 $position';
+  double get _progressRatio => _currentProgress?.progressRatio ?? 0.0;
+
+  String _formatDuration(Duration duration) {
+    if (duration.inSeconds <= 0) return '';
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    return duration.inHours > 0
+        ? '${duration.inHours}:$minutes:$seconds'
+        : '${duration.inMinutes}:$seconds';
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final animDuration =
+        disableAnimations ? Duration.zero : const Duration(milliseconds: 200);
+
     final title = history.bangumiItem.nameCn.isEmpty
         ? history.bangumiItem.name
         : history.bangumiItem.nameCn;
@@ -64,8 +71,24 @@ class HistoryRecordTile extends StatelessWidget {
     final time =
         TimeOfDay.fromDateTime(history.lastWatchTime.toLocal()).format(context);
     final image = history.bangumiItem.images['large'] ?? '';
-    final position = _position;
+
+    final prog = _currentProgress;
+    final progressDuration = prog?.progress ?? Duration.zero;
+    final totalDuration = prog?.totalDuration ?? Duration.zero;
+    final currentPosText = _formatDuration(progressDuration);
+    final totalDurText = _formatDuration(totalDuration);
     final progressRatio = _progressRatio;
+    final hasRatioBar = totalDurText.isNotEmpty && progressRatio > 0.0;
+    final isFinished = hasRatioBar && progressRatio >= 0.95;
+
+    final effectiveRadius =
+        editing && selected ? BorderRadius.circular(16) : borderRadius;
+    final surfaceColor = editing && selected
+        ? Color.alphaBlend(
+            colors.errorContainer.withValues(alpha: 0.35),
+            colors.surfaceContainerLow,
+          )
+        : colors.surfaceContainerLow;
 
     return Dismissible(
       key: ValueKey(history.key),
@@ -81,275 +104,676 @@ class HistoryRecordTile extends StatelessWidget {
         padding: const EdgeInsets.only(right: 24),
         decoration: BoxDecoration(
           color: colors.errorContainer,
-          borderRadius: borderRadius,
+          borderRadius: effectiveRadius,
         ),
-        child:
-            Icon(Icons.delete_outline_rounded, color: colors.onErrorContainer),
-      ),
-      child: Material(
-        color: colors.surfaceContainerLow,
-        borderRadius: borderRadius,
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Keep menu focus outside the card's InkWell to prevent stuck highlights.
-            Positioned.fill(
-              child: Semantics(
-                button: !editing && !busy,
-                label: [
-                  title,
-                  episode,
-                  position,
-                  source,
-                  history.adapterName,
-                  time
-                ].where((text) => text.isNotEmpty).join('，'),
-                child: InkWell(onTap: editing || busy ? null : onDetails),
+            Icon(Icons.delete_rounded,
+                size: 22, color: colors.onErrorContainer),
+            const SizedBox(height: 2),
+            Text(
+              '删除',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: colors.onErrorContainer,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: LayoutBuilder(builder: (context, constraints) {
+          ],
+        ),
+      ),
+      child: AnimatedContainer(
+        duration: animDuration,
+        curve: Curves.easeInOutCubicEmphasized,
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: effectiveRadius,
+          border: editing && selected
+              ? Border.all(color: colors.error, width: 1.5)
+              : null,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              // Keep menu focus outside the card's InkWell to prevent stuck highlights.
+              Positioned.fill(
+                child: Semantics(
+                  button: !busy,
+                  selected: editing ? selected : null,
+                  label: [
+                    title,
+                    episode,
+                    if (currentPosText.isNotEmpty) '看到 $currentPosText',
+                    source,
+                    history.adapterName,
+                    time,
+                  ].where((text) => text.isNotEmpty).join('，'),
+                  child: InkWell(
+                    onTap: busy ? null : (editing ? onToggleSelect : onDetails),
+                  ),
+                ),
+              ),
+              LayoutBuilder(builder: (context, constraints) {
                 final wide = constraints.maxWidth >= 600;
                 final largeText =
                     MediaQuery.textScalerOf(context).scale(14) > 21;
-                final coverWidth = wide ? 72.0 : 60.0;
+                final coverWidth = wide ? 72.0 : 68.0;
                 final coverHeight = coverWidth * 1.4;
+                final pad = wide ? 14.0 : 12.0;
 
-                final content = Column(
+                final cover = ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: image.isEmpty
+                          ? Container(
+                              width: coverWidth,
+                              height: coverHeight,
+                              color: colors.surfaceContainerHighest,
+                              child: Icon(Icons.movie_outlined,
+                                  color: colors.onSurfaceVariant),
+                            )
+                          : NetworkImgLayer(
+                              src: image,
+                              width: coverWidth,
+                              height: coverHeight,
+                            ),
+                    ),
+                  ),
+                );
+
+                final titleRow = Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      episode,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                    if (progressRatio > 0.0) ...[
-                      const SizedBox(height: 6),
-                      Padding(
-                        padding: EdgeInsets.only(right: wide ? 28.0 : 20.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(2),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: LinearProgressIndicator(
-                              value: progressRatio,
-                              minHeight: 3.0,
-                              backgroundColor: colors.surfaceContainerHighest,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(colors.primary),
+                    Expanded(
+                      child: ExcludeSemantics(
+                        child: IgnorePointer(
+                          child: Text(
+                            title,
+                            maxLines: wide ? 1 : 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: (wide
+                                    ? theme.textTheme.titleMedium
+                                    : theme.textTheme.titleSmall)
+                                ?.copyWith(
+                              fontSize: wide ? 16.5 : 15.5,
+                              fontWeight: FontWeight.w700,
+                              height: 1.28,
                             ),
                           ),
                         ),
                       ),
+                    ),
+                    if (!editing && !busy) ...[
+                      const SizedBox(width: 4),
+                      _moreButton(context),
                     ],
-                    const SizedBox(height: 8),
-                    Text(
+                  ],
+                );
+
+                final episodeAndTimeRow = ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            episode,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: wide ? 13.5 : 13.0,
+                            ),
+                          ),
+                        ),
+                        if (hasRatioBar) ...[
+                          const SizedBox(width: 8),
+                          _TimeStatBadge(
+                            currentPosText: currentPosText,
+                            totalDurText: totalDurText,
+                            progressRatio: progressRatio,
+                            isFinished: isFinished,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+
+                Widget? progressSection;
+                if (hasRatioBar) {
+                  progressSection = ExcludeSemantics(
+                    child: IgnorePointer(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: wide ? 8 : 6),
+                        child: LinearProgressIndicator(value: progressRatio),
+                      ),
+                    ),
+                  );
+                } else if (currentPosText.isNotEmpty) {
+                  progressSection = ExcludeSemantics(
+                    child: IgnorePointer(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Container(
+                          margin: EdgeInsets.only(top: wide ? 8 : 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.access_time_rounded,
+                                  size: 13, color: colors.primary),
+                              const SizedBox(width: 4),
+                              Text(
+                                '看到 $currentPosText',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: colors.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                final metaText = ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: Text(
                       [
                         source,
                         if (history.adapterName.isNotEmpty) history.adapterName,
-                        time
+                        time,
                       ].join(' · '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
+                        fontSize: wide ? 12.0 : 11.5,
                       ),
                     ),
-                  ],
+                  ),
                 );
-                final actions = _actions(context, wide: wide);
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ExcludeSemantics(
-                          child: IgnorePointer(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: image.isEmpty
-                                  ? Container(
-                                      width: coverWidth,
-                                      height: coverHeight,
-                                      color: colors.surfaceContainerHighest,
-                                      child: Icon(Icons.movie_outlined,
-                                          color: colors.onSurfaceVariant),
-                                    )
-                                  : NetworkImgLayer(
-                                      src: image,
-                                      width: coverWidth,
-                                      height: coverHeight,
-                                    ),
-                            ),
+
+                final actionWidget = _trailingAction(context, wide: wide);
+
+                final bottomRow = largeText
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          metaText,
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: actionWidget,
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ExcludeSemantics(
-                            child: IgnorePointer(child: content),
-                          ),
-                        ),
-                        if (!largeText) ...[
-                          const SizedBox(width: 8),
-                          actions,
                         ],
-                      ],
-                    ),
-                    if (largeText) ...[
-                      const SizedBox(height: 12),
-                      Align(alignment: Alignment.centerRight, child: actions),
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(child: metaText),
+                          const SizedBox(width: 8),
+                          actionWidget,
+                        ],
+                      );
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: wide ? 16 : pad,
+                    vertical: pad,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      AnimatedSize(
+                        duration: animDuration,
+                        curve: Curves.easeInOutCubicEmphasized,
+                        child: editing
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: ExcludeSemantics(
+                                  child: IgnorePointer(
+                                    child: _SelectionCircle(
+                                      selected: selected,
+                                      duration: animDuration,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                      cover,
+                      SizedBox(width: wide ? 16 : 12),
+                      Expanded(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: coverHeight),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  titleRow,
+                                  SizedBox(height: wide ? 6 : 4),
+                                  episodeAndTimeRow,
+                                  if (progressSection != null) progressSection,
+                                ],
+                              ),
+                              SizedBox(height: wide ? 10 : 8),
+                              bottomRow,
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
-                  ],
+                  ),
                 );
               }),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _actions(BuildContext context, {required bool wide}) {
+  Widget _moreButton(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final buttonSize = wide ? const Size(38, 38) : const Size(34, 34);
-    final iconSize = wide ? 20.0 : 18.0;
-    final buttonRadius = wide ? 10.0 : 8.0;
-    final buttonSpacing = wide ? 8.0 : 6.0;
-    final buttonShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(buttonRadius),
+    return KazumiMenuButton(
+      menuChildren: [
+        KazumiMenuItem(
+          onPressed: onDetails,
+          label: '番剧详情',
+        ),
+        SubmenuButton(
+          menuChildren: [
+            for (final type in CollectType.values)
+              KazumiMenuItem(
+                selected: collectType == type,
+                onPressed: onChangeCollect == null
+                    ? null
+                    : () => onChangeCollect!(type),
+                label: type.label,
+              ),
+          ],
+          child: Text(collectType.label),
+        ),
+        const Divider(),
+        KazumiMenuItem(
+          destructive: true,
+          onPressed: onDelete,
+          label: '删除记录',
+        ),
+      ],
+      builder: (context, toggle) => Tooltip(
+        message: '更多操作',
+        child: InkResponse(
+          onTap: toggle,
+          radius: 18,
+          child: SizedBox(
+            width: 28,
+            height: 24,
+            child: Icon(
+              Icons.more_horiz_rounded,
+              size: 18,
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
     );
-    final normalActionsWidth = buttonSize.width * 3 + buttonSpacing * 2;
+  }
+
+  Widget _trailingAction(BuildContext context, {required bool wide}) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final height = wide ? 36.0 : 34.0;
 
     if (busy) {
       return SizedBox(
-        width: normalActionsWidth,
-        height: buttonSize.height,
-        child: Center(child: LoadingIndicator(size: wide ? 20 : 16)),
+        width: 48,
+        height: height,
+        child: Center(child: LoadingIndicator(size: wide ? 18 : 16)),
       );
     }
+
     if (editing) {
-      return SizedBox(
-        width: normalActionsWidth,
-        height: buttonSize.height,
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: IconButton.filledTonal(
-            tooltip: '删除记录',
-            style: IconButton.styleFrom(
-              minimumSize: buttonSize,
-              fixedSize: buttonSize,
-              backgroundColor: colors.errorContainer,
-              foregroundColor: colors.onErrorContainer,
-              padding: EdgeInsets.zero,
-              shape: buttonShape,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
+      if (selected) {
+        return ExcludeSemantics(
+          child: IgnorePointer(
+            child: Container(
+              height: 26,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: colors.error,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.delete_rounded, size: 13, color: colors.onError),
+                  const SizedBox(width: 4),
+                  Text(
+                    '待删除',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colors.onError,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onPressed: onDelete,
-            icon: Icon(Icons.delete_outline_rounded, size: iconSize),
+          ),
+        );
+      }
+      if (batchMode) {
+        return SizedBox(height: height);
+      }
+      return Material(
+        color: colors.errorContainer,
+        borderRadius: BorderRadius.circular(height / 2),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onDelete,
+          child: SizedBox(
+            height: height,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.delete_outline_rounded,
+                      size: 16, color: colors.onErrorContainer),
+                  const SizedBox(width: 4),
+                  Text(
+                    '删除',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: colors.onErrorContainer,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       );
     }
 
-    final buttons = [
-      IconButton.filledTonal(
-        tooltip: '继续播放',
-        style: IconButton.styleFrom(
-          minimumSize: buttonSize,
-          fixedSize: buttonSize,
-          backgroundColor: colors.primaryContainer,
-          foregroundColor: colors.onPrimaryContainer,
-          padding: EdgeInsets.zero,
-          shape: buttonShape,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-        ),
-        onPressed: onPlay,
-        icon: Icon(Icons.play_arrow_rounded, size: iconSize),
-      ),
-      if (onPlayNext != null)
-        IconButton.filledTonal(
-          tooltip: '下一集',
-          style: IconButton.styleFrom(
-            minimumSize: buttonSize,
-            fixedSize: buttonSize,
-            backgroundColor: colors.surfaceContainerHighest,
-            foregroundColor: colors.onSurfaceVariant,
-            padding: EdgeInsets.zero,
-            shape: buttonShape,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-          ),
-          onPressed: onPlayNext,
-          icon: Icon(Icons.skip_next_rounded, size: iconSize),
-        ),
-      KazumiMenuButton(
-        menuChildren: [
-          KazumiMenuItem(
-            onPressed: onDetails,
-            label: '番剧详情',
-          ),
-          SubmenuButton(
-            menuChildren: [
-              for (final type in CollectType.values)
-                KazumiMenuItem(
-                  selected: collectType == type,
-                  onPressed: onChangeCollect == null
-                      ? null
-                      : () => onChangeCollect!(type),
-                  label: type.label,
-                ),
-            ],
-            child: Text(collectType.label),
-          ),
-          const Divider(),
-          KazumiMenuItem(
-            destructive: true,
-            onPressed: onDelete,
-            label: '删除记录',
-          ),
-        ],
-        builder: (context, toggle) => IconButton.filledTonal(
-          tooltip: '更多操作',
-          style: IconButton.styleFrom(
-            minimumSize: buttonSize,
-            fixedSize: buttonSize,
-            backgroundColor: colors.surfaceContainerHighest,
-            foregroundColor: colors.onSurfaceVariant,
-            padding: EdgeInsets.zero,
-            shape: buttonShape,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-          ),
-          onPressed: toggle,
-          icon: Icon(Icons.more_horiz_rounded, size: iconSize),
+    return _HistoryActionPill(
+      wide: wide,
+      height: height,
+      onPlay: onPlay,
+      onPlayNext: onPlayNext,
+      isFinished: _progressRatio >= 0.95,
+    );
+  }
+}
+
+class _SelectionCircle extends StatelessWidget {
+  const _SelectionCircle({required this.selected, required this.duration});
+
+  final bool selected;
+  final Duration duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return AnimatedContainer(
+      duration: duration,
+      curve: Curves.easeInOutCubicEmphasized,
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: selected ? colors.error : Colors.transparent,
+        border: Border.all(
+          color: selected ? colors.error : colors.outline,
+          width: 2,
         ),
       ),
-    ];
+      child: selected
+          ? Icon(Icons.check_rounded, size: 14, color: colors.onError)
+          : null,
+    );
+  }
+}
+
+class _TimeStatBadge extends StatelessWidget {
+  const _TimeStatBadge({
+    required this.currentPosText,
+    required this.totalDurText,
+    required this.progressRatio,
+    required this.isFinished,
+  });
+
+  final String currentPosText;
+  final String totalDurText;
+  final double progressRatio;
+  final bool isFinished;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final pct = (progressRatio * 100).round().clamp(1, 100);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (int i = 0; i < buttons.length; i++) ...[
-          if (i > 0) SizedBox(width: buttonSpacing),
-          buttons[i],
-        ],
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: currentPosText.isEmpty ? '0:00' : currentPosText,
+                style: TextStyle(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              TextSpan(
+                text: ' / $totalDurText',
+                style: TextStyle(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        const SizedBox(width: 5),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+          decoration: BoxDecoration(
+            color: isFinished
+                ? colors.primaryContainer
+                : colors.secondaryContainer,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            isFinished ? '已看完' : '$pct%',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: isFinished
+                  ? colors.onPrimaryContainer
+                  : colors.onSecondaryContainer,
+              fontWeight: FontWeight.w700,
+              fontSize: 10.5,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistoryActionPill extends StatelessWidget {
+  const _HistoryActionPill({
+    required this.wide,
+    required this.height,
+    required this.onPlay,
+    required this.onPlayNext,
+    required this.isFinished,
+  });
+
+  final bool wide;
+  final double height;
+  final VoidCallback onPlay;
+  final VoidCallback? onPlayNext;
+  final bool isFinished;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final outer = Radius.circular(height / 2);
+    const inner = Radius.circular(6);
+    final labelStyle = theme.textTheme.labelMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+    );
+
+    if (onPlayNext == null) {
+      return Tooltip(
+        message: isFinished ? '重播本集' : '继续播放',
+        child: Material(
+          color: colors.primaryContainer,
+          borderRadius: BorderRadius.all(outer),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPlay,
+            child: SizedBox(
+              height: height,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: wide ? 16 : 13),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isFinished
+                          ? Icons.replay_rounded
+                          : Icons.play_arrow_rounded,
+                      size: isFinished ? 16 : 18,
+                      color: colors.onPrimaryContainer,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isFinished
+                          ? (wide ? '重播本集' : '重播')
+                          : (wide ? '继续播放' : '继续'),
+                      style: labelStyle?.copyWith(
+                          color: colors.onPrimaryContainer),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Tooltip(
+          message: '继续播放',
+          child: Material(
+            color: colors.primaryContainer,
+            borderRadius: BorderRadiusDirectional.horizontal(
+              start: outer,
+              end: inner,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPlay,
+              child: SizedBox(
+                height: height,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: wide ? 14 : 11),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.play_arrow_rounded,
+                        size: wide ? 18 : 20,
+                        color: colors.onPrimaryContainer,
+                      ),
+                      if (wide) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '继续播放',
+                          style: labelStyle?.copyWith(
+                            color: colors.onPrimaryContainer,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 2),
+        Tooltip(
+          message: '下一集',
+          child: Material(
+            color: colors.secondaryContainer,
+            borderRadius: BorderRadiusDirectional.horizontal(
+              start: inner,
+              end: outer,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPlayNext,
+              child: SizedBox(
+                height: height,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: wide ? 12 : 9,
+                    right: wide ? 14 : 11,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.skip_next_rounded,
+                        size: 17,
+                        color: colors.onSecondaryContainer,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        wide ? '下一集' : '下集',
+                        style: labelStyle?.copyWith(
+                          color: colors.onSecondaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

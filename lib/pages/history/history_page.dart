@@ -27,6 +27,7 @@ class _HistoryPageState extends State<HistoryPage> {
   bool _editing = false;
   bool _clearing = false;
   final Set<String> _deleting = {};
+  final Set<String> _selectedKeys = {};
 
   @override
   void initState() {
@@ -34,13 +35,66 @@ class _HistoryPageState extends State<HistoryPage> {
     widget.controller.init();
   }
 
+  void _setEditing(bool value) {
+    setState(() {
+      _editing = value;
+      if (!value) {
+        _selectedKeys.clear();
+      }
+    });
+  }
+
+  void _toggleSelect(History history) {
+    if (_clearing || _deleting.contains(history.key)) return;
+    setState(() {
+      if (_selectedKeys.contains(history.key)) {
+        _selectedKeys.remove(history.key);
+      } else {
+        _selectedKeys.add(history.key);
+      }
+    });
+  }
+
+  void _toggleSelectAll(List<History> entries) {
+    if (_clearing) return;
+    final allKeys = entries.map((e) => e.key).toSet();
+    setState(() {
+      if (_selectedKeys.length >= allKeys.length &&
+          allKeys.every(_selectedKeys.contains)) {
+        _selectedKeys.clear();
+      } else {
+        _selectedKeys
+          ..clear()
+          ..addAll(allKeys);
+      }
+    });
+  }
+
+  void _invertSelection(List<History> entries) {
+    if (_clearing) return;
+    setState(() {
+      final next = <String>{};
+      for (final entry in entries) {
+        if (!_selectedKeys.contains(entry.key)) {
+          next.add(entry.key);
+        }
+      }
+      _selectedKeys
+        ..clear()
+        ..addAll(next);
+    });
+  }
+
   Future<void> _deleteHistory(History history) async {
     if (_clearing || _deleting.contains(history.key)) return;
     setState(() => _deleting.add(history.key));
     try {
       await widget.controller.deleteHistory(history);
-      if (mounted && widget.controller.histories.isEmpty) {
-        setState(() => _editing = false);
+      if (mounted) {
+        _selectedKeys.remove(history.key);
+        if (widget.controller.histories.isEmpty) {
+          _setEditing(false);
+        }
       }
     } catch (_) {
       if (mounted) {
@@ -48,6 +102,45 @@ class _HistoryPageState extends State<HistoryPage> {
       }
     } finally {
       if (mounted) setState(() => _deleting.remove(history.key));
+    }
+  }
+
+  Future<void> _deleteSelected(List<History> entries) async {
+    if (_clearing || _selectedKeys.isEmpty) return;
+    final targets = entries
+        .where((e) =>
+            _selectedKeys.contains(e.key) && !_deleting.contains(e.key))
+        .toList();
+    if (targets.isEmpty) return;
+
+    setState(() {
+      _deleting.addAll(targets.map((e) => e.key));
+    });
+    try {
+      await widget.controller.deleteHistories(targets);
+      if (mounted) {
+        setState(() {
+          for (final item in targets) {
+            _selectedKeys.remove(item.key);
+          }
+          if (widget.controller.histories.isEmpty) {
+            _editing = false;
+            _selectedKeys.clear();
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        KazumiDialog.showToast(context: context, message: '批量删除失败，请稍后重试');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          for (final item in targets) {
+            _deleting.remove(item.key);
+          }
+        });
+      }
     }
   }
 
@@ -79,7 +172,7 @@ class _HistoryPageState extends State<HistoryPage> {
     setState(() => _clearing = true);
     try {
       await widget.controller.clearAll();
-      if (mounted) setState(() => _editing = false);
+      if (mounted) _setEditing(false);
     } catch (_) {
       if (mounted) {
         KazumiDialog.showToast(context: context, message: '清空失败，请稍后重试');
@@ -91,63 +184,197 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    final dockAnimDuration =
+        disableAnimations ? Duration.zero : const Duration(milliseconds: 220);
+
     return Observer(builder: (context) {
       final entries = widget.controller.histories.toList();
+      final validKeys = entries.map((e) => e.key).toSet();
+      final selectedCount = _selectedKeys.where(validKeys.contains).length;
+      final allSelected =
+          entries.isNotEmpty && selectedCount == entries.length;
+      final batchMode = selectedCount > 0;
+
       return PopScope(
         canPop: !_editing,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop && _editing) {
-            setState(() => _editing = false);
+            _setEditing(false);
           }
         },
         child: Scaffold(
           appBar: SysAppBar(
-            title: Text('历史记录',
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w700)),
+            title: Text(
+              _editing
+                  ? (batchMode ? '已选择 $selectedCount 项' : '管理历史记录')
+                  : '历史记录',
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
             actions: [
               if (entries.isNotEmpty) ...[
+                if (_editing)
+                  TextButton(
+                    onPressed: _clearing ? null : () => _toggleSelectAll(entries),
+                    child: Text(allSelected ? '取消全选' : '全选'),
+                  ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 12, left: 4),
                   child: _editing
                       ? FilledButton.tonal(
-                          onPressed: _clearing
-                              ? null
-                              : () => setState(() => _editing = false),
+                          onPressed: _clearing ? null : () => _setEditing(false),
                           child: const Text('完成'),
                         )
                       : IconButton.filledTonal(
                           tooltip: '管理历史记录',
-                          onPressed: () => setState(() => _editing = true),
+                          onPressed: () => _setEditing(true),
                           icon: const Icon(Icons.edit_outlined),
                         ),
                 ),
-                if (_editing)
-                  IconButton(
-                    tooltip: '清空全部历史记录',
-                    onPressed: _clearing || _deleting.isNotEmpty
-                        ? null
-                        : _clearHistory,
-                    icon: const Icon(Icons.delete_sweep_outlined),
-                  ),
               ],
             ],
           ),
           body: SafeArea(
             top: false,
             bottom: false,
-            child: HistoryListView(
-              entries: entries,
-              editing: _editing,
-              itemBuilder: (history, borderRadius) => _HistoryCard(
-                history: history,
-                borderRadius: borderRadius,
-                editing: _editing,
-                busy: _clearing || _deleting.contains(history.key),
-                onDelete: () => _deleteHistory(history),
-              ),
+            child: Stack(
+              children: [
+                HistoryListView(
+                  entries: entries,
+                  editing: _editing,
+                  bottomPadding: _editing && entries.isNotEmpty ? 84.0 : 0.0,
+                  itemBuilder: (history, borderRadius) => _HistoryCard(
+                    history: history,
+                    borderRadius: borderRadius,
+                    editing: _editing,
+                    selected: _selectedKeys.contains(history.key),
+                    batchMode: batchMode,
+                    busy: _clearing || _deleting.contains(history.key),
+                    onToggleSelect: () => _toggleSelect(history),
+                    onDelete: () => _deleteHistory(history),
+                  ),
+                ),
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16 + MediaQuery.paddingOf(context).bottom,
+                  child: IgnorePointer(
+                    ignoring: !_editing || entries.isEmpty,
+                    child: AnimatedSlide(
+                      offset: _editing && entries.isNotEmpty
+                          ? Offset.zero
+                          : const Offset(0, 1.3),
+                      duration: dockAnimDuration,
+                      curve: Curves.easeInOutCubicEmphasized,
+                      child: AnimatedOpacity(
+                        opacity: _editing && entries.isNotEmpty ? 1.0 : 0.0,
+                        duration: dockAnimDuration,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 640),
+                            child: Material(
+                              color: colors.surfaceContainerHighest,
+                              elevation: 6,
+                              shadowColor:
+                                  colors.shadow.withValues(alpha: 0.28),
+                              borderRadius: BorderRadius.circular(26),
+                              child: Padding(
+                                padding: batchMode
+                                    ? const EdgeInsets.fromLTRB(12, 8, 10, 8)
+                                    : const EdgeInsets.fromLTRB(16, 8, 10, 8),
+                                child: batchMode
+                                    ? Row(
+                                        children: [
+                                          TextButton.icon(
+                                            onPressed: _clearing
+                                                ? null
+                                                : () =>
+                                                    _invertSelection(entries),
+                                            icon: const Icon(
+                                                Icons.select_all_rounded,
+                                                size: 18),
+                                            label: const Text('反选'),
+                                          ),
+                                          SizedBox(
+                                            height: 18,
+                                            child: VerticalDivider(
+                                              width: 8,
+                                              color: colors.outlineVariant,
+                                            ),
+                                          ),
+                                          TextButton.icon(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: colors.error,
+                                            ),
+                                            onPressed: _clearing ||
+                                                    _deleting.isNotEmpty
+                                                ? null
+                                                : _clearHistory,
+                                            icon: const Icon(
+                                                Icons.delete_sweep_outlined,
+                                                size: 18),
+                                            label: const Text('清空'),
+                                          ),
+                                          const Spacer(),
+                                          FilledButton.icon(
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: colors.error,
+                                              foregroundColor: colors.onError,
+                                              shape: const StadiumBorder(),
+                                            ),
+                                            onPressed: _clearing ||
+                                                    _deleting.isNotEmpty
+                                                ? null
+                                                : () =>
+                                                    _deleteSelected(entries),
+                                            icon: const Icon(
+                                                Icons.delete_rounded,
+                                                size: 18),
+                                            label: Text('删除 ($selectedCount)'),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              '点按卡片可多选 · 或点右侧直删',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color: colors.onSurfaceVariant,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          TextButton.icon(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: colors.error,
+                                            ),
+                                            onPressed: _clearing ||
+                                                    _deleting.isNotEmpty
+                                                ? null
+                                                : _clearHistory,
+                                            icon: const Icon(
+                                                Icons.delete_sweep_outlined,
+                                                size: 18),
+                                            label: const Text('清空全部'),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -161,12 +388,18 @@ class _HistoryCard extends StatefulWidget {
     required this.history,
     required this.onDelete,
     required this.editing,
+    required this.selected,
+    required this.batchMode,
+    required this.onToggleSelect,
     required this.busy,
     required this.borderRadius,
   });
 
   final History history;
   final bool editing;
+  final bool selected;
+  final bool batchMode;
+  final VoidCallback onToggleSelect;
   final bool busy;
   final Future<void> Function() onDelete;
   final BorderRadius borderRadius;
@@ -222,6 +455,7 @@ class _HistoryCardState extends State<_HistoryCard> with KazumiDialogOwner {
               (context) => context.pushNamed('/video/', arguments: args));
         case HistoryPlaybackUnavailable(:final reason):
           KazumiDialog.showToast(message: reason);
+          if (mounted) setState(() {});
       }
     }, errorMessage: '暂时无法播放下一集，请稍后重试');
   }
@@ -244,13 +478,17 @@ class _HistoryCardState extends State<_HistoryCard> with KazumiDialogOwner {
     return Observer(builder: (context) {
       // getCollectType reads storage, so track the observable list explicitly.
       _collectController.collectibles.length;
+      final hasNext = _playbackService.hasNextEpisode(widget.history);
       return HistoryRecordTile(
         history: widget.history,
         borderRadius: widget.borderRadius,
         editing: widget.editing,
+        selected: widget.selected,
+        batchMode: widget.batchMode,
+        onToggleSelect: widget.onToggleSelect,
         busy: widget.busy,
         onPlay: _play,
-        onPlayNext: _playNext,
+        onPlayNext: hasNext ? _playNext : null,
         onDelete: widget.onDelete,
         onDetails: () =>
             context.pushNamed('/info/', arguments: widget.history.bangumiItem),
