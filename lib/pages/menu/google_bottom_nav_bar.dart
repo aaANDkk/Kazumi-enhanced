@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
 const double _barHeight = 65.0;
+const double _barRadius = 25.0;
 const double _barPadding = 6.0;
 const double _barPaddingHorizontal = 6.5;
 const double _overdrag = 0.25;
@@ -351,7 +352,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
             child: Container(
               decoration: ShapeDecoration(
                 shape: SuperellipseBorder(
-                  borderRadius: BorderRadius.circular(32.5),
+                  borderRadius: BorderRadius.circular(_barRadius),
                 ),
                 shadows: [
                   BoxShadow(
@@ -371,7 +372,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                 ],
               ),
               child: SuperellipseClip(
-                borderRadius: BorderRadius.circular(32.5),
+                borderRadius: BorderRadius.circular(_barRadius),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(
                     sigmaX: 8.0,
@@ -381,7 +382,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                     decoration: ShapeDecoration(
                       color: barColor,
                       shape: SuperellipseBorder(
-                        borderRadius: BorderRadius.circular(32.5),
+                        borderRadius: BorderRadius.circular(_barRadius),
                         side: BorderSide(
                           color: borderColor,
                           width: 1,
@@ -499,7 +500,10 @@ class _Lens extends StatelessWidget {
 
     final baseHeight = totalHeight - 2 * _barPadding; // 53.0
     final lensHeight = baseHeight + growth; // 53.0 -> 79.0
-    final lensRadius = lensHeight / 2; // 26.5 -> 39.5
+    // Concentric with _barRadius (25 - 6 = 19) and keeps ~0.36 height ratio
+    // so G2 continuous superellipse curvature remains visibly smooth instead of
+    // degenerating into a semicircle.
+    final lensRadius = (_barRadius - _barPadding) + (growth * 0.36); // 19.0 -> 28.36
     final lensWidth = slotWidth + growth; // slotWidth -> slotWidth + 26.0
 
     final centerDx = _barPaddingHorizontal + (position + 0.5) * slotWidth;

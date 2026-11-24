@@ -76,6 +76,30 @@ void main() {
     }
   });
 
+  testWidgets(
+      'SuperellipseClip uses analytical ClipPath on Android (Skia) to avoid RRect fallback',
+      (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    try {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SuperellipseClip(
+                borderRadius: BorderRadius.circular(25),
+                child: const SizedBox(width: 240, height: 65),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(find.byType(ClipPath), findsOneWidget);
+      expect(find.byType(ClipRSuperellipse), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
   test('applySuperellipseTheme configures global Material component shapes', () {
     final theme = applySuperellipseTheme(
       ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),

@@ -4,20 +4,22 @@ import 'dart:ui' show ClipOp;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-bool get _isDesktop => switch (defaultTargetPlatform) {
-      TargetPlatform.windows ||
-      TargetPlatform.linux ||
-      TargetPlatform.macOS =>
-        true,
-      _ => false,
-    };
-
-/// Rounded superellipse that renders true G2 continuous corners on both mobile
-/// (Impeller) and desktop (Skia).
+/// Only iOS is guaranteed to run Impeller natively.
 ///
-/// Ported from FlClash (`prism_ui/lib/shape.dart`) and extended so desktop Skia
-/// stroked borders also follow the analytical superellipse path instead of
-/// falling back to circular `RRect` arcs.
+/// Kazumi explicitly disables Impeller on Android (`EnableImpeller = false` in
+/// `AndroidManifest.xml`) for `media_kit` compatibility, and desktop targets
+/// run Skia. On Skia, `Canvas.drawRSuperellipse` and `ClipRSuperellipse`
+/// silently fall back to plain circular `RRect`s; using the cached analytical
+/// superellipse path on all non-iOS platforms guarantees true G2 continuous
+/// corners everywhere (Android, Windows, Linux, macOS).
+bool get _useAnalyticalPath => defaultTargetPlatform != TargetPlatform.iOS;
+
+/// Rounded superellipse that renders true G2 continuous corners across all
+/// platforms, including Android (Skia) and desktop (Skia).
+///
+/// Ported from FlClash (`prism_ui/lib/shape.dart`) and extended so both fills
+/// and stroked borders follow the analytical superellipse path on Skia instead
+/// of degrading to circular `RRect` arcs.
 class SuperellipseBorder extends RoundedSuperellipseBorder {
   const SuperellipseBorder({super.side, super.borderRadius});
 
@@ -31,11 +33,12 @@ class SuperellipseBorder extends RoundedSuperellipseBorder {
     );
   }
 
-  static final Map<Object, Path> _pathSizeCache = <Object, Path>{};
-  static const int _pathCacheLimit = 256;
+  static final Map<(Size, BorderRadiusGeometry, TextDirection?), Path>
+      _pathSizeCache = <(Size, BorderRadiusGeometry, TextDirection?), Path>{};
+  static const int _pathCacheLimit = 512;
 
   Path _getPathForSize(Size size, TextDirection? textDirection) {
-    final key = Object.hash(size, borderRadius, textDirection);
+    final key = (size, borderRadius, textDirection);
     final cached = _pathSizeCache[key];
     if (cached != null) {
       return cached;
@@ -53,7 +56,7 @@ class SuperellipseBorder extends RoundedSuperellipseBorder {
 
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    if (!_isDesktop || borderRadius == BorderRadius.zero) {
+    if (!_useAnalyticalPath || borderRadius == BorderRadius.zero) {
       return super.getOuterPath(rect, textDirection: textDirection);
     }
     final localPath = _getPathForSize(rect.size, textDirection);
@@ -69,7 +72,7 @@ class SuperellipseBorder extends RoundedSuperellipseBorder {
     Paint paint, {
     TextDirection? textDirection,
   }) {
-    if (!_isDesktop ||
+    if (!_useAnalyticalPath ||
         borderRadius == BorderRadius.zero ||
         paint.maskFilter != null) {
       super.paintInterior(canvas, rect, paint, textDirection: textDirection);
@@ -88,7 +91,7 @@ class SuperellipseBorder extends RoundedSuperellipseBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    if (!_isDesktop ||
+    if (!_useAnalyticalPath ||
         borderRadius == BorderRadius.zero ||
         side.style == BorderStyle.none) {
       super.paint(canvas, rect, textDirection: textDirection);
@@ -189,8 +192,8 @@ Path superellipsePath(
 
 /// Drop-in replacement for [ClipRRect] using continuous superellipse corners.
 ///
-/// Uses Flutter's native [ClipRSuperellipse] on mobile (Impeller) and a cached
-/// [SuperellipseBorder] [ShapeBorderClipper] on desktop (Skia).
+/// Uses Flutter's native [ClipRSuperellipse] on iOS (Impeller) and a cached
+/// [SuperellipseBorder] [ShapeBorderClipper] on Android & desktop (Skia).
 class SuperellipseClip extends StatelessWidget {
   const SuperellipseClip({
     super.key,
@@ -208,7 +211,7 @@ class SuperellipseClip extends StatelessWidget {
     if (borderRadius == BorderRadius.zero || clipBehavior == Clip.none) {
       return child ?? const SizedBox.shrink();
     }
-    if (!_isDesktop) {
+    if (!_useAnalyticalPath) {
       return ClipRSuperellipse(
         borderRadius: borderRadius,
         clipBehavior: clipBehavior,

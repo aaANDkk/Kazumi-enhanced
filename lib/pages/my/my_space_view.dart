@@ -688,10 +688,19 @@ class _ExpressiveActionState extends State<_ExpressiveAction> {
           duration: duration,
           curve: Curves.easeOutCubic,
           clipBehavior: Clip.antiAlias,
-          decoration: ShapeDecoration(color: widget.color, shape: SuperellipseBorder(borderRadius: _pressed ? BorderRadius.circular(16) : widget.radius)),
+          decoration: ShapeDecoration(
+            color: widget.color,
+            shape: SuperellipseBorder(
+              borderRadius: _pressed ? BorderRadius.circular(16) : widget.radius,
+            ),
+          ),
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
+              customBorder: SuperellipseBorder(
+                borderRadius:
+                    _pressed ? BorderRadius.circular(16) : widget.radius,
+              ),
               onTap: widget.onTap,
               onHighlightChanged: (value) => setState(() => _pressed = value),
               overlayColor: WidgetStateProperty.resolveWith((states) {
