@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/split_list_row.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 /// Standalone tappable M3E card that opens a picker sheet.
 class SplitListSelectorCard extends StatelessWidget {
@@ -65,10 +66,7 @@ class SplitListSelectorCard extends StatelessWidget {
                   horizontal: 10,
                   vertical: 6,
                 ),
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: ShapeDecoration(color: colors.primaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12))),
                 child: Center(
                   child: IconTheme.merge(
                     data: IconThemeData(
@@ -192,12 +190,9 @@ class SplitListOptionRow extends StatelessWidget {
                       horizontal: 10,
                       vertical: 6,
                     ),
-                    decoration: BoxDecoration(
-                      color: selected
+                    decoration: ShapeDecoration(color: selected
                           ? colors.primary
-                          : colors.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(selected ? 20 : 10),
-                    ),
+                          : colors.surfaceContainerHigh, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(selected ? 20 : 10))),
                     child: Center(
                       child: Text(
                         badge,

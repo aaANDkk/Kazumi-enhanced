@@ -13,6 +13,7 @@ import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/request/config/api_endpoints.dart';
 import 'package:kazumi/services/plugin/api_rule_engine.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 abstract final class _RuleEditorText {
   static const pageTitle = '规则编辑器';
@@ -460,9 +461,7 @@ class _PluginEditorPageState extends State<PluginEditorPage> {
                       liveRegion: true,
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                            color: colors.errorContainer,
-                            borderRadius: BorderRadius.circular(20)),
+                        decoration: ShapeDecoration(color: colors.errorContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
                         child: Text(_editorError!,
                             style: TextStyle(color: colors.onErrorContainer)),
                       ),

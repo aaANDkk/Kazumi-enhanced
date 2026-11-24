@@ -16,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/utils/version.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum InstallationType {
   windowsMsix('MSIX'),
@@ -355,10 +356,7 @@ class AutoUpdater {
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
-                ),
+                decoration: ShapeDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(4))),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

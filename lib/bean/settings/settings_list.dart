@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum _TileKind { plain, toggle, radio }
 
@@ -264,10 +265,7 @@ class SettingsSliderTile extends StatelessWidget {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                decoration: ShapeDecoration(color: colorScheme.secondaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8))),
                 child: Text(
                   valueLabel,
                   style: textTheme.labelMedium?.copyWith(

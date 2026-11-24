@@ -111,26 +111,30 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   void setTheme(Color? color) {
-    var defaultDarkTheme = ThemeData(
-        useMaterial3: true,
-        fontFamily: themeProvider.currentFontFamily,
-        brightness: Brightness.dark,
-        colorSchemeSeed: color,
-        appBarTheme: appBarThemeForBrightness(Brightness.dark),
-        progressIndicatorTheme: progressIndicatorTheme2024,
-        sliderTheme: sliderTheme2024,
-        pageTransitionsTheme: pageTransitionsTheme2024);
-    var oledTheme = oledDarkTheme(defaultDarkTheme);
-    themeProvider.setTheme(
+    var defaultDarkTheme = applySuperellipseTheme(
       ThemeData(
           useMaterial3: true,
           fontFamily: themeProvider.currentFontFamily,
-          brightness: Brightness.light,
+          brightness: Brightness.dark,
           colorSchemeSeed: color,
-          appBarTheme: appBarThemeForBrightness(Brightness.light),
+          appBarTheme: appBarThemeForBrightness(Brightness.dark),
           progressIndicatorTheme: progressIndicatorTheme2024,
           sliderTheme: sliderTheme2024,
           pageTransitionsTheme: pageTransitionsTheme2024),
+    );
+    var oledTheme = oledDarkTheme(defaultDarkTheme);
+    themeProvider.setTheme(
+      applySuperellipseTheme(
+        ThemeData(
+            useMaterial3: true,
+            fontFamily: themeProvider.currentFontFamily,
+            brightness: Brightness.light,
+            colorSchemeSeed: color,
+            appBarTheme: appBarThemeForBrightness(Brightness.light),
+            progressIndicatorTheme: progressIndicatorTheme2024,
+            sliderTheme: sliderTheme2024,
+            pageTransitionsTheme: pageTransitionsTheme2024),
+      ),
       oledEnhance ? oledTheme : defaultDarkTheme,
     );
     defaultThemeColor = color?.toARGB32().toRadixString(16) ?? 'default';
@@ -138,26 +142,30 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   }
 
   void resetTheme() {
-    var defaultDarkTheme = ThemeData(
-        useMaterial3: true,
-        fontFamily: themeProvider.currentFontFamily,
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.green,
-        appBarTheme: appBarThemeForBrightness(Brightness.dark),
-        progressIndicatorTheme: progressIndicatorTheme2024,
-        sliderTheme: sliderTheme2024,
-        pageTransitionsTheme: pageTransitionsTheme2024);
-    var oledTheme = oledDarkTheme(defaultDarkTheme);
-    themeProvider.setTheme(
+    var defaultDarkTheme = applySuperellipseTheme(
       ThemeData(
           useMaterial3: true,
           fontFamily: themeProvider.currentFontFamily,
-          brightness: Brightness.light,
+          brightness: Brightness.dark,
           colorSchemeSeed: Colors.green,
-          appBarTheme: appBarThemeForBrightness(Brightness.light),
+          appBarTheme: appBarThemeForBrightness(Brightness.dark),
           progressIndicatorTheme: progressIndicatorTheme2024,
           sliderTheme: sliderTheme2024,
           pageTransitionsTheme: pageTransitionsTheme2024),
+    );
+    var oledTheme = oledDarkTheme(defaultDarkTheme);
+    themeProvider.setTheme(
+      applySuperellipseTheme(
+        ThemeData(
+            useMaterial3: true,
+            fontFamily: themeProvider.currentFontFamily,
+            brightness: Brightness.light,
+            colorSchemeSeed: Colors.green,
+            appBarTheme: appBarThemeForBrightness(Brightness.light),
+            progressIndicatorTheme: progressIndicatorTheme2024,
+            sliderTheme: sliderTheme2024,
+            pageTransitionsTheme: pageTransitionsTheme2024),
+      ),
       oledEnhance ? oledTheme : defaultDarkTheme,
     );
     defaultThemeColor = 'default';

@@ -6,6 +6,7 @@ import 'package:kazumi/bean/settings/settings_detail_scaffold.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/constants.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class _ShortcutGroup {
   const _ShortcutGroup(this.title, this.functions);
@@ -343,7 +344,7 @@ class _KeyCap extends StatelessWidget {
       color: listening
           ? colorScheme.primaryContainer
           : colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(8),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -376,8 +377,7 @@ class _KeyCap extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      ));
   }
 }
 
@@ -389,7 +389,7 @@ class _AddKeyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final shape = RoundedRectangleBorder(
+    final shape = SuperellipseBorder(
       borderRadius: BorderRadius.circular(8),
       side: BorderSide(color: colorScheme.outlineVariant),
     );

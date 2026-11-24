@@ -206,7 +206,7 @@ class _BestMatch extends StatelessWidget {
         ]),
       ]),
     );
-    final frame = ClipRRect(
+    final frame = SuperellipseClip(
       borderRadius: BorderRadius.circular(16),
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height < 500 ? 112 : 200,
@@ -215,7 +215,7 @@ class _BestMatch extends StatelessWidget {
     );
     return Material(
       color: colors.surface,
-      shape: RoundedRectangleBorder(
+      shape: SuperellipseBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(color: colors.outlineVariant),
       ),
@@ -298,7 +298,7 @@ class _OtherMatch extends StatelessWidget {
                         MediaQuery.textScalerOf(context).scale(16) < 24) ...[
                       SizedBox(
                           width: constraints.maxWidth >= 400 ? 112 : 80,
-                          child: ClipRRect(
+                          child: SuperellipseClip(
                               borderRadius: BorderRadius.circular(8),
                               child: _TraceFrame(result: result))),
                       const SizedBox(width: 12),

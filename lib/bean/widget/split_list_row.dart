@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/expressive_motion.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 // Compose Material 3 segmented list item tokens.
 const double splitListRowGap = 2;
@@ -128,7 +129,7 @@ class _SplitListRowState extends State<SplitListRow> {
               colors.secondaryContainer,
               selection.clamp(0, 1),
             ),
-            shape: RoundedRectangleBorder(
+            shape: SuperellipseBorder(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(math.max(top, 0)),
                 bottom: Radius.circular(math.max(bottom, 0)),

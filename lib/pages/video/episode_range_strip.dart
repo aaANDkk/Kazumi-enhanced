@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 
 import 'package:kazumi/pages/video/player_panel_layout.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 typedef EpisodeRange = ({int start, int end});
 
@@ -198,8 +199,8 @@ class _RangePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         labelPadding: EdgeInsets.zero,
         shape: selected
-            ? const StadiumBorder()
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ? const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000)))
+            : SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
         labelStyle: theme.textTheme.labelMedium?.copyWith(
           color: selected
               ? colors.onSecondaryContainer

@@ -14,6 +14,7 @@ import 'package:kazumi/services/player/screenshot_candidate.dart';
 import 'package:kazumi/services/player/screenshot_export_service.dart';
 import 'package:kazumi/services/player/screenshot_image_cache.dart';
 import 'package:mobx/mobx.dart' as mobx;
+import 'package:kazumi/utils/superellipse.dart';
 
 Future<void> showPlayerScreenshotSheet(
   BuildContext context, {
@@ -30,7 +31,7 @@ Future<void> showPlayerScreenshotSheet(
         clipBehavior: Clip.antiAlias,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         insetPadding: EdgeInsets.all(inset),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
         child: SizedBox(
           width: 1120,
           child: ConstrainedBox(
@@ -312,7 +313,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                             color: Theme.of(
                               context,
                             ).colorScheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(20),
+                            shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
                             clipBehavior: Clip.antiAlias,
                             child: Column(
                               children: [
@@ -346,8 +347,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                                 ),
                                 _thumbnails(compact: compact),
                               ],
-                            ),
-                          ),
+                            )),
                         ),
                         _footer(context, compact: compact, padding: padding),
                       ],
@@ -379,10 +379,9 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
                 const SizedBox(height: 8),
                 Material(
                   color: Theme.of(context).colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(16),
+                  shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
                   clipBehavior: Clip.antiAlias,
-                  child: _thumbnails(compact: true),
-                ),
+                  child: _thumbnails(compact: true)),
               ],
             ),
           ),
@@ -428,7 +427,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
   Widget _preview() => AspectRatio(
     key: _previewKey,
     aspectRatio: _aspectRatio,
-    child: ClipRRect(borderRadius: BorderRadius.circular(16), child: _stage()),
+    child: SuperellipseClip(borderRadius: BorderRadius.circular(16), child: _stage()),
   );
 
   Widget _navigation() => Row(
@@ -646,7 +645,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
       child: Material(
         color: colors.inverseSurface,
         elevation: 6,
-        borderRadius: BorderRadius.circular(12),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
           child: Row(
@@ -677,8 +676,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
               ),
             ],
           ),
-        ),
-      ),
+        )),
     );
   }
 
@@ -817,7 +815,7 @@ class _PlayerScreenshotSheetState extends State<_PlayerScreenshotSheet> {
       shape: !selected
           ? null
           : WidgetStateProperty.resolveWith(
-              (states) => RoundedRectangleBorder(
+              (states) => SuperellipseBorder(
                 borderRadius: BorderRadius.circular(
                   states.contains(WidgetState.pressed) ? 8 : 12,
                 ),
@@ -992,7 +990,7 @@ class _FrameThumbnail extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
           onTap: onTap,
           onDoubleTap: onDoubleTap,
           child: Padding(
@@ -1001,14 +999,9 @@ class _FrameThumbnail extends StatelessWidget {
               duration: duration,
               curve: Curves.easeInOutCubicEmphasized,
               padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: active ? colors.primary : Colors.transparent,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(active ? 12 : 8),
-              ),
-              child: ClipRRect(
+              decoration: ShapeDecoration(shape: SuperellipseBorder(borderRadius: BorderRadius.circular(active ? 12 : 8), side: BorderSide(color: active ? colors.primary : Colors.transparent,
+                  width: 2,))),
+              child: SuperellipseClip(
                 borderRadius: BorderRadius.circular(6),
                 child: Stack(
                   fit: StackFit.expand,
@@ -1045,8 +1038,7 @@ class _FrameThumbnail extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
+          )),
       ),
     );
   }

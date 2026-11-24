@@ -151,12 +151,12 @@ class _SearchResultCard extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.circular(16),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
           onTap: () => context.pushNamed('/info/', arguments: item),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            ClipRRect(
+            SuperellipseClip(
                 borderRadius: BorderRadius.circular(16),
                 child: AspectRatio(
                   aspectRatio: coverAspectRatio,
@@ -195,8 +195,7 @@ class _SearchResultCard extends StatelessWidget {
                       style: theme.textTheme.labelMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant))),
             ]),
-          ])),
-    );
+          ])));
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const double _barHeight = 65.0;
 const double _barPadding = 6.0;
@@ -349,7 +350,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
           Positioned.fill(
             child: Container(
               decoration: ShapeDecoration(
-                shape: RoundedRectangleBorder(
+                shape: SuperellipseBorder(
                   borderRadius: BorderRadius.circular(32.5),
                 ),
                 shadows: [
@@ -369,7 +370,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                   ),
                 ],
               ),
-              child: ClipRRect(
+              child: SuperellipseClip(
                 borderRadius: BorderRadius.circular(32.5),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(
@@ -379,7 +380,7 @@ class _GoogleBottomNavBarState extends State<GoogleBottomNavBar>
                   child: DecoratedBox(
                     decoration: ShapeDecoration(
                       color: barColor,
-                      shape: RoundedRectangleBorder(
+                      shape: SuperellipseBorder(
                         borderRadius: BorderRadius.circular(32.5),
                         side: BorderSide(
                           color: borderColor,
@@ -521,7 +522,7 @@ class _Lens extends StatelessWidget {
       child: DecoratedBox(
         decoration: ShapeDecoration(
           color: lensColor,
-          shape: RoundedRectangleBorder(
+          shape: SuperellipseBorder(
             borderRadius: BorderRadius.circular(lensRadius),
           ),
           shadows: [

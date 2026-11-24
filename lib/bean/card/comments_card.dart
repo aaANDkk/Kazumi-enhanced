@@ -4,6 +4,7 @@ import 'package:kazumi/modules/comments/comment_item.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:kazumi/utils/date_time.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class CommentsCard extends StatelessWidget {
   const CommentsCard({
@@ -81,10 +82,7 @@ class CommentsCard extends StatelessWidget {
                             Container(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 2),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                                decoration: ShapeDecoration(color: Theme.of(context).colorScheme.primary, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(4))),
                                 child: Text(
                                   '我的吐槽',
                                   style: TextStyle(

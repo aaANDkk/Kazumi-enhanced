@@ -7,6 +7,7 @@ import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/image_preview.dart';
 import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/modules/character/character_full_item.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class CharacterInfoView extends StatelessWidget {
   const CharacterInfoView({
@@ -61,7 +62,7 @@ class CharacterInfoView extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: ShapeDecoration(
                     color: theme.colorScheme.secondaryContainer,
-                    shape: const StadiumBorder(),
+                    shape: const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
                   ),
                   child: Text(relation,
                       style: theme.textTheme.labelLarge?.copyWith(
@@ -247,7 +248,7 @@ class _CharacterPortrait extends StatelessWidget {
       label: '查看人物原图',
       child: Material(
         color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(28),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => ImageViewer.show(
@@ -291,8 +292,7 @@ class _CharacterPortrait extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+        )),
     );
   }
 }

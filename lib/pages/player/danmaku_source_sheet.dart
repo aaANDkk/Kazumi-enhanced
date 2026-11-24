@@ -19,6 +19,7 @@ import 'package:kazumi/pages/player/controller/player_danmaku_controller.dart';
 import 'package:kazumi/request/apis/danmaku_api.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const _episodeToolThreshold = 25;
 const _episodeSegmentSize = 100;
@@ -65,7 +66,7 @@ Future<void> showDanmakuSourceSheet(
         height: double.infinity,
         child: Material(
           color: Theme.of(context).colorScheme.surface,
-          shape: const RoundedRectangleBorder(
+          shape: const SuperellipseBorder(
             borderRadius: BorderRadius.horizontal(left: Radius.circular(28)),
           ),
           clipBehavior: Clip.antiAlias,
@@ -303,7 +304,7 @@ class _DanmakuSourceSheetState extends State<_DanmakuSourceSheet> {
         child: InputDecorationTheme(
           data: const InputDecorationThemeData(
             filled: true,
-            border: OutlineInputBorder(
+            border: SuperellipseInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(16)),
               borderSide: BorderSide.none,
             ),
@@ -635,10 +636,7 @@ class _SheetHeader extends StatelessWidget {
                     margin: EdgeInsets.only(
                         right: index == _SourceStep.values.length - 1 ? 0 : 6),
                     height: 4,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                    decoration: ShapeDecoration(color: color, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(2))),
                   ),
                 );
               }),

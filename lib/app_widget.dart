@@ -199,16 +199,18 @@ class _AppWidgetState extends State<AppWidget>
     Color? color,
     ColorScheme? colorScheme,
   }) {
-    return ThemeData(
-      useMaterial3: true,
-      fontFamily: fontFamily,
-      brightness: brightness,
-      colorSchemeSeed: color,
-      colorScheme: colorScheme,
-      appBarTheme: appBarThemeForBrightness(brightness),
-      progressIndicatorTheme: progressIndicatorTheme2024,
-      sliderTheme: sliderTheme2024,
-      pageTransitionsTheme: pageTransitionsTheme2024,
+    return applySuperellipseTheme(
+      ThemeData(
+        useMaterial3: true,
+        fontFamily: fontFamily,
+        brightness: brightness,
+        colorSchemeSeed: color,
+        colorScheme: colorScheme,
+        appBarTheme: appBarThemeForBrightness(brightness),
+        progressIndicatorTheme: progressIndicatorTheme2024,
+        sliderTheme: sliderTheme2024,
+        pageTransitionsTheme: pageTransitionsTheme2024,
+      ),
     );
   }
 

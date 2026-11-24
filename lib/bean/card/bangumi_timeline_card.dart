@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class BangumiTimelineCard extends StatelessWidget {
   const BangumiTimelineCard({
@@ -74,7 +75,7 @@ class BangumiTimelineCard extends StatelessWidget {
         elevation: 0,
         margin: EdgeInsets.zero,
         color: Theme.of(context).colorScheme.surfaceContainerLow,
-        shape: const RoundedRectangleBorder(
+        shape: const SuperellipseBorder(
           borderRadius: BorderRadius.all(Radius.circular(_cornerRadius)),
         ),
         clipBehavior: Clip.antiAlias,
@@ -174,7 +175,7 @@ class BangumiTimelineCard extends StatelessWidget {
           builder: (context, constraints) => Hero(
             tag: bangumiItem.id,
             transitionOnUserGestures: true,
-            child: ClipRRect(
+            child: SuperellipseClip(
               borderRadius: const BorderRadius.all(
                   Radius.circular(_cornerRadius - _contentPadding)),
               child: imageUrl.isEmpty
@@ -218,7 +219,7 @@ class BangumiTimelineCard extends StatelessWidget {
         padding: _ratingPadding,
         decoration: ShapeDecoration(
           color: colors.secondaryContainer,
-          shape: const StadiumBorder(),
+          shape: const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

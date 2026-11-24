@@ -6,6 +6,7 @@ import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/bangumi_sync_service.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum _SyncStatus {
   unconnected('未连接', Icons.link_off_rounded),
@@ -159,10 +160,7 @@ class _SyncServiceCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(28),
-      ),
+      decoration: ShapeDecoration(color: theme.colorScheme.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -234,10 +232,7 @@ class _SyncStatusChip extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: ShapeDecoration(color: background, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

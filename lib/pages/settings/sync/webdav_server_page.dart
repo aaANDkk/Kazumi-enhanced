@@ -8,6 +8,7 @@ import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/webdav.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class WebDavServerPage extends StatefulWidget {
   const WebDavServerPage({super.key});
@@ -101,7 +102,7 @@ class _WebDavServerPageState extends State<WebDavServerPage> {
                         decoration: const InputDecoration(
                           labelText: '服务器地址',
                           hintText: 'https://example.com/dav/',
-                          border: OutlineInputBorder(),
+                          border: SuperellipseInputBorder(),
                           errorMaxLines: 3,
                         ),
                         validator: (value) {
@@ -121,7 +122,7 @@ class _WebDavServerPageState extends State<WebDavServerPage> {
                         autocorrect: false,
                         decoration: const InputDecoration(
                           labelText: '用户名',
-                          border: OutlineInputBorder(),
+                          border: SuperellipseInputBorder(),
                         ),
                       ),
                       TextFormField(
@@ -133,7 +134,7 @@ class _WebDavServerPageState extends State<WebDavServerPage> {
                         onFieldSubmitted: (_) => _save(),
                         decoration: InputDecoration(
                           labelText: '密码或应用授权码',
-                          border: const OutlineInputBorder(),
+                          border: const SuperellipseInputBorder(),
                           suffixIcon: IconButton(
                             tooltip: _passwordVisible ? '隐藏密码' : '显示密码',
                             onPressed: () => setState(

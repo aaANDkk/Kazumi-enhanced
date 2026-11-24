@@ -8,6 +8,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/bean/widget/media_error_widget.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class ImageViewerRouteArgs {
   ImageViewerRouteArgs({
@@ -222,10 +223,7 @@ class _ImageViewerState extends State<ImageViewer> {
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  decoration: ShapeDecoration(color: Colors.black.withValues(alpha: 0.5), shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16))),
                   child: Text(
                     '${_currentIndex + 1} / ${widget.imageUrls.length}',
                     style: const TextStyle(color: Colors.white, fontSize: 14),

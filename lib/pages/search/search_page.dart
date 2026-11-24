@@ -18,6 +18,7 @@ import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/constants.dart';
 import 'package:kazumi/utils/date_time.dart';
 import 'package:kazumi/utils/search_parser.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 part 'search_filter_sheet.dart';
 part 'search_widgets.dart';
@@ -183,7 +184,7 @@ class _SearchPageState extends State<SearchPage> {
           type: MaterialType.transparency,
           child: ListTile(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             leading: const Icon(Icons.tune_rounded),
@@ -226,7 +227,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
-                      shape: RoundedRectangleBorder(
+                      shape: SuperellipseBorder(
                           borderRadius: BorderRadius.circular(16)),
                       leading: Icon(Icons.history_rounded,
                           color: theme.colorScheme.onSurfaceVariant, size: 22),

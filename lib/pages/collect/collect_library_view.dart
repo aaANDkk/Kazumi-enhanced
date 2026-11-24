@@ -11,6 +11,7 @@ import 'package:kazumi/modules/collect/collect_layout.dart';
 import 'package:kazumi/modules/collect/collect_module.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/pages/collect/collect_library_query.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 part 'collect_library_card.dart';
 part 'collect_library_controls.dart';

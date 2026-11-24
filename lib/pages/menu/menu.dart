@@ -11,6 +11,7 @@ import 'package:kazumi/pages/my/my_controller.dart';
 import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/pages/router.dart';
 import 'package:kazumi/pages/timeline/timeline_controller.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class ScaffoldMenu extends StatefulWidget {
   const ScaffoldMenu({super.key, required this.location});
@@ -157,12 +158,14 @@ class _ScaffoldMenu extends State<ScaffoldMenu> with RouteAware {
       child: RouterOutlet(key: _outletKey),
     );
     if (borderRadius != null) {
-      child = ClipRRect(borderRadius: borderRadius, child: child);
+      child = SuperellipseClip(borderRadius: borderRadius, child: child);
     }
     return Container(
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: borderRadius,
+        shape: SuperellipseBorder(
+          borderRadius: borderRadius ?? BorderRadius.zero,
+        ),
       ),
       child: child,
     );

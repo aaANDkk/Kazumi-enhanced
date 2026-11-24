@@ -15,6 +15,7 @@ import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/services/platform/app_exit.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/update/startup_update_check.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({
@@ -294,12 +295,9 @@ class _OnboardingProgress extends StatelessWidget {
                           : const Duration(milliseconds: 250),
                       curve: Curves.easeInOutCubicEmphasized,
                       height: 6,
-                      decoration: BoxDecoration(
-                        color: i <= currentIndex
+                      decoration: ShapeDecoration(color: i <= currentIndex
                             ? colors.primary
-                            : colors.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
+                            : colors.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(3))),
                     ),
                   ),
                 ],

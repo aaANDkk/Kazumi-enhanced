@@ -29,6 +29,7 @@ import 'package:kazumi/utils/format.dart';
 import 'package:kazumi/pages/player/player_transport_bar.dart';
 import 'package:kazumi/pages/player/player_screenshot_controls.dart';
 import 'package:kazumi/pages/player/player_progress_bar.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class PlayerItemPanel extends StatefulWidget {
   const PlayerItemPanel({
@@ -250,7 +251,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                 alignLabelWithHint: true,
                 contentPadding: EdgeInsets.symmetric(
                     vertical: 8, horizontal: isDesktop() ? 8 : 12),
-                border: OutlineInputBorder(
+                border: SuperellipseInputBorder(
                   borderSide: BorderSide.none,
                   borderRadius:
                       BorderRadius.all(Radius.circular(isDesktop() ? 8 : 20)),
@@ -270,7 +271,7 @@ class _PlayerItemPanelState extends State<PlayerItemPanel> {
                         backgroundColor: playerController.danmaku.danmakuOn
                             ? Theme.of(context).colorScheme.primaryContainer
                             : Theme.of(context).disabledColor,
-                        shape: RoundedRectangleBorder(
+                        shape: SuperellipseBorder(
                           borderRadius:
                               BorderRadius.circular(isDesktop() ? 8 : 20),
                         ),

@@ -4,6 +4,7 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 
 import 'package:kazumi/bean/widget/expressive_motion.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const double _itemExtent = 52;
 
@@ -163,7 +164,7 @@ class _ScrollFieldState extends State<ScrollField> {
               child: Material(
                 color: colors.surfaceContainerLowest,
                 clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
+                shape: SuperellipseBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: _showFocusRing
                       ? BorderSide(color: colors.secondary, width: 3)

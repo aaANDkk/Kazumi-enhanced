@@ -180,7 +180,7 @@ class _CollectPosterCard extends StatelessWidget {
 
       return Material(
         color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(compact ? 16 : 20),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(compact ? 16 : 20)),
         clipBehavior: Clip.antiAlias,
         child: Semantics(
           button: true,
@@ -205,8 +205,7 @@ class _CollectPosterCard extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      );
+        ));
     });
   }
 }
@@ -367,7 +366,7 @@ class _CollectEntryMenu extends StatelessWidget {
     return KazumiMenuButton(
       enabled: onChanged != null,
       style: MenuStyle(
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+        shape: WidgetStatePropertyAll(SuperellipseBorder(
           borderRadius: BorderRadius.circular(showStatusLabel ? 16 : 20),
         )),
       ),

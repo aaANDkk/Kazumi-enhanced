@@ -13,6 +13,7 @@ import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/platform/desktop_window_config.dart';
 import 'package:kazumi/bean/appbar/drag_to_move_bar.dart' as dtb;
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class PopularPage extends StatefulWidget {
   const PopularPage({
@@ -219,7 +220,7 @@ class _PopularPageState extends State<PopularPage> {
                               ),
                           ],
                           builder: (context, toggle) => InkWell(
-                            borderRadius: BorderRadius.circular(8),
+                            customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(8)),
                             onTap: toggle,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -235,8 +236,7 @@ class _PopularPageState extends State<PopularPage> {
                                 Icon(Icons.keyboard_arrow_down,
                                     size: fontSize, color: theme.iconTheme.color),
                               ],
-                            ),
-                          ),
+                            )),
                         );
                       },
                     ),

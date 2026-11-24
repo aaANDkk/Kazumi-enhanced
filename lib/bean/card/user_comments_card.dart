@@ -6,6 +6,7 @@ import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/modules/comments/comment_item.dart';
 import 'package:kazumi/utils/date_time.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class UserCommentsCard extends StatefulWidget {
   UserCommentsCard.episode(EpisodeCommentItem item, {super.key})
@@ -128,10 +129,7 @@ class _UserCommentsCardState extends State<UserCommentsCard> {
                     horizontal: 8,
                     vertical: 4,
                   ),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  decoration: ShapeDecoration(color: colors.surfaceContainerHigh, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12))),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -184,13 +182,10 @@ class _ReplyTile extends StatelessWidget {
     final colors = theme.colorScheme;
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHigh,
-        borderRadius: BorderRadius.vertical(
+      decoration: ShapeDecoration(color: colors.surfaceContainerHigh, shape: SuperellipseBorder(borderRadius: BorderRadius.vertical(
           top: Radius.circular(topRadius),
           bottom: Radius.circular(bottomRadius),
-        ),
-      ),
+        ))),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         child: Column(
@@ -266,10 +261,10 @@ class _RepliesToggleSegment extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: colors.secondaryContainer,
-        borderRadius: const BorderRadius.vertical(
+        shape: SuperellipseBorder(borderRadius: const BorderRadius.vertical(
           top: Radius.circular(4),
           bottom: Radius.circular(12),
-        ),
+        )),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -308,8 +303,7 @@ class _RepliesToggleSegment extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
+        )),
     );
   }
 }

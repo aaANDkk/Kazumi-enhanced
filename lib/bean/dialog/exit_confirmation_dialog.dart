@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum ExitDialogAction { exit, minimizeToTray }
 
@@ -36,7 +37,7 @@ class _ExitConfirmationDialogState extends State<ExitConfirmationDialog> {
       insetPadding: const EdgeInsets.all(24),
       backgroundColor: colors.surfaceContainerHigh,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       scrollable: true,
       iconPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -44,10 +45,7 @@ class _ExitConfirmationDialogState extends State<ExitConfirmationDialog> {
         child: Container(
           width: 56,
           height: 56,
-          decoration: BoxDecoration(
-            color: colors.primaryContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
+          decoration: ShapeDecoration(color: colors.primaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
           child: Icon(
             Icons.exit_to_app_rounded,
             color: colors.onPrimaryContainer,
@@ -90,7 +88,7 @@ class _ExitConfirmationDialogState extends State<ExitConfirmationDialog> {
               },
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              shape: RoundedRectangleBorder(
+              shape: SuperellipseBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text('记住我的选择', style: theme.textTheme.bodyMedium),

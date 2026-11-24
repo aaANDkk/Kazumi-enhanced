@@ -7,6 +7,7 @@ import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/pages/settings/player_settings.dart';
 import 'package:kazumi/utils/constants.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class _SettingsCategory {
   const _SettingsCategory({
@@ -377,7 +378,7 @@ class _RailDestination extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: Material(
         color: selected ? colorScheme.secondaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(28),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -400,8 +401,7 @@ class _RailDestination extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
+        )),
     );
   }
 }

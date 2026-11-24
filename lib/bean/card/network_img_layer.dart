@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/utils/constants.dart';
 import 'package:kazumi/utils/image_extension.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class NetworkImgLayer extends StatelessWidget {
   const NetworkImgLayer({
@@ -62,7 +63,7 @@ class NetworkImgLayer extends StatelessWidget {
     }
 
     final (memCacheWidth, memCacheHeight) = _cacheSize(context);
-    return ClipRRect(
+    return SuperellipseClip(
       clipBehavior: Clip.antiAlias,
       borderRadius: _borderRadius,
       child: CachedNetworkImage(
@@ -134,13 +135,10 @@ class NetworkImgLayer extends StatelessWidget {
       width: width,
       height: height,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Theme.of(context)
+      decoration: ShapeDecoration(color: Theme.of(context)
             .colorScheme
             .onInverseSurface
-            .withValues(alpha: 0.4),
-        borderRadius: _borderRadius,
-      ),
+            .withValues(alpha: 0.4), shape: SuperellipseBorder(borderRadius: _borderRadius)),
       child: type == 'bg'
           ? const SizedBox()
           : Center(

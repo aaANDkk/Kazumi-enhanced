@@ -206,7 +206,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                   child: Material(
                     type: MaterialType.transparency,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
+                      customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
                       onTap: toggle,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(minHeight: 48),
@@ -239,8 +239,7 @@ class _SourceSheetViewState extends State<_SourceSheetView> {
                             ],
                           ),
                         ),
-                      ),
-                    ),
+                      )),
                   ),
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class StateIconBadge extends StatelessWidget {
   const StateIconBadge({
@@ -83,9 +84,9 @@ class StateActionButton extends StatelessWidget {
           EdgeInsets.symmetric(horizontal: medium ? 24 : 16, vertical: 12)),
       shape: WidgetStateProperty.resolveWith((states) =>
           states.contains(WidgetState.pressed)
-              ? RoundedRectangleBorder(
+              ? SuperellipseBorder(
                   borderRadius: BorderRadius.circular(medium ? 12 : 8))
-              : const StadiumBorder()),
+              : const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000)))),
       animationDuration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : const Duration(milliseconds: 200),

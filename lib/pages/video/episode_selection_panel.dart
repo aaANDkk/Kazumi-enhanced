@@ -13,6 +13,7 @@ import 'package:kazumi/modules/roads/road_module.dart';
 import 'package:kazumi/pages/video/episode_range_strip.dart';
 import 'package:kazumi/pages/video/episode_road_picker.dart';
 import 'package:kazumi/pages/video/player_panel_layout.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum _EpisodeViewMode { grid, list }
 
@@ -725,7 +726,7 @@ class _EpisodeGridTile extends StatelessWidget {
                       : states.contains(WidgetState.hovered)
                           ? 12.0
                           : tonalCardRadius;
-              return RoundedRectangleBorder(
+              return SuperellipseBorder(
                 borderRadius: BorderRadius.circular(radius),
               );
             }),
@@ -767,7 +768,7 @@ class _EpisodeGridTile extends StatelessWidget {
                     left: selected ? 16 : 12,
                     right: selected ? 16 : 12,
                     bottom: 5,
-                    child: ClipRRect(
+                    child: SuperellipseClip(
                       borderRadius: BorderRadius.circular(2),
                       child: Container(
                         height: 3,
@@ -813,10 +814,7 @@ class _EpisodeDownloadTrailing extends StatelessWidget {
     if (status == DownloadStatus.downloading) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: colors.primaryContainer,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: ShapeDecoration(color: colors.primaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12))),
         child: Text(
           '${_downloadPercent(download)}%',
           style: Theme.of(context).textTheme.labelSmall?.copyWith(

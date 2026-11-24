@@ -44,7 +44,7 @@ void _showCustomKeywordDialog({
           labelText: '检索关键词',
           helperText: '仅检索来源：$sourceName',
           helperMaxLines: 3,
-          border: const OutlineInputBorder(),
+          border: const SuperellipseInputBorder(),
         ),
         onChanged: (value) => keyword = value,
         onFieldSubmitted: submit,

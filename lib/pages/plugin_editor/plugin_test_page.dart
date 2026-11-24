@@ -12,6 +12,7 @@ import 'package:kazumi/pages/plugin_editor/rule_management_widgets.dart';
 import 'package:kazumi/plugins/api_rule_config.dart';
 import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/services/logging/logger.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const _h8 = SizedBox(height: 8.0);
 const _h12 = SizedBox(height: 12.0);
@@ -276,7 +277,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
             : colors.onSurfaceVariant;
     return Material(
       color: colors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(28),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
         key: ValueKey('$number-$_hasRun-$completed'),
@@ -285,13 +286,11 @@ class _PluginTestPageState extends State<PluginTestPage> {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
-              color: completed
+          decoration: ShapeDecoration(color: completed
                   ? colors.tertiaryContainer
                   : failed
                       ? colors.errorContainer
-                      : colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(completed ? 20 : 12)),
+                      : colors.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(completed ? 20 : 12))),
           child: Center(
               child: completed
                   ? Icon(Icons.check_rounded, color: foreground)
@@ -311,8 +310,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
         shape: const Border(),
         collapsedShape: const Border(),
         children: [child],
-      ),
-    );
+      ));
   }
 
   Widget _buildKeywordInput() => TextField(
@@ -328,10 +326,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
 
   Widget _buildErrorWidget(ThemeData theme) => Container(
         padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.errorContainer,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: ShapeDecoration(color: theme.colorScheme.errorContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
           const SizedBox(width: 12),
@@ -386,9 +381,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
   Widget _codePanel(String raw, ThemeData theme,
       {ScrollController? controller}) {
     return Container(
-      decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16)),
+      decoration: ShapeDecoration(color: theme.colorScheme.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -475,10 +468,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 8.0),
       padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      decoration: ShapeDecoration(color: theme.colorScheme.errorContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -515,7 +505,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
         margin: const EdgeInsets.only(bottom: 8.0),
         elevation: 0,
         color: theme.colorScheme.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child:
@@ -611,7 +601,7 @@ class _PluginTestPageState extends State<PluginTestPage> {
         margin: const EdgeInsets.only(bottom: 8.0),
         elevation: 0,
         color: theme.colorScheme.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(

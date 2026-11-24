@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/state_presentation.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class SyncPageBody extends StatelessWidget {
   const SyncPageBody({super.key, required this.children, this.maxWidth = 880});
@@ -103,10 +104,7 @@ class SyncFeedback extends StatelessWidget {
       liveRegion: true,
       child: Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: error ? colors.errorContainer : colors.secondaryContainer,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: ShapeDecoration(color: error ? colors.errorContainer : colors.secondaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

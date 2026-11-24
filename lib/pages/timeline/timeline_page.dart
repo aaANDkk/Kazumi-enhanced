@@ -16,6 +16,7 @@ import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/pages/timeline/timeline_controller.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/anime_season.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 part 'timeline_options.dart';
 part 'timeline_week_selector.dart';
@@ -346,7 +347,7 @@ class _TimelinePageState extends State<TimelinePage> {
         message: '切换放送季度',
         child: InkWell(
           onTap: loading ? null : () => _showSeasonBottomSheet(context),
-          borderRadius: BorderRadius.circular(20),
+          customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
@@ -372,8 +373,7 @@ class _TimelinePageState extends State<TimelinePage> {
                   ),
               ],
             ),
-          ),
-        ),
+          )),
       ),
     );
   }

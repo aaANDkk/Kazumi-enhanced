@@ -10,6 +10,7 @@ import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/episode_item.dart';
 import 'package:kazumi/modules/comments/comment_item.dart';
 import 'package:kazumi/pages/video/player_panel_layout.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class EpisodeCommentsView extends StatelessWidget {
   const EpisodeCommentsView({
@@ -228,10 +229,7 @@ class _CommentsControlBar extends StatelessWidget {
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: ShapeDecoration(color: colors.surfaceContainerHigh, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12))),
                     child: Text(
                       '$count',
                       style: theme.textTheme.labelMedium?.copyWith(
@@ -305,7 +303,7 @@ class _RefreshErrorBanner extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Material(
       color: colors.errorContainer,
-      borderRadius: BorderRadius.circular(16),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
         child: Row(
@@ -335,7 +333,6 @@ class _RefreshErrorBanner extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 }

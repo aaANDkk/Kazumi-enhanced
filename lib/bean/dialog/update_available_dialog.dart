@@ -8,6 +8,7 @@ import 'package:kazumi/services/update/auto_updater.dart';
 import 'package:kazumi/services/update/update_download_source.dart';
 import 'package:kazumi/utils/date_time.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 typedef UpdateDialogChoice = ({
   InstallationType type,
@@ -54,7 +55,7 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
       insetPadding: const EdgeInsets.all(24),
       backgroundColor: colors.surfaceContainerHigh,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       scrollable: true,
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -83,7 +84,7 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
                 visualDensity: VisualDensity.compact,
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
+                shape: SuperellipseBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 title: Text('不再自动检查', style: theme.textTheme.bodyMedium),
@@ -151,10 +152,7 @@ class _UpdateAvailableDialogState extends State<UpdateAvailableDialog> {
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.secondaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    decoration: ShapeDecoration(color: colors.secondaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8))),
                     child: Text(
                       info.version,
                       style: theme.textTheme.labelLarge?.copyWith(

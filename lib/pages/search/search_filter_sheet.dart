@@ -168,9 +168,11 @@ class _SearchFilterSheetState extends State<_SearchFilterSheet> {
         filled: true,
         fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
         // Keep labels inside the fill to avoid ExpansionTile clipping.
-        border: UnderlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none),
+        border: SuperellipseInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+          isOutline: false,
+        ),
       );
 
   void _apply() => Navigator.pop(

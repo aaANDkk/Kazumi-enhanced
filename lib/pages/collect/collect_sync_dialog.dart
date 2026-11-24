@@ -5,6 +5,7 @@ import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/sync_priority.dart';
 import 'package:kazumi/modules/collect/collect_sync_plan.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum CollectSyncDestination { webDavSettings, bangumiSettings }
 
@@ -176,7 +177,7 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
         insetPadding: const EdgeInsets.all(24),
         backgroundColor: colors.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
         clipBehavior: Clip.antiAlias,
         scrollable: true,
         iconPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -346,10 +347,10 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
             : active
                 ? colors.secondaryContainer
                 : colors.surfaceContainerLow,
-        borderRadius: splitListRowRadius(
+        shape: SuperellipseBorder(borderRadius: splitListRowRadius(
           first: index == 0,
           last: index == _steps.length - 1,
-        ),
+        )),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -421,8 +422,7 @@ class _CollectSyncDialogState extends State<CollectSyncDialog> {
               ),
             ],
           ),
-        ),
-      ),
+        )),
     );
   }
 }

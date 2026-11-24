@@ -4,6 +4,7 @@ import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/modules/history/history_module.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class HistoryRecordTile extends StatelessWidget {
   const HistoryRecordTile({
@@ -103,10 +104,7 @@ class HistoryRecordTile extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24),
-        decoration: BoxDecoration(
-          color: colors.errorContainer,
-          borderRadius: effectiveRadius,
-        ),
+        decoration: ShapeDecoration(color: colors.errorContainer, shape: SuperellipseBorder(borderRadius: effectiveRadius)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -126,13 +124,7 @@ class HistoryRecordTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: animDuration,
         curve: Curves.easeInOutCubicEmphasized,
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: effectiveRadius,
-          border: editing && selected
-              ? Border.all(color: colors.error, width: 1.5)
-              : null,
-        ),
+        decoration: ShapeDecoration(color: surfaceColor, shape: SuperellipseBorder(borderRadius: effectiveRadius, side: editing && selected ? BorderSide(color: colors.error, width: 1.5) : BorderSide.none)),
         clipBehavior: Clip.antiAlias,
         child: Material(
           color: Colors.transparent,
@@ -171,7 +163,7 @@ class HistoryRecordTile extends StatelessWidget {
 
                 final cover = ExcludeSemantics(
                   child: IgnorePointer(
-                    child: ClipRRect(
+                    child: SuperellipseClip(
                       borderRadius: BorderRadius.circular(8),
                       child: image.isEmpty
                           ? Container(
@@ -428,10 +420,7 @@ class HistoryRecordTile extends StatelessWidget {
             child: Container(
               height: 26,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: colors.error,
-                borderRadius: BorderRadius.circular(13),
-              ),
+              decoration: ShapeDecoration(color: colors.error, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(13))),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -455,7 +444,7 @@ class HistoryRecordTile extends StatelessWidget {
       }
       return Material(
         color: colors.errorContainer,
-        borderRadius: BorderRadius.circular(height / 2),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(height / 2)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onDelete,
@@ -480,8 +469,7 @@ class HistoryRecordTile extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      );
+        ));
     }
 
     return _HistoryActionPill(
@@ -644,7 +632,7 @@ class _HistoryProgressCapsule extends StatelessWidget {
       rightColor = colors.onSurfaceVariant;
     }
 
-    Widget capsule = ClipRRect(
+    Widget capsule = SuperellipseClip(
       borderRadius: borderRadius,
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: minHeight),
@@ -662,10 +650,7 @@ class _HistoryProgressCapsule extends StatelessWidget {
                     widthFactor: fillFactor,
                     heightFactor: 1.0,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: colors.primaryContainer,
-                        borderRadius: borderRadius,
-                      ),
+                      decoration: ShapeDecoration(color: colors.primaryContainer, shape: SuperellipseBorder(borderRadius: borderRadius)),
                     ),
                   ),
                 ),
@@ -726,16 +711,13 @@ class _DashedRRectPainter extends CustomPainter {
     const dashLength = 4.5;
     const gapLength = 3.0;
     const half = strokeWidth / 2;
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        half,
-        half,
-        size.width - strokeWidth,
-        size.height - strokeWidth,
-      ),
-      Radius.circular(radius),
+    final rect = Rect.fromLTWH(
+      half,
+      half,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
     );
-    final path = Path()..addRRect(rrect);
+    final path = superellipsePath(rect, BorderRadius.circular(radius));
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -786,7 +768,7 @@ class _HistoryActionPill extends StatelessWidget {
         message: isFinished ? '重播本集' : '继续播放',
         child: Material(
           color: colors.primaryContainer,
-          borderRadius: BorderRadius.all(outer),
+          shape: SuperellipseBorder(borderRadius: BorderRadius.all(outer)),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onPlay,
@@ -816,8 +798,7 @@ class _HistoryActionPill extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
+          )),
       );
     }
 
@@ -828,10 +809,10 @@ class _HistoryActionPill extends StatelessWidget {
           message: '继续播放',
           child: Material(
             color: colors.primaryContainer,
-            borderRadius: BorderRadiusDirectional.horizontal(
+            shape: SuperellipseBorder(borderRadius: BorderRadiusDirectional.horizontal(
               start: outer,
               end: inner,
-            ),
+            )),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: onPlay,
@@ -860,18 +841,17 @@ class _HistoryActionPill extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
+            )),
         ),
         const SizedBox(width: 2),
         Tooltip(
           message: '下一集',
           child: Material(
             color: colors.secondaryContainer,
-            borderRadius: BorderRadiusDirectional.horizontal(
+            shape: SuperellipseBorder(borderRadius: BorderRadiusDirectional.horizontal(
               start: inner,
               end: outer,
-            ),
+            )),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: onPlayNext,
@@ -901,8 +881,7 @@ class _HistoryActionPill extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
+            )),
         ),
       ],
     );

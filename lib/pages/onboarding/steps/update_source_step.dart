@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/pages/onboarding/onboarding_step_layout.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class UpdateSourceStep extends StatelessWidget {
   const UpdateSourceStep({
@@ -79,15 +80,8 @@ class _OptionCard extends StatelessWidget {
           : const Duration(milliseconds: 250),
       curve: Curves.easeInOutCubicEmphasized,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color:
-            selected ? colors.secondaryContainer : colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(selected ? 20 : 28),
-        border: Border.all(
-          color: selected ? colors.secondary : Colors.transparent,
-          width: 2,
-        ),
-      ),
+      decoration: ShapeDecoration(color: selected ? colors.secondaryContainer : colors.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(selected ? 20 : 28), side: BorderSide(color: selected ? colors.secondary : Colors.transparent,
+          width: 2,))),
       child: Material(
         type: MaterialType.transparency,
         child: RadioListTile<bool>(
@@ -110,7 +104,7 @@ class _OptionCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: ShapeDecoration(
                       color: colors.tertiaryContainer,
-                      shape: const StadiumBorder()),
+                      shape: const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000)))),
                   child: Text('推荐',
                       style: theme.textTheme.labelMedium
                           ?.copyWith(color: colors.onTertiaryContainer)),

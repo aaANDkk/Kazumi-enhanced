@@ -10,6 +10,7 @@ import 'package:kazumi/modules/download/download_module.dart';
 import 'package:kazumi/modules/roads/road_module.dart';
 import 'package:kazumi/pages/download/download_controller.dart';
 import 'package:kazumi/pages/video/video_controller.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class DownloadEpisodeSheet extends StatefulWidget {
   final int road;
@@ -265,15 +266,12 @@ class _EpisodeTile extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOutCubic,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(isSelected ? 28 : 16),
-      ),
+      decoration: ShapeDecoration(color: backgroundColor, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(isSelected ? 28 : 16))),
       clipBehavior: Clip.antiAlias,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          borderRadius: BorderRadius.circular(isSelected ? 28 : 16),
+          customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(isSelected ? 28 : 16)),
           onTap: onTap,
           child: Stack(
             children: [
@@ -318,8 +316,7 @@ class _EpisodeTile extends StatelessWidget {
                   ),
                 ),
             ],
-          ),
-        ),
+          )),
       ),
     );
   }

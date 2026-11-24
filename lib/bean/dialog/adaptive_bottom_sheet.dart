@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import 'package:kazumi/bean/widget/expressive_motion.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 BoxConstraints _adaptiveBottomSheetConstraints(
   BuildContext context, {
@@ -29,7 +30,7 @@ BoxConstraints _adaptiveBottomSheetConstraints(
   );
 }
 
-const ShapeBorder _materialSheetShape = RoundedRectangleBorder(
+const ShapeBorder _materialSheetShape = SuperellipseBorder(
   borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
 );
 
@@ -68,7 +69,7 @@ ModalBottomSheetRoute<T> adaptiveBottomSheetRoute<T>({
     // A single surface owns the handle and background to avoid a second cap.
     backgroundColor: Colors.transparent,
     elevation: 0,
-    shape: const RoundedRectangleBorder(),
+    shape: const SuperellipseBorder(),
     clipBehavior: Clip.none,
     constraints: _adaptiveBottomSheetConstraints(
       context,
@@ -185,10 +186,7 @@ class _MaterialSheetSurfaceState extends State<_MaterialSheetSurface>
                       child: Container(
                         width: 32,
                         height: 4,
-                        decoration: BoxDecoration(
-                          color: colors.onSurfaceVariant,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+                        decoration: ShapeDecoration(color: colors.onSurfaceVariant, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(2))),
                       ),
                     ),
                   ),

@@ -11,6 +11,7 @@ import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/bangumi/bangumi_review.dart';
 import 'package:kazumi/services/logging/logger.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 Future<bool?> showRatingReviewDialog(
   BuildContext context, {
@@ -342,7 +343,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
                   insetPadding: const EdgeInsets.all(24),
                   backgroundColor: colors.surfaceContainerHigh,
                   surfaceTintColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
+                  shape: SuperellipseBorder(
                       borderRadius: BorderRadius.circular(28)),
                   clipBehavior: Clip.antiAlias,
                   child: content,
@@ -397,12 +398,12 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
         filled: true,
         fillColor: colors.surfaceContainerLowest,
         contentPadding: const EdgeInsets.all(20),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: SuperellipseInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide(color: colors.outlineVariant),
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-        focusedBorder: OutlineInputBorder(
+        border: SuperellipseInputBorder(borderRadius: BorderRadius.circular(20)),
+        focusedBorder: SuperellipseInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide(color: colors.primary, width: 2),
         ),
@@ -415,10 +416,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
     final colors = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.secondaryContainer,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      decoration: ShapeDecoration(color: colors.secondaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(24))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Semantics(
@@ -580,7 +578,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
                     hintText: '例如：治愈',
                     filled: true,
                     fillColor: colors.surfaceContainerLowest,
-                    border: OutlineInputBorder(
+                    border: SuperellipseInputBorder(
                         borderRadius: BorderRadius.circular(16)),
                     suffixIcon: IconButton(
                       tooltip: '添加标签',
@@ -610,9 +608,7 @@ class _RatingReviewDialogState extends State<RatingReviewDialog> {
         liveRegion: true,
         child: Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-              color: colors.errorContainer,
-              borderRadius: BorderRadius.circular(16)),
+          decoration: ShapeDecoration(color: colors.errorContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16))),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(Icons.error_outline_rounded, color: colors.onErrorContainer),
             const SizedBox(width: 12),

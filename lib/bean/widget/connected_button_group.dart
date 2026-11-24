@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:kazumi/bean/widget/expressive_motion.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 // Compose Material 3 connected button group tokens, small size.
 const double _height = 40;
@@ -165,7 +166,7 @@ class _ConnectedButtonState extends State<_ConnectedButton> {
               return null;
             }),
             shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(
+              SuperellipseBorder(
                 borderRadius: BorderRadiusDirectional.horizontal(
                   start: widget.leading ? outer : inner,
                   end: widget.trailing ? outer : inner,

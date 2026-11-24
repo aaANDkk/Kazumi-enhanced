@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const double tonalCardRadius = 16;
 
@@ -15,8 +16,7 @@ class TonalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Material(
         color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(tonalCardRadius),
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(tonalCardRadius)),
         clipBehavior: Clip.antiAlias,
-        child: Padding(padding: padding, child: child),
-      );
+        child: Padding(padding: padding, child: child));
 }

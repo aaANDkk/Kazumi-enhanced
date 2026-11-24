@@ -5,6 +5,7 @@ import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/history/history_module.dart';
 import 'package:kazumi/pages/history/history_list_query.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class HistoryListView extends StatefulWidget {
   const HistoryListView({
@@ -80,7 +81,7 @@ class _HistoryListViewState extends State<HistoryListView> {
     final filtered =
         _query.trim().isNotEmpty || _source != HistorySourceFilter.all;
     final now = DateTime.now();
-    const searchBorder = OutlineInputBorder(
+    const searchBorder = SuperellipseInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(28)),
       borderSide: BorderSide.none,
     );
@@ -254,14 +255,10 @@ class _HistoryListViewState extends State<HistoryListView> {
             ? Duration.zero
             : const Duration(milliseconds: 250),
         curve: Curves.easeInOutCubicEmphasized,
-        decoration: BoxDecoration(
-          color:
-              selected ? colors.secondaryContainer : colors.surfaceContainerLow,
-          borderRadius: shape,
-        ),
+        decoration: ShapeDecoration(color: selected ? colors.secondaryContainer : colors.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: shape)),
         child: Material(
           color: Colors.transparent,
-          borderRadius: shape,
+          shape: SuperellipseBorder(borderRadius: shape),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () => _updateFilters(() => _source = source),
@@ -290,8 +287,7 @@ class _HistoryListViewState extends State<HistoryListView> {
                 ),
               ),
             ),
-          ),
-        ),
+          )),
       ),
     );
   }

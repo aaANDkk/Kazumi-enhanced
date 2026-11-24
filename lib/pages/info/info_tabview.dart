@@ -15,6 +15,7 @@ import 'package:kazumi/modules/characters/character_item.dart';
 import 'package:kazumi/modules/staff/staff_item.dart';
 import 'package:kazumi/utils/constants.dart';
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class InfoTabView extends StatefulWidget {
   const InfoTabView({
@@ -555,7 +556,7 @@ class _RelatedBangumiCardH extends StatelessWidget {
       margin: EdgeInsets.zero,
       color: colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
+      shape: SuperellipseBorder(
         borderRadius: BorderRadius.circular(14),
       ),
       child: InkWell(

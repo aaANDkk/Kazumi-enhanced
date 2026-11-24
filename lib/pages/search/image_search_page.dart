@@ -20,6 +20,7 @@ import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/search/image_search_module.dart';
 import 'package:kazumi/pages/search/search_controller.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 part 'image_search_widgets.dart';
 
@@ -446,7 +447,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
               filled: true,
               fillColor: colors.surfaceContainerLow,
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                  SuperellipseInputBorder(borderRadius: BorderRadius.circular(16)),
               suffixIcon: IconButton(
                 onPressed: busy ? null : _pasteUrl,
                 tooltip: '粘贴图片链接',
@@ -581,9 +582,7 @@ class _ImageSearchPageState extends State<ImageSearchPage> {
       child: Container(
         height: short ? 136 : 208,
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-            color: colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(24)),
+        decoration: ShapeDecoration(color: colors.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(24))),
         child: _useUrl
             ? Image.network(_previewUrl,
                 fit: BoxFit.contain,

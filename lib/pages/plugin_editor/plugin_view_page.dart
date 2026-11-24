@@ -21,6 +21,7 @@ import 'package:kazumi/plugins/plugins.dart';
 import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/services/logging/logger.dart';
 import 'package:kazumi/services/plugin/plugin_import_parser.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class PluginViewPage extends StatefulWidget {
   const PluginViewPage({super.key, required this.controller});
@@ -450,7 +451,7 @@ class _PluginViewPageState extends State<PluginViewPage> {
   Widget _menu(Plugin plugin, int index) => KazumiMenuButton(
         style: MenuStyle(
           shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
+              SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
           padding: const WidgetStatePropertyAll(EdgeInsets.all(8)),
         ),
         builder: (context, toggle) => IconButton(

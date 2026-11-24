@@ -6,6 +6,7 @@ import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/download/download_module.dart';
 import 'package:kazumi/utils/format.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 const Duration _kExpandDuration = Duration(milliseconds: 250);
 const Curve _kExpandCurve = Curves.easeInOutCubic;
@@ -70,7 +71,7 @@ class DownloadRecordCard extends StatelessWidget {
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -201,7 +202,7 @@ class DownloadEpisodeTile extends StatelessWidget {
             episode.progressPercent > 0);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
       onTap: onPlay,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -243,8 +244,7 @@ class DownloadEpisodeTile extends StatelessWidget {
             ...actions,
           ],
         ),
-      ),
-    );
+      ));
   }
 }
 

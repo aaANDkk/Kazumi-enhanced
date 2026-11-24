@@ -121,7 +121,7 @@ class _VerifyDialogFrame extends StatelessWidget {
     return AlertDialog(
       scrollable: true,
       backgroundColor: colors.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       constraints: const BoxConstraints(maxWidth: 420),
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -303,10 +303,7 @@ class _CaptchaDialogState extends State<_CaptchaDialog> {
           Container(
             constraints: const BoxConstraints(minHeight: 128),
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(20),
-            ),
+            decoration: ShapeDecoration(color: colors.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
             child: _buildImage(),
           ),
           if (_imageBytes != null) ...[
@@ -336,7 +333,7 @@ class _CaptchaDialogState extends State<_CaptchaDialog> {
                 errorText: _inputError,
                 errorMaxLines: 2,
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    SuperellipseInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -377,7 +374,7 @@ class _CaptchaDialogState extends State<_CaptchaDialog> {
       );
     }
     return Center(
-      child: ClipRRect(
+      child: SuperellipseClip(
         borderRadius: BorderRadius.circular(8),
         child: ColoredBox(
           color: Colors.white,

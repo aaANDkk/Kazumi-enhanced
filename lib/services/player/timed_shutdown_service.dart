@@ -4,6 +4,7 @@ import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/bean/widget/scroll_field.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/services/logging/logger.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class TimedShutdownService {
   static final TimedShutdownService _instance =
@@ -237,7 +238,7 @@ class _CustomTimerDialogState extends State<_CustomTimerDialog> {
       constraints: const BoxConstraints(),
       insetPadding: const EdgeInsets.all(24),
       backgroundColor: colors.surfaceContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: Semantics(
         scopesRoute: true,

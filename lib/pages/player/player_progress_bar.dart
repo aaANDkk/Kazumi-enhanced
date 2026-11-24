@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kazumi/utils/format.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 // Metrics follow the defaults of the former audio_video_progress_bar.
 const double _thumbRadius = 8;
@@ -235,10 +236,7 @@ class _PlayerProgressBarState extends State<PlayerProgressBar> {
             width: width,
             height: height,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(8),
-            ),
+            decoration: ShapeDecoration(color: Colors.black.withValues(alpha: 0.85), shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8))),
             child: Text(text, style: _labelStyle),
           ),
         ),

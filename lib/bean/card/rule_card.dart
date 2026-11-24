@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class RuleCard extends StatelessWidget {
   const RuleCard({
@@ -47,19 +48,13 @@ class RuleCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: duration,
           curve: Curves.easeInOutCubicEmphasized,
-          decoration: BoxDecoration(
-            color: selected
+          decoration: ShapeDecoration(color: selected
                 ? colors.secondaryContainer
-                : colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(selected ? 20 : 28),
-            border: Border.all(
-              color: selected ? colors.secondary : Colors.transparent,
-              width: 2,
-            ),
-          ),
+                : colors.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(selected ? 20 : 28), side: BorderSide(color: selected ? colors.secondary : Colors.transparent,
+              width: 2,))),
           child: Material(
             type: MaterialType.transparency,
-            borderRadius: BorderRadius.circular(selected ? 18 : 26),
+            shape: SuperellipseBorder(borderRadius: BorderRadius.circular(selected ? 18 : 26)),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: onTap,
@@ -76,13 +71,9 @@ class RuleCard extends StatelessWidget {
                         duration: duration,
                         width: 48,
                         height: 48,
-                        decoration: BoxDecoration(
-                          color: selected || installed
+                        decoration: ShapeDecoration(color: selected || installed
                               ? colors.secondaryContainer
-                              : colors.primaryContainer,
-                          borderRadius:
-                              BorderRadius.circular(installed ? 24 : 16),
-                        ),
+                              : colors.primaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(installed ? 24 : 16))),
                         child: Icon(
                           selected
                               ? Icons.check_rounded
@@ -148,8 +139,7 @@ class RuleCard extends StatelessWidget {
                   ]);
                 }),
               ),
-            ),
-          ),
+            )),
         ),
       ),
     );
@@ -171,10 +161,7 @@ class RuleTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: ShapeDecoration(color: background, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8))),
         child: Text(label,
             style: Theme.of(context)
                 .textTheme

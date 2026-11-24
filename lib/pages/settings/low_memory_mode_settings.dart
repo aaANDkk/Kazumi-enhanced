@@ -4,6 +4,7 @@ import 'package:kazumi/bean/settings/settings_list.dart';
 import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/services/network/metered_network_service.dart';
 import 'package:kazumi/services/player/low_memory_mode.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class LowMemoryModeSettingsTile extends StatelessWidget {
   const LowMemoryModeSettingsTile({super.key});
@@ -69,12 +70,9 @@ class _LowMemoryModeDialogState extends State<_LowMemoryModeDialog> {
                 liveRegion: true,
                 child: Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: enabled
+                  decoration: ShapeDecoration(color: enabled
                         ? colors.secondaryContainer
-                        : colors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                        : colors.surfaceContainerHighest, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16))),
                   child: Row(
                     children: [
                       Icon(

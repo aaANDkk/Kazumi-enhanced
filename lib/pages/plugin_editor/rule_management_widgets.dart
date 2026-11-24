@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/plugins/api_rule_config.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 abstract final class RuleModeText {
   static const xpath = 'XPath';
@@ -41,10 +42,7 @@ class RulePageIntro extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-        borderRadius: BorderRadius.circular(32),
-      ),
+      decoration: ShapeDecoration(color: colors.primaryContainer, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(32))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -91,7 +89,7 @@ class RuleSection extends StatelessWidget {
     final theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(28),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -118,8 +116,7 @@ class RuleSection extends StatelessWidget {
             child,
           ],
         ),
-      ),
-    );
+      ));
   }
 }
 
@@ -134,11 +131,11 @@ InputDecoration ruleInputDecoration(BuildContext context,
     filled: true,
     fillColor: colors.surfaceContainerHighest,
     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-    border: OutlineInputBorder(
+    border: SuperellipseInputBorder(
         borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-    enabledBorder: OutlineInputBorder(
+    enabledBorder: SuperellipseInputBorder(
         borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-    focusedBorder: OutlineInputBorder(
+    focusedBorder: SuperellipseInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: colors.primary, width: 2)),
   );

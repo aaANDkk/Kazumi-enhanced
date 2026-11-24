@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/widget/side_panel_transition.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class VideoSidePanel extends StatefulWidget {
   const VideoSidePanel({
@@ -111,10 +112,10 @@ class VideoSidePanelState extends State<VideoSidePanel>
             height: constraints.maxHeight,
             child: Material(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadiusDirectional.only(
+              shape: SuperellipseBorder(borderRadius: const BorderRadiusDirectional.only(
                 topStart: Radius.circular(28),
                 bottomStart: Radius.circular(28),
-              ),
+              )),
               clipBehavior: Clip.antiAlias,
               // Consume the hidden status-bar inset for the entire overlay.
               child: MediaQuery.removePadding(
@@ -122,8 +123,7 @@ class VideoSidePanelState extends State<VideoSidePanel>
                 removeTop: true,
                 removeLeft: true,
                 child: SafeArea(child: widget.child),
-              ),
-            ),
+              )),
           ),
         ),
       );

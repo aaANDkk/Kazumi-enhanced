@@ -6,6 +6,7 @@ import 'package:kazumi/bean/dialog/adaptive_bottom_sheet.dart';
 import 'package:kazumi/bean/dialog/dialog.dart'
     show KazumiDialog, KazumiDialogHandle;
 import 'package:kazumi/bean/widget/loading_indicator.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 mixin KazumiDialogOwner<T extends StatefulWidget> on State<T> {
   late final dialogs = KazumiDialogController(context: () => context)
@@ -247,7 +248,7 @@ class _LoadingDialog extends StatelessWidget {
         child: Card(
           elevation: 8,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

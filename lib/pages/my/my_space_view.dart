@@ -4,6 +4,7 @@ import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/my/watch_stats.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum MyDestination {
   theme,
@@ -251,7 +252,7 @@ class _WatchStatsPanel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Material(
       color: compact ? colors.primaryContainer : colors.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(compact ? 28 : 48),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(compact ? 28 : 48)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
@@ -324,8 +325,7 @@ class _WatchStatsPanel extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 }
 
@@ -520,7 +520,7 @@ class _PreferencesPanel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Material(
       color: colors.surfaceContainerLow,
-      borderRadius: _tileRadius,
+      shape: SuperellipseBorder(borderRadius: _tileRadius),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -547,8 +547,7 @@ class _PreferencesPanel extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      ));
   }
 
   Widget _button(int index) {
@@ -645,8 +644,7 @@ class _ArrowCue extends StatelessWidget {
         child: Container(
           width: 52,
           height: 32,
-          decoration: BoxDecoration(
-              color: color, borderRadius: BorderRadius.circular(20)),
+          decoration: ShapeDecoration(color: color, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
           child: Icon(Icons.arrow_forward_rounded, color: foreground, size: 20),
         ),
       );
@@ -690,10 +688,7 @@ class _ExpressiveActionState extends State<_ExpressiveAction> {
           duration: duration,
           curve: Curves.easeOutCubic,
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: widget.color,
-            borderRadius: _pressed ? BorderRadius.circular(16) : widget.radius,
-          ),
+          decoration: ShapeDecoration(color: widget.color, shape: SuperellipseBorder(borderRadius: _pressed ? BorderRadius.circular(16) : widget.radius)),
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/utils/format.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum PlayerAdjustmentHudType {
   brightness,
@@ -157,11 +158,7 @@ class _PlayerAdjustmentHudState extends State<PlayerAdjustmentHud> {
               curve: Curves.easeOutCubic,
               width: 200,
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: border),
-                boxShadow: [
+              decoration: ShapeDecoration(color: surface, shadows: [
                   BoxShadow(
                     color: accent.withValues(
                       alpha: widget.visible ? 0.24 : 0,
@@ -174,8 +171,7 @@ class _PlayerAdjustmentHudState extends State<PlayerAdjustmentHud> {
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
-                ],
-              ),
+                ], shape: SuperellipseBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: border))),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -184,10 +180,7 @@ class _PlayerAdjustmentHudState extends State<PlayerAdjustmentHud> {
                     curve: Curves.easeOutCubic,
                     width: 32,
                     height: 32,
-                    decoration: BoxDecoration(
-                      color: container,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    decoration: ShapeDecoration(color: container, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
                     child: AnimatedSwitcher(
                       duration: duration,
                       switchInCurve: Curves.easeOutBack,
@@ -450,13 +443,15 @@ class _HudSliderTrackShape extends SliderTrackShape {
 
     canvas.save();
     canvas.clipRect(segmentRect);
-    canvas.drawRRect(
-      RRect.fromRectAndCorners(
+    canvas.drawPath(
+      superellipsePath(
         templateRect,
-        topLeft: Radius.circular(startRadius),
-        bottomLeft: Radius.circular(startRadius),
-        topRight: Radius.circular(endRadius),
-        bottomRight: Radius.circular(endRadius),
+        BorderRadius.only(
+          topLeft: Radius.circular(startRadius),
+          bottomLeft: Radius.circular(startRadius),
+          topRight: Radius.circular(endRadius),
+          bottomRight: Radius.circular(endRadius),
+        ),
       ),
       Paint()..color = color,
     );
@@ -508,10 +503,10 @@ class _HudSliderThumbShape extends SliderComponentShape {
       height: height,
     );
 
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
+    canvas.drawPath(
+      superellipsePath(
         thumbRect,
-        Radius.circular(cornerRadius),
+        BorderRadius.circular(cornerRadius),
       ),
       Paint()..color = thumbColor,
     );
@@ -655,11 +650,7 @@ class _PlayerSeekHudState extends State<PlayerSeekHud> {
               curve: Curves.easeOutCubic,
               width: 248,
               clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: border),
-                boxShadow: [
+              decoration: ShapeDecoration(color: surface, shadows: [
                   BoxShadow(
                     color: accent.withValues(
                       alpha: widget.visible ? 0.24 : 0,
@@ -672,8 +663,7 @@ class _PlayerSeekHudState extends State<PlayerSeekHud> {
                     blurRadius: 24,
                     offset: const Offset(0, 12),
                   ),
-                ],
-              ),
+                ], shape: SuperellipseBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: border))),
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -703,10 +693,7 @@ class _PlayerSeekHudState extends State<PlayerSeekHud> {
                           curve: Curves.easeOutCubic,
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(
-                            color: container,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                          decoration: ShapeDecoration(color: container, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(20))),
                           child: AnimatedSwitcher(
                             duration: duration,
                             switchInCurve: Curves.easeOutBack,
@@ -869,18 +856,13 @@ class _PlayerSpeedHudState extends State<PlayerSpeedHud> {
               curve: Curves.easeOutCubic,
               width: 94,
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: border),
-                boxShadow: [
+              decoration: ShapeDecoration(color: surface, shadows: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 12,
                     offset: const Offset(0, 5),
                   ),
-                ],
-              ),
+                ], shape: SuperellipseBorder(borderRadius: BorderRadius.circular(18), side: BorderSide(color: border))),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -889,10 +871,7 @@ class _PlayerSpeedHudState extends State<PlayerSpeedHud> {
                     curve: Curves.easeOutCubic,
                     width: 22,
                     height: 22,
-                    decoration: BoxDecoration(
-                      color: container,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: ShapeDecoration(color: container, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(12))),
                     child: Icon(
                       Icons.speed_rounded,
                       color: onContainer,

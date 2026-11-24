@@ -6,6 +6,7 @@ import 'package:kazumi/services/network/proxy_utils.dart';
 import 'package:kazumi/services/network/proxy_manager.dart';
 import 'package:kazumi/request/core/dio_factory.dart';
 import 'package:kazumi/request/core/network_config.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class ProxyEditorPage extends StatefulWidget {
   const ProxyEditorPage({super.key});
@@ -108,7 +109,7 @@ class _ProxyEditorPageState extends State<ProxyEditorPage> {
                     decoration: const InputDecoration(
                       labelText: '代理地址',
                       hintText: 'http://127.0.0.1:7890',
-                      border: OutlineInputBorder(),
+                      border: SuperellipseInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -126,7 +127,7 @@ class _ProxyEditorPageState extends State<ProxyEditorPage> {
                     decoration: const InputDecoration(
                       labelText: '测试地址',
                       hintText: 'https://www.google.com',
-                      border: OutlineInputBorder(),
+                      border: SuperellipseInputBorder(),
                     ),
                   ),
                 ],

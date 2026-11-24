@@ -13,6 +13,7 @@ import 'package:kazumi/services/player/history_playback_service.dart';
 import 'package:kazumi/services/plugin/rule_engine_models.dart'
     show RuleCancelToken;
 import 'package:kazumi/utils/device.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key, required this.controller});
@@ -280,7 +281,7 @@ class _HistoryPageState extends State<HistoryPage> {
                               elevation: 6,
                               shadowColor:
                                   colors.shadow.withValues(alpha: 0.28),
-                              borderRadius: BorderRadius.circular(26),
+                              shape: SuperellipseBorder(borderRadius: BorderRadius.circular(26)),
                               child: Padding(
                                 padding: batchMode
                                     ? const EdgeInsets.fromLTRB(12, 8, 10, 8)
@@ -323,7 +324,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                             style: FilledButton.styleFrom(
                                               backgroundColor: colors.error,
                                               foregroundColor: colors.onError,
-                                              shape: const StadiumBorder(),
+                                              shape: const SuperellipseBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
                                             ),
                                             onPressed: _clearing ||
                                                     _deleting.isNotEmpty
@@ -366,8 +367,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                           ),
                                         ],
                                       ),
-                              ),
-                            ),
+                              )),
                           ),
                         ),
                       ),

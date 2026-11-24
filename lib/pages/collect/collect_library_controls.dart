@@ -27,10 +27,7 @@ class _CollectCategories extends StatelessWidget {
       dividerHeight: 0,
       indicatorSize: TabBarIndicatorSize.tab,
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 2),
-      indicator: BoxDecoration(
-        color: colors.primary,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      indicator: ShapeDecoration(color: colors.primary, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(24))),
       indicatorAnimation: TabIndicatorAnimation.elastic,
       labelColor: colors.onPrimary,
       unselectedLabelColor: colors.onSurfaceVariant,

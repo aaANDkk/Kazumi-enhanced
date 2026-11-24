@@ -10,6 +10,7 @@ import 'package:kazumi/plugins/plugins_controller.dart';
 import 'package:kazumi/request/config/api_endpoints.dart';
 import 'package:kazumi/services/plugin/plugin_import_parser.dart';
 import 'package:kazumi/utils/encoding.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum RuleAddSource { catalog, clipboard, file, create }
 
@@ -57,8 +58,8 @@ Future<RuleAddSource?> showRuleAddDialog(BuildContext context) =>
                     color: option.$1 == RuleAddSource.catalog
                         ? colors.secondaryContainer
                         : colors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(
-                        option.$1 == RuleAddSource.catalog ? 20 : 12),
+                    shape: SuperellipseBorder(borderRadius: BorderRadius.circular(
+                        option.$1 == RuleAddSource.catalog ? 20 : 12)),
                     clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       minVerticalPadding: 14,
@@ -68,8 +69,7 @@ Future<RuleAddSource?> showRuleAddDialog(BuildContext context) =>
                       trailing:
                           const Icon(Icons.arrow_forward_rounded, size: 20),
                       onTap: () => Navigator.of(context).pop(option.$1),
-                    ),
-                  ),
+                    )),
                 ),
             ],
           ),
@@ -125,9 +125,7 @@ Future<void> showRuleShareDialog(BuildContext context, Plugin plugin) async {
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16)),
+            decoration: ShapeDecoration(color: Theme.of(context).colorScheme.surfaceContainerLow, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16))),
             constraints: const BoxConstraints(maxHeight: 180),
             child: SingleChildScrollView(
               child: SelectableText(link,
@@ -373,7 +371,7 @@ class _RuleDialog extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return AlertDialog(
       backgroundColor: colors.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(28)),
       constraints: const BoxConstraints(maxWidth: 560),
       insetPadding: const EdgeInsets.all(24),
       scrollable: true,

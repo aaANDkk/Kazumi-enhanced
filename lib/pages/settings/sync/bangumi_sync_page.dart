@@ -9,6 +9,7 @@ import 'package:kazumi/modules/bangumi/sync_priority.dart';
 import 'package:kazumi/pages/settings/sync/sync_settings_widgets.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/services/sync/bangumi_sync_service.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
 enum _BangumiAction { verify, connect, sync }
 
@@ -332,7 +333,7 @@ class _BangumiSyncPageState extends State<BangumiSyncPage> {
                 helperText:
                     _action == _BangumiAction.verify ? '正在验证…' : _tokenStatus,
                 helperMaxLines: 3,
-                border: const OutlineInputBorder(),
+                border: const SuperellipseInputBorder(),
                 suffixIcon: IconButton(
                   tooltip: _passwordVisible ? '隐藏授权码' : '显示授权码',
                   onPressed: () =>
