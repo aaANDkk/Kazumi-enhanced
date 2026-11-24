@@ -202,9 +202,12 @@ void main() {
         identity: identity,
         progress: const Duration(minutes: 23, seconds: 57),
         duration: const Duration(minutes: 24),
+        flush: true,
       );
       var history = repository.getHistory('plugin', item);
       expect(history!.progresses[1]!.progress, Duration.zero);
+      expect(history.progresses[1]!.isCompleted, isTrue);
+      expect(history.progresses[1]!.progressRatio, 1.0);
 
       await repository.updateHistory(
         identity: identity,
@@ -213,6 +216,7 @@ void main() {
       );
       history = repository.getHistory('plugin', item);
       expect(history!.progresses[1]!.progress, const Duration(minutes: 20));
+      expect(history.progresses[1]!.isCompleted, isFalse);
 
       await repository.updateHistory(
         identity: identity,
@@ -223,6 +227,8 @@ void main() {
         history!.progresses[1]!.progress,
         const Duration(minutes: 23, seconds: 57),
       );
+      expect(history.progresses[1]!.isCompleted, isFalse);
+      await repository.flush();
     });
 
     test('serializes repository writes with snapshot reconciliation', () async {
@@ -238,6 +244,7 @@ void main() {
           required progressMs,
           required updatedAt,
           totalDurationMs,
+          isCompleted,
         }) async {
           appendStarted.complete();
           await allowAppendToFinish.future;
@@ -283,6 +290,7 @@ Future<void> _noopHistorySync({
   required int progressMs,
   required int updatedAt,
   int? totalDurationMs,
+  bool? isCompleted,
 }) async {}
 
 Future<void> _noopDeleteSync(History history) async {}

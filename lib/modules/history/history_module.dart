@@ -157,6 +157,9 @@ class Progress {
   @HiveField(4, defaultValue: 0)
   int totalDurationInMilli;
 
+  @HiveField(5, defaultValue: false)
+  bool isCompleted;
+
   Duration get progress => Duration(milliseconds: _progressInMilli);
 
   set progress(Duration d) => _progressInMilli = d.inMilliseconds;
@@ -166,6 +169,9 @@ class Progress {
   set totalDuration(Duration d) => totalDurationInMilli = d.inMilliseconds;
 
   double get progressRatio {
+    if (isCompleted) {
+      return 1.0;
+    }
     if (totalDurationInMilli <= 0 || _progressInMilli <= 0) {
       return 0.0;
     }
@@ -179,6 +185,7 @@ class Progress {
     this._progressInMilli, {
     this.updatedAtMs = 0,
     this.totalDurationInMilli = 0,
+    this.isCompleted = false,
   });
 
   int effectiveUpdatedAtMs(DateTime fallback) {

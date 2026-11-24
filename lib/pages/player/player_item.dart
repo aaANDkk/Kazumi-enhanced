@@ -27,6 +27,7 @@ import 'package:kazumi/bean/dialog/dialog_helper.dart';
 import 'package:kazumi/pages/player/video_details_sheet.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 import 'package:kazumi/pages/history/history_controller.dart';
+import 'package:kazumi/modules/history/history_module.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/modules/danmaku/danmaku_module.dart';
 import 'package:kazumi/pages/player/controller/player_danmaku_controller.dart';
@@ -162,6 +163,100 @@ class _PlayerItemState extends State<PlayerItem>
   late mobx.ReactionDisposer _playerSizeListener;
 
   late mobx.ReactionDisposer _fullscreenListener;
+  late mobx.ReactionDisposer _playingStateListener;
+
+  String? _lastPersistedHistoryKey;
+  int _lastPersistedPositionSec = -1;
+  int _lastPersistedDurationSec = -1;
+  bool _hasUnflushedHistoryWrite = false;
+  bool _hasObservedActivePlayback = false;
+  DateTime? _lastHistoryFlushAt;
+  static const Duration _periodicHistoryFlushInterval = Duration(seconds: 3);
+
+  String _historyTrackingKey(PlaybackHistoryIdentity identity) {
+    return '${identity.pluginName}::${identity.bangumiItem.id}::${identity.entryKind}::${identity.episodeNumber}';
+  }
+
+  Future<void> _persistCurrentHistory({
+    bool flush = false,
+    bool allowWhenPaused = false,
+    Duration? overridePosition,
+    Duration? overrideDuration,
+  }) async {
+    final historyIdentity = videoPageController.currentHistoryIdentity;
+    if (videoPageController.loading ||
+        historyIdentity == null ||
+        !historyIdentity.canRecord) {
+      return;
+    }
+    if (!allowWhenPaused && !playerController.playback.playerPlaying) {
+      return;
+    }
+    if (playerController.playback.mediaPlayer == null &&
+        overridePosition == null) {
+      return;
+    }
+
+    final position =
+        overridePosition ?? playerController.playback.playerPosition;
+    final duration =
+        overrideDuration ?? playerController.playback.playerDuration;
+    final trackingKey = _historyTrackingKey(historyIdentity);
+    if (trackingKey != _lastPersistedHistoryKey) {
+      _lastPersistedHistoryKey = trackingKey;
+      _lastPersistedPositionSec = -1;
+      _lastPersistedDurationSec = -1;
+      _hasUnflushedHistoryWrite = false;
+      _hasObservedActivePlayback = false;
+      _lastHistoryFlushAt = null;
+    }
+
+    if (position > Duration.zero) {
+      _hasObservedActivePlayback = true;
+    }
+
+    // Avoid clobbering a saved resume position with 0:00 before the player
+    // finishes seeking to startOffset on initial open.
+    if (position <= Duration.zero &&
+        playerController.playback.startOffset > 0 &&
+        !_hasObservedActivePlayback &&
+        overridePosition == null) {
+      return;
+    }
+    if (position <= Duration.zero && duration <= Duration.zero) {
+      return;
+    }
+
+    final posSec = position.inSeconds;
+    final durSec = duration.inSeconds;
+    final sameSnapshot = posSec == _lastPersistedPositionSec &&
+        durSec == _lastPersistedDurationSec;
+    if (sameSnapshot && (!flush || !_hasUnflushedHistoryWrite)) {
+      return;
+    }
+
+    final now = DateTime.now();
+    final isFirstWrite = _lastPersistedPositionSec < 0;
+    final jumped = _lastPersistedPositionSec >= 0 &&
+        (posSec - _lastPersistedPositionSec).abs() >= 2;
+    final periodicDue = _lastHistoryFlushAt == null ||
+        now.difference(_lastHistoryFlushAt!) >= _periodicHistoryFlushInterval;
+    final shouldFlush = flush || isFirstWrite || jumped || periodicDue;
+
+    _lastPersistedPositionSec = posSec;
+    _lastPersistedDurationSec = durSec;
+    _hasUnflushedHistoryWrite = !shouldFlush;
+    if (shouldFlush) {
+      _lastHistoryFlushAt = now;
+    }
+
+    await historyController.updateHistory(
+      historyIdentity,
+      position,
+      duration: duration,
+      flush: shouldFlush,
+    );
+  }
 
   @override
   void didChangeMetrics() {
@@ -172,6 +267,12 @@ class _PlayerItemState extends State<PlayerItem>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.detached) {
+      unawaited(_persistCurrentHistory(flush: true, allowWhenPaused: true));
+    }
     if (state == AppLifecycleState.paused && !backgroundPlayback) {
       // Suspend before awaiting pause so a later resume wins; pause alone keeps prefetching.
       final suspend = playerController.playback.setPrefetchSuspended(true);
@@ -594,6 +695,7 @@ class _PlayerItemState extends State<PlayerItem>
     await playerController.seekBy(
       Duration(seconds: playerController.playback.buttonSkipTime),
     );
+    unawaited(_persistCurrentHistory(flush: true, allowWhenPaused: true));
   }
 
   void handleDanmaku() {
@@ -735,6 +837,13 @@ class _PlayerItemState extends State<PlayerItem>
     _progressBarDragHold = null;
     if (completed) {
       _syncAudioServiceState();
+      unawaited(
+        _persistCurrentHistory(
+          flush: true,
+          allowWhenPaused: true,
+          overridePosition: playerController.playback.currentPosition,
+        ),
+      );
     }
     _restartPlayerTimer();
   }
@@ -750,6 +859,7 @@ class _PlayerItemState extends State<PlayerItem>
     playerTimer?.cancel();
     try {
       await seekAction();
+      unawaited(_persistCurrentHistory(flush: true, allowWhenPaused: true));
     } finally {
       if (mounted) {
         _restartPlayerTimer();
@@ -1212,21 +1322,22 @@ class _PlayerItemState extends State<PlayerItem>
           playerController.panel.brightness = value;
         });
       }
-      final historyIdentity = videoPageController.currentHistoryIdentity;
-      if (playerController.playback.playerPlaying &&
-          !videoPageController.loading &&
-          historyIdentity != null &&
-          historyIdentity.canRecord) {
-        historyController.updateHistory(
-          historyIdentity,
-          playerController.playback.playerPosition,
-          duration: playerController.playback.playerDuration,
-        );
-      }
+      unawaited(_persistCurrentHistory());
       final playingSelection = videoPageController.playbackEpisode;
       final playingRoadData =
           videoPageController.roadList[playingSelection.road];
       if (playerController.playback.completed && !videoPageController.loading) {
+        if (!playerController.playback.resumedNearEnd &&
+            playerController.playback.playerDuration > Duration.zero) {
+          unawaited(
+            _persistCurrentHistory(
+              flush: true,
+              allowWhenPaused: true,
+              overridePosition: playerController.playback.playerDuration,
+              overrideDuration: playerController.playback.playerDuration,
+            ),
+          );
+        }
         if (playerController.playback.resumedNearEnd) {
           // Replay stale near-end resumes instead of advancing to the next episode.
           unawaited(playerController.playback.restartFromBeginning());
@@ -1296,6 +1407,16 @@ class _PlayerItemState extends State<PlayerItem>
           '${playerController.debug.playerWidth}:${playerController.debug.playerHeight}',
       (_) {
         unawaited(_syncPIPAspectWhenVideoSizeReady());
+      },
+    );
+    _playingStateListener = mobx.reaction<bool>(
+      (_) => playerController.playback.playing,
+      (isPlaying) {
+        if (!isPlaying) {
+          unawaited(
+            _persistCurrentHistory(flush: true, allowWhenPaused: true),
+          );
+        }
       },
     );
     if (Platform.isAndroid) {
@@ -1378,9 +1499,11 @@ class _PlayerItemState extends State<PlayerItem>
 
   @override
   void dispose() {
+    unawaited(_persistCurrentHistory(flush: true, allowWhenPaused: true));
     // The route-scoped PlayerController owns playback disposal.
     _fullscreenListener();
     _playerSizeListener();
+    _playingStateListener();
     WidgetsBinding.instance.removeObserver(this);
     windowManager.removeListener(this);
     playerController.seeking.invalidateInteractiveSeek();

@@ -79,7 +79,8 @@ class HistoryRecordTile extends StatelessWidget {
     final totalDurText = _formatDuration(totalDuration);
     final progressRatio = _progressRatio;
     final hasRatioBar = totalDurText.isNotEmpty && progressRatio > 0.0;
-    final isFinished = hasRatioBar && progressRatio >= 0.95;
+    final isFinished =
+        (prog?.isCompleted ?? false) || (hasRatioBar && progressRatio >= 0.95);
 
     final effectiveRadius =
         editing && selected ? BorderRadius.circular(16) : borderRadius;
@@ -145,7 +146,12 @@ class HistoryRecordTile extends StatelessWidget {
                   label: [
                     title,
                     episode,
-                    if (currentPosText.isNotEmpty) '看到 $currentPosText',
+                    if (isFinished)
+                      '已看完'
+                    else if (currentPosText.isNotEmpty)
+                      '看到 $currentPosText'
+                    else
+                      '暂无观看进度',
                     source,
                     history.adapterName,
                     time,
@@ -213,82 +219,35 @@ class HistoryRecordTile extends StatelessWidget {
                   ],
                 );
 
-                final episodeAndTimeRow = ExcludeSemantics(
+                final episodeRow = ExcludeSemantics(
                   child: IgnorePointer(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            episode,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colors.onSurfaceVariant,
-                              fontSize: wide ? 13.5 : 13.0,
-                            ),
-                          ),
-                        ),
-                        if (hasRatioBar) ...[
-                          const SizedBox(width: 8),
-                          _TimeStatBadge(
-                            currentPosText: currentPosText,
-                            totalDurText: totalDurText,
-                            progressRatio: progressRatio,
-                            isFinished: isFinished,
-                          ),
-                        ],
-                      ],
+                    child: Text(
+                      episode,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontSize: wide ? 13.5 : 13.0,
+                      ),
                     ),
                   ),
                 );
 
-                Widget? progressSection;
-                if (hasRatioBar) {
-                  progressSection = ExcludeSemantics(
-                    child: IgnorePointer(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: wide ? 8 : 6),
-                        child: LinearProgressIndicator(value: progressRatio),
+                final progressSection = ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: wide ? 7 : 5),
+                      child: _HistoryProgressCapsule(
+                        wide: wide,
+                        currentPosText: currentPosText,
+                        totalDurText: totalDurText,
+                        progressRatio: progressRatio,
+                        hasRatioBar: hasRatioBar,
+                        isFinished: isFinished,
                       ),
                     ),
-                  );
-                } else if (currentPosText.isNotEmpty) {
-                  progressSection = ExcludeSemantics(
-                    child: IgnorePointer(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Container(
-                          margin: EdgeInsets.only(top: wide ? 8 : 6),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.access_time_rounded,
-                                  size: 13, color: colors.primary),
-                              const SizedBox(width: 4),
-                              Text(
-                                '看到 $currentPosText',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.w600,
-                                  fontFeatures: const [
-                                    FontFeature.tabularFigures(),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
+                  ),
+                );
 
                 final metaText = ExcludeSemantics(
                   child: IgnorePointer(
@@ -308,7 +267,11 @@ class HistoryRecordTile extends StatelessWidget {
                   ),
                 );
 
-                final actionWidget = _trailingAction(context, wide: wide);
+                final actionWidget = _trailingAction(
+                  context,
+                  wide: wide,
+                  isFinished: isFinished,
+                );
 
                 final bottomRow = largeText
                     ? Column(
@@ -372,12 +335,12 @@ class HistoryRecordTile extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   titleRow,
-                                  SizedBox(height: wide ? 6 : 4),
-                                  episodeAndTimeRow,
-                                  if (progressSection != null) progressSection,
+                                  SizedBox(height: wide ? 4 : 3),
+                                  episodeRow,
+                                  progressSection,
                                 ],
                               ),
-                              SizedBox(height: wide ? 10 : 8),
+                              SizedBox(height: wide ? 9 : 7),
                               bottomRow,
                             ],
                           ),
@@ -441,7 +404,11 @@ class HistoryRecordTile extends StatelessWidget {
     );
   }
 
-  Widget _trailingAction(BuildContext context, {required bool wide}) {
+  Widget _trailingAction(
+    BuildContext context, {
+    required bool wide,
+    required bool isFinished,
+  }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final height = wide ? 36.0 : 34.0;
@@ -522,7 +489,7 @@ class HistoryRecordTile extends StatelessWidget {
       height: height,
       onPlay: onPlay,
       onPlayNext: onPlayNext,
-      isFinished: _progressRatio >= 0.95,
+      isFinished: isFinished,
     );
   }
 }
@@ -556,74 +523,237 @@ class _SelectionCircle extends StatelessWidget {
   }
 }
 
-class _TimeStatBadge extends StatelessWidget {
-  const _TimeStatBadge({
+class _HistoryProgressCapsule extends StatelessWidget {
+  const _HistoryProgressCapsule({
+    required this.wide,
     required this.currentPosText,
     required this.totalDurText,
     required this.progressRatio,
+    required this.hasRatioBar,
     required this.isFinished,
   });
 
+  final bool wide;
   final String currentPosText;
   final String totalDurText;
   final double progressRatio;
+  final bool hasRatioBar;
   final bool isFinished;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final pct = (progressRatio * 100).round().clamp(1, 100);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: currentPosText.isEmpty ? '0:00' : currentPosText,
-                style: TextStyle(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              TextSpan(
-                text: ' / $totalDurText',
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          style: theme.textTheme.labelMedium?.copyWith(
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+    final isDark = theme.brightness == Brightness.dark;
+    const radius = 8.0;
+    final borderRadius = BorderRadius.circular(radius);
+    final minHeight = wide ? 24.0 : 22.0;
+
+    final trackBg = Color.alphaBlend(
+      colors.primary.withValues(alpha: isDark ? 0.08 : 0.07),
+      colors.surfaceContainerHigh,
+    );
+    final emptyBg = Color.alphaBlend(
+      colors.surfaceContainerHighest.withValues(alpha: isDark ? 0.32 : 0.45),
+      colors.surfaceContainerLow,
+    );
+
+    final bool isEmptyState = !isFinished && currentPosText.isEmpty;
+    final bool isUnknownDuration =
+        !isFinished && !hasRatioBar && currentPosText.isNotEmpty;
+
+    final double fillFactor = isFinished
+        ? 1.0
+        : (hasRatioBar ? progressRatio.clamp(0.0, 1.0) : 0.0);
+
+    final baseTextStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: wide ? 11.0 : 10.5,
+      height: 1.15,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+
+    final Widget leftContent;
+    final String rightText;
+    final Color rightColor;
+
+    if (isFinished) {
+      final finishedLeft = totalDurText.isNotEmpty
+          ? '$totalDurText / $totalDurText'
+          : (currentPosText.isNotEmpty ? '看到 $currentPosText' : '本集已看完');
+      leftContent = Text(
+        finishedLeft,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: baseTextStyle?.copyWith(
+          color: colors.onPrimaryContainer,
+          fontWeight: FontWeight.w700,
         ),
-        const SizedBox(width: 5),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-          decoration: BoxDecoration(
-            color: isFinished
-                ? colors.primaryContainer
-                : colors.secondaryContainer,
-            borderRadius: BorderRadius.circular(6),
+      );
+      rightText = '已看完';
+      rightColor = colors.onPrimaryContainer;
+    } else if (hasRatioBar) {
+      final pct = (progressRatio * 100).round().clamp(1, 100);
+      leftContent = Text(
+        '${currentPosText.isEmpty ? '0:00' : currentPosText} / $totalDurText',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: baseTextStyle?.copyWith(
+          color: colors.onPrimaryContainer,
+          fontWeight: FontWeight.w700,
+        ),
+      );
+      rightText = '$pct%';
+      rightColor =
+          progressRatio >= 0.85 ? colors.onPrimaryContainer : colors.primary;
+    } else if (isUnknownDuration) {
+      leftContent = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule_rounded,
+            size: wide ? 12.5 : 12.0,
+            color: colors.primary,
           ),
-          child: Text(
-            isFinished ? '已看完' : '$pct%',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: isFinished
-                  ? colors.onPrimaryContainer
-                  : colors.onSecondaryContainer,
-              fontWeight: FontWeight.w700,
-              fontSize: 10.5,
-              fontFeatures: const [FontFeature.tabularFigures()],
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              '看到 $currentPosText',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: baseTextStyle?.copyWith(
+                color: colors.onPrimaryContainer,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
+        ],
+      );
+      rightText = '未知总长';
+      rightColor = colors.onSurfaceVariant.withValues(alpha: 0.78);
+    } else {
+      leftContent = Text(
+        '暂无观看进度',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: baseTextStyle?.copyWith(
+          color: colors.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
         ),
-      ],
+      );
+      rightText = '0%';
+      rightColor = colors.onSurfaceVariant;
+    }
+
+    Widget capsule = ClipRRect(
+      borderRadius: borderRadius,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: minHeight),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: ColoredBox(color: isEmptyState ? emptyBg : trackBg),
+            ),
+            if (fillFactor > 0)
+              Positioned.fill(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: FractionallySizedBox(
+                    widthFactor: fillFactor,
+                    heightFactor: 1.0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer,
+                        borderRadius: borderRadius,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: wide ? 10 : 8,
+                vertical: 3,
+              ),
+              child: Row(
+                children: [
+                  Expanded(child: leftContent),
+                  const SizedBox(width: 6),
+                  Text(
+                    rightText,
+                    maxLines: 1,
+                    style: baseTextStyle?.copyWith(
+                      color: rightColor,
+                      fontWeight:
+                          isEmptyState ? FontWeight.w600 : FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+
+    if (isEmptyState) {
+      capsule = CustomPaint(
+        foregroundPainter: _DashedRRectPainter(
+          color: colors.outlineVariant,
+          radius: radius,
+        ),
+        child: capsule,
+      );
+    }
+
+    return capsule;
   }
+}
+
+class _DashedRRectPainter extends CustomPainter {
+  const _DashedRRectPainter({
+    required this.color,
+    required this.radius,
+  });
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    const strokeWidth = 1.0;
+    const dashLength = 4.5;
+    const gapLength = 3.0;
+    const half = strokeWidth / 2;
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+        half,
+        half,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
+      Radius.circular(radius),
+    );
+    final path = Path()..addRRect(rrect);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = (distance + dashLength).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, next), paint);
+        distance += dashLength + gapLength;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedRRectPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
 class _HistoryActionPill extends StatelessWidget {

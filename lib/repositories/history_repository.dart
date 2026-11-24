@@ -14,6 +14,7 @@ typedef HistoryProgressSyncAppender = Future<void> Function({
   required int progressMs,
   required int updatedAt,
   int? totalDurationMs,
+  bool? isCompleted,
 });
 
 typedef HistoryDeleteSyncAppender = Future<void> Function(History history);
@@ -53,7 +54,11 @@ abstract class IHistoryRepository {
     required PlaybackHistoryIdentity identity,
     required Duration progress,
     Duration duration = Duration.zero,
+    bool flush = false,
   });
+
+  /// 将历史记录缓冲区刷盘，确保突发崩溃或退出时不丢失进度
+  Future<void> flush();
 
   /// 获取上次观看的进度
   ///
@@ -123,6 +128,7 @@ class HistoryRepository implements IHistoryRepository {
     required int progressMs,
     required int updatedAt,
     int? totalDurationMs,
+    bool? isCompleted,
   }) async {
     final historySyncService = HistorySyncService();
     await historySyncService.appendSafely(
@@ -133,6 +139,7 @@ class HistoryRepository implements IHistoryRepository {
         progressMs: progressMs,
         updatedAt: updatedAt,
         totalDurationMs: totalDurationMs,
+        isCompleted: isCompleted,
       ),
     );
   }
@@ -206,10 +213,12 @@ class HistoryRepository implements IHistoryRepository {
     required PlaybackHistoryIdentity identity,
     required Duration progress,
     Duration duration = Duration.zero,
+    bool flush = false,
   }) async {
-    // 距结尾过近视为已看完，归零保存
-    if (duration > Duration.zero &&
-        progress >= duration - nearEndWatchedThreshold) {
+    // 距结尾过近视为已看完：归零保存便于点击重播从头开始，同时记录 isCompleted
+    final bool reachedEnd = duration > Duration.zero &&
+        progress >= duration - nearEndWatchedThreshold;
+    if (reachedEnd) {
       progress = Duration.zero;
     }
     await _storageCoordinator.run(() async {
@@ -273,6 +282,7 @@ class HistoryRepository implements IHistoryRepository {
             progress.inMilliseconds,
             updatedAtMs: nowMs,
             totalDurationInMilli: duration.inMilliseconds,
+            isCompleted: reachedEnd,
           );
           history.progresses[episode] = prog;
         } else {
@@ -281,6 +291,11 @@ class HistoryRepository implements IHistoryRepository {
           prog.updatedAtMs = nowMs;
           if (duration.inMilliseconds > 0) {
             prog.totalDurationInMilli = duration.inMilliseconds;
+          }
+          if (reachedEnd) {
+            prog.isCompleted = true;
+          } else if (progress > Duration.zero) {
+            prog.isCompleted = false;
           }
         }
 
@@ -291,6 +306,9 @@ class HistoryRepository implements IHistoryRepository {
         if (shouldMigrateLegacy && legacyKey != history.key) {
           await _historiesBox.delete(legacyKey);
         }
+        if (flush) {
+          await _historiesBox.flush();
+        }
         await _progressSyncAppender(
           history: history,
           episode: episode,
@@ -298,10 +316,26 @@ class HistoryRepository implements IHistoryRepository {
           progressMs: progress.inMilliseconds,
           updatedAt: nowMs,
           totalDurationMs: currentProgress.totalDurationInMilli,
+          isCompleted: currentProgress.isCompleted,
         );
       } catch (e, stackTrace) {
         KazumiLogger().e(
           'GStorage: update history failed. bangumi=${identity.bangumiItem.name}, episode=${identity.episodeNumber}',
+          error: e,
+          stackTrace: stackTrace,
+        );
+      }
+    });
+  }
+
+  @override
+  Future<void> flush() async {
+    await _storageCoordinator.run(() async {
+      try {
+        await _historiesBox.flush();
+      } catch (e, stackTrace) {
+        KazumiLogger().e(
+          'GStorage: flush histories failed',
           error: e,
           stackTrace: stackTrace,
         );
@@ -359,6 +393,7 @@ class HistoryRepository implements IHistoryRepository {
             History.legacyKey(history.adapterName, history.bangumiItem),
           );
         }
+        await _historiesBox.flush();
         await _deleteSyncAppender(history);
       } catch (e, stackTrace) {
         KazumiLogger().e(
@@ -375,6 +410,7 @@ class HistoryRepository implements IHistoryRepository {
     await _storageCoordinator.run(() async {
       try {
         await _historiesBox.clear();
+        await _historiesBox.flush();
         await _clearSyncAppender();
       } catch (e, stackTrace) {
         KazumiLogger().e(

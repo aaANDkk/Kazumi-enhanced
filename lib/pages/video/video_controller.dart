@@ -428,12 +428,47 @@ abstract class _VideoPageController with Store implements Disposable {
     _errorMessage = message;
   }
 
+  /// Persists and flushes the current playback position before stopping or switching episodes.
+  Future<void> flushPlaybackHistory(PlayerController playerController) async {
+    final identity = _playbackHistoryIdentity;
+    if (_loading ||
+        playingEpisode == null ||
+        identity == null ||
+        !identity.canRecord ||
+        playerController.playback.mediaPlayer == null) {
+      return;
+    }
+    final position = playerController.playback.playerPosition;
+    final duration = playerController.playback.playerDuration;
+    if (position <= Duration.zero && duration <= Duration.zero) {
+      return;
+    }
+    if (position <= Duration.zero &&
+        playerController.playback.startOffset > 0 &&
+        !playerController.playback.completed) {
+      return;
+    }
+    final effectivePosition =
+        (playerController.playback.completed &&
+                !playerController.playback.resumedNearEnd &&
+                duration > Duration.zero)
+            ? duration
+            : position;
+    await historyController.updateHistory(
+      identity,
+      effectivePosition,
+      duration: duration,
+      flush: true,
+    );
+  }
+
   Future<void> changeEpisode(
     int episode, {
     int currentRoad = 0,
     int offset = 0,
     required PlayerController playerController,
   }) async {
+    unawaited(flushPlaybackHistory(playerController));
     final session = _playbackSessions.begin();
     final selection = VideoEpisodeSelection(
       episode: episode,

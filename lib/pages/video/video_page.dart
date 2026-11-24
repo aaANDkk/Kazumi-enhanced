@@ -313,6 +313,7 @@ class _VideoPageState extends State<VideoPage>
     return PopScope(
       onPopInvokedWithResult: (bool didPop, Object? result) {
         if (didPop) {
+          unawaited(videoPageController.flushPlaybackHistory(playerController));
           setState(() => _isExiting = true);
           playerController.beginShutdown();
         }

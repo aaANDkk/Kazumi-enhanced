@@ -40,14 +40,18 @@ abstract class _HistoryController with Store {
     PlaybackHistoryIdentity identity,
     Duration progress, {
     Duration duration = Duration.zero,
+    bool flush = false,
   }) async {
     await _historyRepository.updateHistory(
       identity: identity,
       progress: progress,
       duration: duration,
+      flush: flush,
     );
     init();
   }
+
+  Future<void> flush() => _historyRepository.flush();
 
   Progress? lastWatching(
     BangumiItem bangumiItem,

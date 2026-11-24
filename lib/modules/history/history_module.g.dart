@@ -79,13 +79,14 @@ class ProgressAdapter extends TypeAdapter<Progress> {
       (fields[2] as num).toInt(),
       updatedAtMs: fields[3] == null ? 0 : (fields[3] as num).toInt(),
       totalDurationInMilli: fields[4] == null ? 0 : (fields[4] as num).toInt(),
+      isCompleted: fields[5] == null ? false : fields[5] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Progress obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.episode)
       ..writeByte(1)
@@ -95,7 +96,9 @@ class ProgressAdapter extends TypeAdapter<Progress> {
       ..writeByte(3)
       ..write(obj.updatedAtMs)
       ..writeByte(4)
-      ..write(obj.totalDurationInMilli);
+      ..write(obj.totalDurationInMilli)
+      ..writeByte(5)
+      ..write(obj.isCompleted);
   }
 
   @override

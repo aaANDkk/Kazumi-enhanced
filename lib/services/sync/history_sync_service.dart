@@ -52,6 +52,7 @@ class HistorySyncService {
     required int progressMs,
     int? updatedAt,
     int? totalDurationMs,
+    bool? isCompleted,
   }) async {
     final deviceId = await getDeviceId();
     final effectiveUpdatedAt =
@@ -60,6 +61,8 @@ class HistorySyncService {
     final watchStateSeq = await _nextSeq();
     final effectiveDurationMs = totalDurationMs ??
         history.progresses[episode]?.totalDurationInMilli;
+    final effectiveCompleted =
+        isCompleted ?? history.progresses[episode]?.isCompleted;
     final events = [
       HistorySyncEvent.upsertProgress(
         deviceId: deviceId,
@@ -70,6 +73,7 @@ class HistorySyncService {
         progressMs: progressMs,
         updatedAt: effectiveUpdatedAt,
         totalDurationMs: effectiveDurationMs,
+        isCompleted: effectiveCompleted,
       ),
       HistorySyncEvent.upsertWatchState(
         deviceId: deviceId,
@@ -158,6 +162,7 @@ class HistorySyncService {
             road: progress.road,
             progressMs: progress.progress.inMilliseconds,
             totalDurationMs: progress.totalDurationInMilli,
+            isCompleted: progress.isCompleted,
             lastSrc: history.lastSrc,
             lastWatchEpisodeName: history.lastWatchEpisodeName,
             entryKind: history.entryKind,

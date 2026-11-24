@@ -54,6 +54,7 @@ class HistorySyncEvent {
     this.road,
     this.progressMs,
     this.totalDurationMs,
+    this.isCompleted,
     this.lastSrc,
     this.lastWatchEpisodeName,
     this.entryKind,
@@ -73,6 +74,7 @@ class HistorySyncEvent {
   final int? road;
   final int? progressMs;
   final int? totalDurationMs;
+  final bool? isCompleted;
   final String? lastSrc;
   final String? lastWatchEpisodeName;
   final String? entryKind;
@@ -97,6 +99,7 @@ class HistorySyncEvent {
     int? road,
     int? progressMs,
     int? totalDurationMs,
+    bool? isCompleted,
     String? lastSrc,
     String? lastWatchEpisodeName,
     String? entryKind,
@@ -116,6 +119,7 @@ class HistorySyncEvent {
       road: road ?? this.road,
       progressMs: progressMs ?? this.progressMs,
       totalDurationMs: totalDurationMs ?? this.totalDurationMs,
+      isCompleted: isCompleted ?? this.isCompleted,
       lastSrc: lastSrc ?? this.lastSrc,
       lastWatchEpisodeName:
           lastWatchEpisodeName ?? this.lastWatchEpisodeName,
@@ -134,6 +138,7 @@ class HistorySyncEvent {
     required int progressMs,
     required int updatedAt,
     int? totalDurationMs,
+    bool? isCompleted,
   }) {
     return HistorySyncEvent(
       eventId: '$deviceId:$seq',
@@ -149,6 +154,7 @@ class HistorySyncEvent {
       progressMs: progressMs,
       totalDurationMs: totalDurationMs ??
           history.progresses[episode]?.totalDurationInMilli,
+      isCompleted: isCompleted ?? history.progresses[episode]?.isCompleted,
       entryKind: history.entryKind,
       episodePageUrl: history.episodePageUrl,
     );
@@ -227,6 +233,7 @@ class HistorySyncEvent {
       road: (json['road'] as num?)?.toInt(),
       progressMs: (json['progressMs'] as num?)?.toInt(),
       totalDurationMs: (json['totalDurationMs'] as num?)?.toInt(),
+      isCompleted: json['isCompleted'] as bool?,
       lastSrc: json['lastSrc'] as String?,
       lastWatchEpisodeName: json['lastWatchEpisodeName'] as String?,
       entryKind: json['entryKind'] as String?,
@@ -252,6 +259,7 @@ class HistorySyncEvent {
       if (road != null) 'road': road,
       if (progressMs != null) 'progressMs': progressMs,
       if (totalDurationMs != null) 'totalDurationMs': totalDurationMs,
+      if (isCompleted == true) 'isCompleted': true,
       if (lastSrc != null) 'lastSrc': lastSrc,
       if (lastWatchEpisodeName != null)
         'lastWatchEpisodeName': lastWatchEpisodeName,
@@ -518,6 +526,7 @@ class HistorySyncState {
         progressMs,
         updatedAtMs: event.updatedAt,
         totalDurationInMilli: duration,
+        isCompleted: event.isCompleted ?? false,
       );
       episodeVersions[episode] = event.version;
     } else {
@@ -955,6 +964,7 @@ class HistorySyncCodec {
       (json['progressMs'] as num).toInt(),
       updatedAtMs: (json['updatedAtMs'] as num?)?.toInt() ?? 0,
       totalDurationInMilli: (json['totalDurationMs'] as num?)?.toInt() ?? 0,
+      isCompleted: (json['isCompleted'] as bool?) ?? false,
     );
   }
 
@@ -965,6 +975,7 @@ class HistorySyncCodec {
       'progressMs': progress.progress.inMilliseconds,
       'updatedAtMs': progress.updatedAtMs,
       'totalDurationMs': progress.totalDurationInMilli,
+      if (progress.isCompleted) 'isCompleted': true,
     };
   }
 

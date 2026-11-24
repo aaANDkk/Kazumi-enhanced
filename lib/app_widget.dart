@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+import 'package:kazumi/services/storage/history_storage_coordinator.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:kazumi/services/logging/logger.dart';
@@ -241,8 +242,18 @@ class _AppWidgetState extends State<AppWidget>
         windowManager.show();
       case 'exit':
         _invalidateWindowGeometryCapture();
-        DesktopWindowService.flushWindowGeometry()
-            .timeout(const Duration(milliseconds: 500), onTimeout: () {})
+        Future.wait<void>([
+          DesktopWindowService.flushWindowGeometry(),
+          HistoryStorageCoordinator().run(() async {
+            try {
+              await GStorage.histories.flush();
+            } catch (_) {}
+          }),
+        ])
+            .timeout(
+              const Duration(milliseconds: 500),
+              onTimeout: () => const <void>[],
+            )
             .whenComplete(() => AppExit.quit());
     }
   }
@@ -254,7 +265,14 @@ class _AppWidgetState extends State<AppWidget>
     _isHandlingWindowClose = true;
     try {
       _invalidateWindowGeometryCapture();
-      await DesktopWindowService.flushWindowGeometry();
+      await Future.wait<void>([
+        DesktopWindowService.flushWindowGeometry(),
+        HistoryStorageCoordinator().run(() async {
+          try {
+            await GStorage.histories.flush();
+          } catch (_) {}
+        }),
+      ]);
       var action = switch (GStorage.getSetting(SettingsKeys.exitBehavior)) {
         0 => ExitDialogAction.exit,
         1 => ExitDialogAction.minimizeToTray,
