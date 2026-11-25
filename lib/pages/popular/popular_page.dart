@@ -1,24 +1,18 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:kazumi/bean/appbar/drag_to_move_bar.dart' as dtb;
+import 'package:kazumi/bean/appbar/sys_app_bar.dart';
 import 'package:kazumi/bean/card/bangumi_card.dart';
 import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/bean/widget/bangumi_mirror_error_widget.dart';
-import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/pages/collect/collect_controller.dart';
 import 'package:kazumi/pages/popular/popular_controller.dart';
 import 'package:kazumi/services/logging/logger.dart';
-import 'package:kazumi/services/platform/desktop_window_config.dart';
 import 'package:kazumi/services/storage/storage.dart';
 import 'package:kazumi/utils/constants.dart';
-import 'package:kazumi/utils/device.dart';
 import 'package:kazumi/utils/superellipse.dart';
-import 'package:window_manager/window_manager.dart';
 
 class PopularPage extends StatefulWidget {
   const PopularPage({
@@ -99,11 +93,34 @@ class _PopularPageState extends State<PopularPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final orientation = MediaQuery.orientationOf(context);
     final isPortrait = orientation == Orientation.portrait;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isWide = screenWidth >= 780;
 
     return Scaffold(
       extendBody: true,
+      appBar: SysAppBar(
+        needTopOffset: false,
+        toolbarHeight: 68,
+        backgroundColor: colors.surface,
+        title: Observer(
+          builder: (_) {
+            final isTrend = popularController.currentTag == '';
+            return Text(
+              isTrend ? '热门番组' : popularController.currentTag,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            );
+          },
+        ),
+        actions: buildActions(isWide: isWide),
+      ),
       body: AnimePastelBackdrop(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -111,17 +128,13 @@ class _PopularPageState extends State<PopularPage> {
             final compact = maxWidth < 600;
             final cappedWidth = maxWidth.clamp(0.0, 1600.0);
             final sideInset =
-                (maxWidth - cappedWidth) / 2 + (compact ? 12.0 : 22.0);
+                (maxWidth - cappedWidth) / 2 + (compact ? 14.0 : 24.0);
             final contentWidth =
                 (maxWidth - sideInset * 2).clamp(240.0, double.infinity);
 
             return CustomScrollView(
               controller: scrollController,
               slivers: [
-                buildSliverAppBar(
-                  sideInset: sideInset,
-                  isWide: maxWidth >= 780,
-                ),
                 SliverToBoxAdapter(
                   child: _buildTagStrip(sideInset: sideInset),
                 ),
@@ -191,7 +204,7 @@ class _PopularPageState extends State<PopularPage> {
     final tags = ['', ...defaultAnimeTags];
 
     return Padding(
-      padding: const EdgeInsets.only(top: 2, bottom: 10),
+      padding: const EdgeInsets.only(top: 4, bottom: 10),
       child: SizedBox(
         height: 36,
         child: Observer(
@@ -205,7 +218,7 @@ class _PopularPageState extends State<PopularPage> {
               itemBuilder: (context, index) {
                 final tag = tags[index];
                 final selected = tag == activeTag;
-                final label = tag.isEmpty ? '✿ 热门番组' : tag;
+                final label = tag.isEmpty ? '热门番组' : tag;
                 return Material(
                   type: MaterialType.transparency,
                   shape: SuperellipseBorder(
@@ -221,7 +234,7 @@ class _PopularPageState extends State<PopularPage> {
                       duration: const Duration(milliseconds: 180),
                       curve: Curves.easeOutCubic,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 13,
                         vertical: 6,
                       ),
                       decoration: ShapeDecoration(
@@ -231,32 +244,22 @@ class _PopularPageState extends State<PopularPage> {
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
                             color: selected
-                                ? Colors.white.withValues(alpha: 0.28)
+                                ? palette.accent.withValues(alpha: 0.25)
                                 : palette.frameBorder,
-                            width: 0.9,
+                            width: 0.85,
                           ),
                         ),
-                        shadows: selected
-                            ? [
-                                BoxShadow(
-                                  color: palette.sakura.withValues(
-                                      alpha: palette.isDark ? 0.24 : 0.22),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : const [],
                       ),
                       child: Center(
                         child: Text(
                           label,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.5,
                             height: 1.2,
                             fontWeight:
-                                selected ? FontWeight.w800 : FontWeight.w600,
+                                selected ? FontWeight.w700 : FontWeight.w500,
                             color: selected
-                                ? Colors.white
+                                ? palette.onAccent
                                 : colors.onSurfaceVariant,
                           ),
                         ),
@@ -334,7 +337,7 @@ class _PopularPageState extends State<PopularPage> {
         color: palette.frameFill,
         shape: SuperellipseBorder(
           borderRadius: BorderRadius.circular(compact ? 15 : 17),
-          side: BorderSide(color: palette.frameBorder, width: 0.9),
+          side: BorderSide(color: palette.frameBorder, width: 0.85),
         ),
       ),
       child: Padding(
@@ -370,131 +373,6 @@ class _PopularPageState extends State<PopularPage> {
     );
   }
 
-  Widget buildSliverAppBar({
-    required double sideInset,
-    required bool isWide,
-  }) {
-    final theme = Theme.of(context);
-    final palette = AnimePastelPalette.of(context);
-    return SliverAppBar(
-      pinned: true,
-      stretch: true,
-      expandedHeight: 96,
-      toolbarHeight: 62,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      titleSpacing: 0,
-      centerTitle: false,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      actions: buildActions(isWide: isWide),
-      title: null,
-      flexibleSpace: SafeArea(
-        bottom: false,
-        child: dtb.DragToMoveArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final double maxExtent =
-                  96 - MediaQuery.paddingOf(context).top.clamp(0.0, 34.0);
-              final denom = (maxExtent - 62).clamp(1.0, double.infinity);
-              final t = (1 - ((constraints.maxHeight - 62) / denom))
-                  .clamp(0.0, 1.0);
-              final fontSize = lerpDouble(23, 19, t)!;
-              final showEyebrow = t < 0.45;
-              return Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: sideInset,
-                    right: isWide ? 280 : 108,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (showEyebrow)
-                        Opacity(
-                          opacity: (1 - t * 2.2).clamp(0.0, 1.0),
-                          child: Text(
-                            '✿ TRENDING ANIME · 今季热播',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.0,
-                              color: palette.sakura,
-                            ),
-                          ),
-                        ),
-                      Observer(
-                        builder: (_) {
-                          final bool isTrend =
-                              popularController.currentTag == '';
-                          return KazumiMenuButton(
-                            animated: true,
-                            style: const MenuStyle(
-                              maximumSize:
-                                  WidgetStatePropertyAll(Size(240, 360)),
-                            ),
-                            menuChildren: [
-                              for (final tag in ['', ...defaultAnimeTags])
-                                KazumiMenuItem(
-                                  label: tag.isEmpty ? '热门番组' : tag,
-                                  selected: tag == popularController.currentTag,
-                                  onPressed: () => _selectTag(tag),
-                                ),
-                            ],
-                            builder: (context, toggle) => InkWell(
-                              customBorder: SuperellipseBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              onTap: toggle,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 2),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        isTrend
-                                            ? '热门番组'
-                                            : popularController.currentTag,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.headlineSmall
-                                            ?.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: fontSize,
-                                          letterSpacing: -0.2,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      size: fontSize,
-                                      color: palette.sakura,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
   List<Widget> buildActions({required bool isWide}) {
     final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -513,10 +391,10 @@ class _PopularPageState extends State<PopularPage> {
               onTap: () => context.pushNamed('/search/'),
               child: DecoratedBox(
                 decoration: ShapeDecoration(
-                  color: palette.frameFill,
+                  color: palette.toolbarFill,
                   shape: SuperellipseBorder(
                     borderRadius: BorderRadius.circular(13),
-                    side: BorderSide(color: palette.frameBorder, width: 0.9),
+                    side: BorderSide(color: palette.toolbarBorder, width: 0.85),
                   ),
                 ),
                 child: Padding(
@@ -526,7 +404,7 @@ class _PopularPageState extends State<PopularPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.search_rounded,
-                          size: 16, color: palette.sakura),
+                          size: 16, color: palette.accent),
                       const SizedBox(width: 6),
                       Text(
                         '搜索番剧、标签…',
@@ -548,18 +426,14 @@ class _PopularPageState extends State<PopularPage> {
           onPressed: () => context.pushNamed('/search/'),
           icon: const Icon(Icons.search_rounded),
         ),
-      IconButton(
-        tooltip: '历史记录',
-        onPressed: () => context.pushNamed('/settings/history/'),
-        icon: const Icon(Icons.history_rounded),
-      ),
-      if (isDesktop() && !DesktopWindowConfig.showWindowButton)
-        IconButton(
-          tooltip: '退出',
-          onPressed: () => windowManager.close(),
-          icon: const Icon(Icons.close_rounded),
+      Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: IconButton(
+          tooltip: '历史记录',
+          onPressed: () => context.pushNamed('/settings/history/'),
+          icon: const Icon(Icons.history_rounded),
         ),
-      const SizedBox(width: 8),
+      ),
     ];
   }
 

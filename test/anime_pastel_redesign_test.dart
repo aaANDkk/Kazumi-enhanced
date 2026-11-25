@@ -23,14 +23,31 @@ void main() {
     expect(animePosterColumns(1560, isPortrait: false), 9);
   });
 
-  testWidgets('BangumiCardV renders Kawaii Pastel Glass frame without overflow',
+  test('filterMeaningfulAnimeTags strips noisy format and region metadata', () {
+    expect(
+      filterMeaningfulAnimeTags(
+        const ['TV', 'WEB', '日本', '2026年', '奇幻', '治愈', '日常'],
+        limit: 2,
+      ),
+      const ['奇幻', '治愈'],
+    );
+  });
+
+  testWidgets('BangumiCardV renders theme-adaptive frame and clean badges',
       (tester) async {
-    final item = _sampleBangumi(
+    final topItem = _sampleBangumi(
       id: 101,
       nameCn: '葬送的芙莉莲',
       name: '葬送のフリーレン',
       score: 9.1,
-      metaTags: const ['奇幻', '治愈'],
+      metaTags: const ['TV', '奇幻', '治愈'],
+    );
+    final watchingItem = _sampleBangumi(
+      id: 102,
+      nameCn: '孤独摇滚！',
+      name: 'ぼっち・ざ・ろっく！',
+      score: 8.8,
+      metaTags: const ['WEB', '音乐'],
     );
     const width = 156.0;
     final height = BangumiCardV.extentFor(width, TextScaler.noScaling);
@@ -38,20 +55,33 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: applySuperellipseTheme(
-          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
         ),
         home: Scaffold(
           body: AnimePastelBackdrop(
-            child: Center(
-              child: SizedBox(
-                width: width,
-                height: height,
-                child: BangumiCardV(
-                  bangumiItem: item,
-                  rankIndex: 0,
-                  isWatching: true,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: width,
+                  height: height,
+                  child: BangumiCardV(
+                    bangumiItem: topItem,
+                    rankIndex: 0,
+                    isWatching: false,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: width,
+                  height: height,
+                  child: BangumiCardV(
+                    bangumiItem: watchingItem,
+                    rankIndex: 5,
+                    isWatching: true,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -60,11 +90,15 @@ void main() {
 
     expect(find.text('葬送的芙莉莲'), findsOneWidget);
     expect(find.text('葬送のフリーレン'), findsOneWidget);
-    expect(find.text('✿ 热门 No.1'), findsOneWidget);
+    expect(find.text('TOP 1'), findsOneWidget);
+    expect(find.text('♥ 在追'), findsOneWidget);
     expect(find.text('9.1'), findsOneWidget);
+    expect(find.text('TV'), findsNothing);
+    expect(find.text('WEB'), findsNothing);
   });
 
-  testWidgets('BangumiTimelineCard renders watching badge, jp subtitle and tags',
+  testWidgets(
+      'BangumiTimelineCard renders watching badge, jp subtitle, and filtered tags',
       (tester) async {
     final watchingItem = _sampleBangumi(
       id: 201,
@@ -72,7 +106,7 @@ void main() {
       name: 'ぼっち・ざ・ろっく！',
       score: 8.8,
       info: '12话 / 2026年10月',
-      metaTags: const ['音乐', '日常'],
+      metaTags: const ['TV', '日本', '音乐', '日常'],
     );
     final newItem = _sampleBangumi(
       id: 202,
@@ -80,7 +114,7 @@ void main() {
       name: 'Shinsaku Test',
       score: 0,
       info: '',
-      metaTags: const ['校园'],
+      metaTags: const ['WEB', '校园'],
     );
 
     await tester.pumpWidget(
@@ -88,7 +122,7 @@ void main() {
         theme: applySuperellipseTheme(
           ThemeData(
             useMaterial3: true,
-            colorSchemeSeed: Colors.green,
+            colorSchemeSeed: Colors.teal,
             brightness: Brightness.dark,
           ),
         ),
@@ -123,6 +157,10 @@ void main() {
     expect(find.text('♥ 在追'), findsOneWidget);
     expect(find.text('12 话'), findsOneWidget);
     expect(find.text('ぼっち・ざ・ろっく！'), findsOneWidget);
+    expect(find.text('音乐'), findsOneWidget);
+    expect(find.text('日常'), findsOneWidget);
+    expect(find.text('TV'), findsNothing);
+    expect(find.text('日本'), findsNothing);
     expect(find.text('8.8'), findsOneWidget);
     expect(find.text('刚开播'), findsOneWidget);
   });
@@ -164,7 +202,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: applySuperellipseTheme(
-            ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
+            ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
           ),
           home: Scaffold(
             body: CollectLibraryView(

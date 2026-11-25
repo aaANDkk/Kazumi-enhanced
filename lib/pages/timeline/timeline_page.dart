@@ -82,17 +82,7 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   String _seasonLabel(DateTime date) {
-    return '${date.year}年${getSeasonStringByMonth(date.month)}季番';
-  }
-
-  String _seasonSymbol(DateTime date) {
-    final startMonth = ((date.month - 1) ~/ 3) * 3 + 1;
-    return switch (startMonth) {
-      1 => '❄',
-      4 => '✿',
-      7 => '☀',
-      _ => '🍁',
-    };
+    return '${date.year}年${getSeasonStringByMonth(date.month)}季';
   }
 
   void _showSeasonBottomSheet(BuildContext context) {
@@ -190,7 +180,7 @@ class _TimelinePageState extends State<TimelinePage> {
 
   Widget _buildContent(BuildContext context) {
     final theme = Theme.of(context);
-    final palette = AnimePastelPalette.of(context);
+    final colors = theme.colorScheme;
     final scaler = MediaQuery.textScalerOf(context);
     return LayoutBuilder(builder: (context, constraints) {
       final narrowPortrait = constraints.maxWidth < 600 &&
@@ -222,9 +212,9 @@ class _TimelinePageState extends State<TimelinePage> {
                 totalCount: totalCount,
               );
         final weekHeight =
-            _TimelineWeekSelector.heightFor(scaler, wide: wideWeekBar) + 14;
+            _TimelineWeekSelector.heightFor(scaler, wide: wideWeekBar) + 16;
         final weekSelector = Padding(
-          padding: EdgeInsets.fromLTRB(inset, 0, inset, 14),
+          padding: EdgeInsets.fromLTRB(inset, 4, inset, 12),
           child: _TimelineWeekSelector(
             counts: calendar.map((day) => day.length).toList(),
             todayIndex: currentSeason ? today.weekday - 1 : null,
@@ -236,39 +226,16 @@ class _TimelinePageState extends State<TimelinePage> {
           appBar: SysAppBar(
             needTopOffset: false,
             toolbarHeight: 68,
-            backgroundColor: Colors.transparent,
+            backgroundColor: colors.surface,
             title: narrowPortrait
                 ? _buildSeasonPicker(context, loading: loading, inAppBar: true)
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '✿ ON AIR SCHEDULE · 放送番組表',
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                          color: palette.sakura,
-                        ),
-                      ),
-                      Text(
-                        '放送时间表',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
+                : Text(
+                    '时间表',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: _buildWatchingFilterChip(
-                  context,
-                  compact: narrowPortrait,
-                  active: _controller.onlyShowWatchingBangumis,
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: _TimelineOptionsButton(
@@ -294,7 +261,7 @@ class _TimelinePageState extends State<TimelinePage> {
                   if (seasonHeader != null)
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(inset, 2, inset, 14),
+                        padding: EdgeInsets.fromLTRB(inset, 4, inset, 14),
                         child: seasonHeader,
                       ),
                     ),
@@ -305,8 +272,7 @@ class _TimelinePageState extends State<TimelinePage> {
                       pinned: true,
                       delegate: _WeekHeaderDelegate(
                         height: weekHeight,
-                        color: theme.scaffoldBackgroundColor
-                            .withValues(alpha: 0.92),
+                        color: colors.surface,
                         child: weekSelector,
                       ),
                     ),
@@ -353,71 +319,6 @@ class _TimelinePageState extends State<TimelinePage> {
     });
   }
 
-  Widget _buildWatchingFilterChip(
-    BuildContext context, {
-    required bool compact,
-    required bool active,
-  }) {
-    final palette = AnimePastelPalette.of(context);
-    final colors = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: active ? '显示全部放送番剧' : '仅看正在追的番剧',
-      child: Material(
-        type: MaterialType.transparency,
-        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(14)),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          customBorder: SuperellipseBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          onTap: () => _controller.setOnlyShowWatchingBangumis(!active),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            padding: EdgeInsets.symmetric(
-              horizontal: compact ? 10 : 12,
-              vertical: 8,
-            ),
-            decoration: ShapeDecoration(
-              gradient: active ? palette.watchingGradient : null,
-              color: active ? null : palette.frameFill,
-              shape: SuperellipseBorder(
-                borderRadius: BorderRadius.circular(14),
-                side: BorderSide(
-                  color: active
-                      ? Colors.white.withValues(alpha: 0.28)
-                      : palette.frameBorder,
-                  width: 0.9,
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  active
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border_rounded,
-                  size: 15,
-                  color: active ? Colors.white : palette.sakura,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  compact ? '在追' : '仅看在追',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-                    color: active ? Colors.white : colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildLoading(double viewportHeight, double overlapHeight) {
     return LayoutBuilder(builder: (context, constraints) {
       // Center loading in the full viewport, including the scroll headers.
@@ -444,11 +345,9 @@ class _TimelinePageState extends State<TimelinePage> {
       {required bool loading, bool compact = false, bool inAppBar = false}) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final palette = AnimePastelPalette.of(context);
     final label = _seasonLabel(_controller.selectedDate);
-    final symbol = _seasonSymbol(_controller.selectedDate);
     final style = inAppBar
-        ? theme.textTheme.titleMedium
+        ? theme.textTheme.headlineSmall
         : compact || MediaQuery.textScalerOf(context).scale(16) > 24
             ? theme.textTheme.titleLarge
             : theme.textTheme.headlineSmall;
@@ -463,9 +362,9 @@ class _TimelinePageState extends State<TimelinePage> {
         child: InkWell(
           onTap: loading ? null : () => _showSeasonBottomSheet(context),
           customBorder:
-              SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
+              SuperellipseBorder(borderRadius: BorderRadius.circular(14)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -476,44 +375,15 @@ class _TimelinePageState extends State<TimelinePage> {
                     overflow: TextOverflow.ellipsis,
                     style: style?.copyWith(
                       color: colors.onSurface,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                DecoratedBox(
-                  decoration: ShapeDecoration(
-                    color: palette.sakuraSoft,
-                    shape: SuperellipseBorder(
-                      borderRadius: BorderRadius.circular(11),
-                      side: BorderSide(color: palette.frameBorder, width: 0.8),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: inAppBar ? 7 : 10,
-                      vertical: inAppBar ? 3 : 5,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          inAppBar ? symbol : '$symbol 切换季度',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: palette.sakura,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          Icons.expand_more_rounded,
-                          size: 16,
-                          color: palette.sakura,
-                        ),
-                      ],
-                    ),
-                  ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.expand_more_rounded,
+                  size: inAppBar ? 22 : 24,
+                  color: colors.onSurfaceVariant,
                 ),
               ],
             ),

@@ -264,52 +264,38 @@ class CollectLibraryViewState extends State<CollectLibraryView>
     required bool compact,
     required bool singleLineToolbar,
   }) {
-    final palette = AnimePastelPalette.of(context);
-
     if (singleLineToolbar) {
       return Padding(
-        padding: const EdgeInsets.only(top: 4, bottom: 14),
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            color: palette.toolbarFill,
-            shape: SuperellipseBorder(
-              borderRadius: BorderRadius.circular(18),
-              side: BorderSide(color: palette.toolbarBorder, width: 0.9),
+        padding: const EdgeInsets.only(top: 6, bottom: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: _CollectCategories(
+                controller: _tabController,
+                selected: _selectedType,
+                count: query.count,
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _CollectCategories(
-                    controller: _tabController,
-                    selected: _selectedType,
-                    count: query.count,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(width: 196, child: _compactSearchField()),
-                const SizedBox(width: 8),
-                _CollectSortMenu(
-                  value: _sort,
-                  showLabel: true,
-                  onChanged: (value) => setState(() {
-                    _sort = value;
-                    _resetResults();
-                  }),
-                ),
-                const SizedBox(width: 6),
-                _CollectLayoutSwitch(
-                  value: widget.layout,
-                  onChanged: (layout) {
-                    if (layout != widget.layout) _resetResults();
-                    widget.onLayoutChanged(layout);
-                  },
-                ),
-              ],
+            const SizedBox(width: 10),
+            SizedBox(width: 196, child: _compactSearchField()),
+            const SizedBox(width: 8),
+            _CollectSortMenu(
+              value: _sort,
+              showLabel: true,
+              onChanged: (value) => setState(() {
+                _sort = value;
+                _resetResults();
+              }),
             ),
-          ),
+            const SizedBox(width: 6),
+            _CollectLayoutSwitch(
+              value: widget.layout,
+              onChanged: (layout) {
+                if (layout != widget.layout) _resetResults();
+                widget.onLayoutChanged(layout);
+              },
+            ),
+          ],
         ),
       );
     }
@@ -317,21 +303,12 @@ class CollectLibraryViewState extends State<CollectLibraryView>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DecoratedBox(
-          decoration: ShapeDecoration(
-            color: palette.toolbarFill,
-            shape: SuperellipseBorder(
-              borderRadius: BorderRadius.circular(18),
-              side: BorderSide(color: palette.toolbarBorder, width: 0.9),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
-            child: _CollectCategories(
-              controller: _tabController,
-              selected: _selectedType,
-              count: query.count,
-            ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: _CollectCategories(
+            controller: _tabController,
+            selected: _selectedType,
+            count: query.count,
           ),
         ),
         const SizedBox(height: 10),
@@ -424,7 +401,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
             prefixIcon: Icon(
               Icons.search_rounded,
               size: 18,
-              color: palette.sakura,
+              color: palette.accent,
             ),
             prefixIconConstraints: const BoxConstraints(
               minWidth: 34,
@@ -448,7 +425,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
             ),
             focusedBorder: SuperellipseInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: palette.sakura, width: 1.3),
+              borderSide: BorderSide(color: palette.accent, width: 1.3),
             ),
             border: SuperellipseInputBorder(
               borderRadius: BorderRadius.circular(12),

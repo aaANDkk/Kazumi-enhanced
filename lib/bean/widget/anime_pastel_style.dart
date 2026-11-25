@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
-/// Shared visual tokens and pastel anime UI primitives for Kazumi's
-/// "Kawaii Pastel Glass" (轻樱手账风) redesign across Popular, Timeline, and Collect.
+/// Shared M3 theme-adaptive anime UI primitives for Popular, Timeline, and Collect.
+///
+/// Every color derives strictly from [Theme.of(context).colorScheme] so the UI
+/// stays 100% harmonious with any user-chosen seed color or Monet dynamic theme.
 class AnimePastelPalette {
   const AnimePastelPalette({
     required this.isDark,
-    required this.sakura,
-    required this.sakuraSoft,
-    required this.peach,
-    required this.sky,
+    required this.accent,
+    required this.onAccent,
+    required this.accentSoft,
+    required this.onAccentSoft,
+    required this.accentSecondary,
     required this.frameFill,
     required this.frameBorder,
     required this.watchingFillTop,
@@ -28,16 +31,15 @@ class AnimePastelPalette {
     required this.scoreStar,
     required this.ribbonStart,
     required this.ribbonEnd,
-    required this.watchingStart,
-    required this.watchingEnd,
     required this.subtext,
   });
 
   final bool isDark;
-  final Color sakura;
-  final Color sakuraSoft;
-  final Color peach;
-  final Color sky;
+  final Color accent;
+  final Color onAccent;
+  final Color accentSoft;
+  final Color onAccentSoft;
+  final Color accentSecondary;
   final Color frameFill;
   final Color frameBorder;
   final Color watchingFillTop;
@@ -52,8 +54,6 @@ class AnimePastelPalette {
   final Color scoreStar;
   final Color ribbonStart;
   final Color ribbonEnd;
-  final Color watchingStart;
-  final Color watchingEnd;
   final Color subtext;
 
   factory AnimePastelPalette.of(BuildContext context) {
@@ -61,82 +61,43 @@ class AnimePastelPalette {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    if (isDark) {
-      const sakura = Color(0xFFFF88B8);
-      const peach = Color(0xFFFFAE8C);
-      const sky = Color(0xFF84C4FF);
-      return AnimePastelPalette(
-        isDark: true,
-        sakura: sakura,
-        sakuraSoft: const Color(0xFF3A2332),
-        peach: peach,
-        sky: sky,
-        frameFill: Color.alphaBlend(
-          sakura.withValues(alpha: 0.06),
-          colors.surfaceContainerLow,
-        ),
-        frameBorder: sakura.withValues(alpha: 0.22),
-        watchingFillTop: Color.alphaBlend(
-          sakura.withValues(alpha: 0.16),
-          colors.surfaceContainerLow,
-        ),
-        watchingFillBottom: Color.alphaBlend(
-          sky.withValues(alpha: 0.06),
-          colors.surfaceContainerLow,
-        ),
-        watchingBorder: sakura.withValues(alpha: 0.48),
-        toolbarFill: Color.alphaBlend(
-          sakura.withValues(alpha: 0.07),
-          colors.surfaceContainerLow,
-        ),
-        toolbarBorder: sakura.withValues(alpha: 0.18),
-        tagFill: Color.alphaBlend(
-          sakura.withValues(alpha: 0.12),
-          colors.surfaceContainerHigh,
-        ),
-        tagText: const Color(0xFFF6D5E4),
-        scoreBg: const Color(0xE8281F27),
-        scoreFg: const Color(0xFFFFD479),
-        scoreStar: const Color(0xFFFFC54D),
-        ribbonStart: const Color(0xFFFF68A2),
-        ribbonEnd: const Color(0xFFFF9878),
-        watchingStart: const Color(0xFFE95690),
-        watchingEnd: const Color(0xFFFF86A8),
-        subtext: colors.onSurfaceVariant.withValues(alpha: 0.78),
-      );
-    }
+    final ribbonEnd = Color.lerp(colors.primary, colors.tertiary, 0.28) ??
+        colors.primary;
 
-    const sakura = Color(0xFFE05288);
-    const peach = Color(0xFFF28E6B);
-    const sky = Color(0xFF5DA9EE);
     return AnimePastelPalette(
-      isDark: false,
-      sakura: sakura,
-      sakuraSoft: const Color(0xFFFDEAF2),
-      peach: peach,
-      sky: sky,
-      frameFill: Color.alphaBlend(
-        sakura.withValues(alpha: 0.025),
-        Colors.white,
-      ),
-      frameBorder: sakura.withValues(alpha: 0.18),
-      watchingFillTop: const Color(0xFFFFF3F8),
-      watchingFillBottom: const Color(0xFFFFFFFF),
-      watchingBorder: sakura.withValues(alpha: 0.44),
-      toolbarFill: Color.alphaBlend(
-        sakura.withValues(alpha: 0.055),
+      isDark: isDark,
+      accent: colors.primary,
+      onAccent: colors.onPrimary,
+      accentSoft: colors.primaryContainer,
+      onAccentSoft: colors.onPrimaryContainer,
+      accentSecondary: colors.tertiary,
+      frameFill: isDark
+          ? colors.surfaceContainerLow
+          : Color.alphaBlend(
+              colors.primary.withValues(alpha: 0.018),
+              colors.surfaceContainerLowest,
+            ),
+      frameBorder: colors.outlineVariant.withValues(alpha: isDark ? 0.42 : 0.55),
+      watchingFillTop: Color.alphaBlend(
+        colors.primaryContainer.withValues(alpha: isDark ? 0.40 : 0.42),
         colors.surfaceContainerLow,
       ),
-      toolbarBorder: sakura.withValues(alpha: 0.15),
-      tagFill: const Color(0xFFFCECF3),
-      tagText: const Color(0xFF9C315E),
-      scoreBg: const Color(0xF0FFFDF7),
-      scoreFg: const Color(0xFF9A4E0B),
-      scoreStar: const Color(0xFFEB9B16),
-      ribbonStart: const Color(0xFFFF6EA5),
-      ribbonEnd: const Color(0xFFFF9A7B),
-      watchingStart: const Color(0xFFE8528C),
-      watchingEnd: const Color(0xFFFF82A8),
+      watchingFillBottom: isDark
+          ? colors.surfaceContainerLow
+          : colors.surfaceContainerLowest,
+      watchingBorder: colors.primary.withValues(alpha: isDark ? 0.58 : 0.44),
+      toolbarFill: colors.surfaceContainerLow,
+      toolbarBorder:
+          colors.outlineVariant.withValues(alpha: isDark ? 0.34 : 0.45),
+      tagFill: colors.secondaryContainer.withValues(alpha: isDark ? 0.52 : 0.68),
+      tagText: colors.onSecondaryContainer,
+      scoreBg: isDark
+          ? colors.surfaceContainerHighest.withValues(alpha: 0.88)
+          : colors.surface.withValues(alpha: 0.92),
+      scoreFg: colors.onSurface,
+      scoreStar: isDark ? const Color(0xFFFFC95C) : const Color(0xFFE09612),
+      ribbonStart: colors.primary,
+      ribbonEnd: ribbonEnd,
       subtext: colors.onSurfaceVariant.withValues(alpha: 0.78),
     );
   }
@@ -147,47 +108,88 @@ class AnimePastelPalette {
         colors: [ribbonStart, ribbonEnd],
       );
 
-  LinearGradient get watchingGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [watchingStart, watchingEnd],
-      );
+  /// Tonal status style for pills/dropdowns (harmonious with active ColorScheme).
+  AnimeStatusStyle statusStyle(
+    BuildContext context,
+    CollectType type, {
+    bool overlay = false,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+    if (overlay) {
+      return switch (type) {
+        CollectType.watching => AnimeStatusStyle(
+            bg: colors.primary.withValues(alpha: 0.92),
+            fg: colors.onPrimary,
+            icon: Icons.favorite_rounded,
+            symbol: '♥',
+          ),
+        CollectType.planToWatch => AnimeStatusStyle(
+            bg: colors.tertiary.withValues(alpha: 0.92),
+            fg: colors.onTertiary,
+            icon: Icons.auto_awesome_rounded,
+            symbol: '✦',
+          ),
+        CollectType.watched => AnimeStatusStyle(
+            bg: colors.secondary.withValues(alpha: 0.92),
+            fg: colors.onSecondary,
+            icon: Icons.check_rounded,
+            symbol: '✓',
+          ),
+        CollectType.onHold => AnimeStatusStyle(
+            bg: colors.inverseSurface.withValues(alpha: 0.84),
+            fg: colors.onInverseSurface,
+            icon: Icons.pause_rounded,
+            symbol: '❚❚',
+          ),
+        CollectType.abandoned => AnimeStatusStyle(
+            bg: colors.error.withValues(alpha: 0.90),
+            fg: colors.onError,
+            icon: Icons.close_rounded,
+            symbol: '✕',
+          ),
+        CollectType.none => AnimeStatusStyle(
+            bg: colors.inverseSurface.withValues(alpha: 0.80),
+            fg: colors.onInverseSurface,
+            icon: Icons.bookmark_border_rounded,
+            symbol: '○',
+          ),
+      };
+    }
 
-  AnimeStatusStyle statusStyle(CollectType type) {
     return switch (type) {
-      CollectType.watching => const AnimeStatusStyle(
-          bg: Color(0xE8E8548E),
-          fg: Color(0xFFFFF5F9),
+      CollectType.watching => AnimeStatusStyle(
+          bg: colors.primaryContainer,
+          fg: colors.onPrimaryContainer,
           icon: Icons.favorite_rounded,
           symbol: '♥',
         ),
-      CollectType.planToWatch => const AnimeStatusStyle(
-          bg: Color(0xE8DE8718),
-          fg: Color(0xFFFFF9EC),
+      CollectType.planToWatch => AnimeStatusStyle(
+          bg: colors.tertiaryContainer,
+          fg: colors.onTertiaryContainer,
           icon: Icons.auto_awesome_rounded,
           symbol: '✦',
         ),
-      CollectType.watched => const AnimeStatusStyle(
-          bg: Color(0xE81C8C7B),
-          fg: Color(0xFFE9FFF9),
+      CollectType.watched => AnimeStatusStyle(
+          bg: colors.secondaryContainer,
+          fg: colors.onSecondaryContainer,
           icon: Icons.check_rounded,
           symbol: '✓',
         ),
-      CollectType.onHold => const AnimeStatusStyle(
-          bg: Color(0xE87A56BD),
-          fg: Color(0xFFF6F0FF),
+      CollectType.onHold => AnimeStatusStyle(
+          bg: colors.surfaceContainerHighest,
+          fg: colors.onSurfaceVariant,
           icon: Icons.pause_rounded,
           symbol: '❚❚',
         ),
-      CollectType.abandoned => const AnimeStatusStyle(
-          bg: Color(0xE89B4652),
-          fg: Color(0xFFFFEEF1),
+      CollectType.abandoned => AnimeStatusStyle(
+          bg: colors.errorContainer,
+          fg: colors.onErrorContainer,
           icon: Icons.close_rounded,
           symbol: '✕',
         ),
       CollectType.none => AnimeStatusStyle(
-          bg: isDark ? const Color(0xCC2C242C) : const Color(0xCC5A4D58),
-          fg: Colors.white,
+          bg: colors.surfaceContainerHighest,
+          fg: colors.onSurfaceVariant,
           icon: Icons.bookmark_border_rounded,
           symbol: '○',
         ),
@@ -209,6 +211,52 @@ class AnimeStatusStyle {
   final String symbol;
 }
 
+const _ignoredAnimeMetaTags = <String>{
+  'TV',
+  'WEB',
+  'OVA',
+  'OAD',
+  '剧场版',
+  '动态漫画',
+  '泡面番',
+  '日本',
+  '中国',
+  '国产',
+  '欧美',
+  '美国',
+  '韩国',
+  '动画',
+  '番剧',
+  '连载',
+  '完结',
+  '未确定',
+};
+
+/// Filters out noisy format/country tags like `TV`, `WEB`, `日本` so only
+/// expressive anime genre tags appear on cards.
+List<String> filterMeaningfulAnimeTags(
+  Iterable<String> rawTags, {
+  int limit = 3,
+}) {
+  final seen = <String>{};
+  final result = <String>[];
+  for (final raw in rawTags) {
+    final cleaned = raw.trim();
+    if (cleaned.isEmpty || cleaned.length > 6) continue;
+    final upper = cleaned.toUpperCase();
+    if (_ignoredAnimeMetaTags.contains(cleaned) ||
+        _ignoredAnimeMetaTags.contains(upper)) {
+      continue;
+    }
+    if (RegExp(r'^\d{4}年?$').hasMatch(cleaned)) continue;
+    if (seen.add(cleaned)) {
+      result.add(cleaned);
+      if (result.length >= limit) break;
+    }
+  }
+  return result;
+}
+
 /// Computes fluid responsive poster column count so landscape / desktop cards
 /// stay sleek (~148–172dp wide) instead of ballooning to 220–300dp.
 int animePosterColumns(
@@ -228,7 +276,7 @@ int animePosterColumns(
       .clamp(4, 9);
 }
 
-/// Lightweight RepaintBoundary pastel sakura & sky-glow stationery backdrop.
+/// Subtle, theme-harmonious radial glow backdrop (strictly follows ColorScheme).
 class AnimePastelBackdrop extends StatelessWidget {
   const AnimePastelBackdrop({
     super.key,
@@ -249,9 +297,8 @@ class AnimePastelBackdrop extends StatelessWidget {
               child: CustomPaint(
                 painter: _AnimePastelBackdropPainter(
                   isDark: palette.isDark,
-                  sakura: palette.sakura,
-                  sky: palette.sky,
-                  peach: palette.peach,
+                  primary: palette.accent,
+                  secondary: palette.accentSecondary,
                 ),
               ),
             ),
@@ -266,125 +313,76 @@ class AnimePastelBackdrop extends StatelessWidget {
 class _AnimePastelBackdropPainter extends CustomPainter {
   const _AnimePastelBackdropPainter({
     required this.isDark,
-    required this.sakura,
-    required this.sky,
-    required this.peach,
+    required this.primary,
+    required this.secondary,
   });
 
   final bool isDark;
-  final Color sakura;
-  final Color sky;
-  final Color peach;
+  final Color primary;
+  final Color secondary;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
-    // Top-left soft sakura aura
-    final leftCenter = Offset(size.width * 0.14, 24);
-    final leftRadius = math.max(size.width * 0.42, 260.0);
+    final leftCenter = Offset(size.width * 0.16, 0);
+    final leftRadius = math.max(size.width * 0.45, 240.0);
     final leftPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          sakura.withValues(alpha: isDark ? 0.14 : 0.16),
-          sakura.withValues(alpha: 0.0),
+          primary.withValues(alpha: isDark ? 0.09 : 0.08),
+          primary.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromCircle(center: leftCenter, radius: leftRadius));
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 360)),
+      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 260)),
       leftPaint,
     );
 
-    // Top-right soft sky aura
-    final rightCenter = Offset(size.width * 0.88, 36);
-    final rightRadius = math.max(size.width * 0.36, 220.0);
+    final rightCenter = Offset(size.width * 0.88, 12);
+    final rightRadius = math.max(size.width * 0.36, 200.0);
     final rightPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          sky.withValues(alpha: isDark ? 0.11 : 0.14),
-          sky.withValues(alpha: 0.0),
+          secondary.withValues(alpha: isDark ? 0.07 : 0.06),
+          secondary.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromCircle(center: rightCenter, radius: rightRadius));
     canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 340)),
+      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 240)),
       rightPaint,
     );
-
-    // Subtle kawaii pastel sparkles in upper header band
-    final sparkleLimitY = math.min(size.height, 260.0);
-    final dotColors = [
-      sakura.withValues(alpha: isDark ? 0.22 : 0.24),
-      sky.withValues(alpha: isDark ? 0.20 : 0.24),
-      peach.withValues(alpha: isDark ? 0.20 : 0.24),
-    ];
-    final anchors = <(double, double, double, bool)>[
-      (0.08, 0.22, 3.0, false),
-      (0.24, 0.14, 5.5, true),
-      (0.41, 0.32, 2.5, false),
-      (0.58, 0.16, 4.5, true),
-      (0.73, 0.36, 3.0, false),
-      (0.86, 0.18, 6.0, true),
-      (0.94, 0.42, 2.5, false),
-      (0.16, 0.62, 2.5, false),
-      (0.66, 0.68, 4.0, true),
-    ];
-    for (var i = 0; i < anchors.length; i++) {
-      final (fx, fy, r, isStar) = anchors[i];
-      final center = Offset(size.width * fx, sparkleLimitY * fy);
-      final paint = Paint()..color = dotColors[i % dotColors.length];
-      if (isStar) {
-        _drawFourPointStar(canvas, center, r, paint);
-      } else {
-        canvas.drawCircle(center, r, paint);
-      }
-    }
-  }
-
-  void _drawFourPointStar(
-      Canvas canvas, Offset c, double radius, Paint paint) {
-    final inner = radius * 0.28;
-    final path = Path()
-      ..moveTo(c.dx, c.dy - radius)
-      ..lineTo(c.dx + inner, c.dy - inner)
-      ..lineTo(c.dx + radius, c.dy)
-      ..lineTo(c.dx + inner, c.dy + inner)
-      ..lineTo(c.dx, c.dy + radius)
-      ..lineTo(c.dx - inner, c.dy + inner)
-      ..lineTo(c.dx - radius, c.dy)
-      ..lineTo(c.dx - inner, c.dy - inner)
-      ..close();
-    canvas.drawPath(path, paint);
   }
 
   @override
   bool shouldRepaint(covariant _AnimePastelBackdropPainter oldDelegate) {
     return oldDelegate.isDark != isDark ||
-        oldDelegate.sakura != sakura ||
-        oldDelegate.sky != sky ||
-        oldDelegate.peach != peach;
+        oldDelegate.primary != primary ||
+        oldDelegate.secondary != secondary;
   }
 }
 
-/// Gradient kawaii capsule ribbon badge (e.g. `✿ 热门 No.1`, `♥ 追更中`, `✦ 奇幻`).
+/// Theme-adaptive capsule ribbon badge (e.g. `TOP 1`, `♥ 在追`).
 class AnimeRibbonBadge extends StatelessWidget {
   const AnimeRibbonBadge({
     super.key,
     required this.label,
     this.gradient,
     this.backgroundColor,
-    this.foregroundColor = Colors.white,
+    this.foregroundColor,
     this.compact = false,
   });
 
   final String label;
   final Gradient? gradient;
   final Color? backgroundColor;
-  final Color foregroundColor;
+  final Color? foregroundColor;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final palette = AnimePastelPalette.of(context);
+    final fg = foregroundColor ?? palette.onAccent;
     return DecoratedBox(
       decoration: ShapeDecoration(
         gradient: backgroundColor == null
@@ -394,15 +392,15 @@ class AnimeRibbonBadge extends StatelessWidget {
         shape: SuperellipseBorder(
           borderRadius: const BorderRadius.all(Radius.circular(1000)),
           side: BorderSide(
-            color: Colors.white.withValues(alpha: 0.28),
+            color: fg.withValues(alpha: 0.22),
             width: 0.6,
           ),
         ),
         shadows: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 5,
+            offset: const Offset(0, 1.5),
           ),
         ],
       ),
@@ -419,7 +417,7 @@ class AnimeRibbonBadge extends StatelessWidget {
             fontSize: compact ? 9.2 : 10.2,
             height: 1.2,
             fontWeight: FontWeight.w800,
-            color: foregroundColor,
+            color: fg,
             letterSpacing: 0.2,
           ),
         ),
@@ -428,7 +426,7 @@ class AnimeRibbonBadge extends StatelessWidget {
   }
 }
 
-/// Creamy translucent rating badge (`★ 9.1`).
+/// Crisp translucent rating pill (`★ 9.1`).
 class AnimeScoreBadge extends StatelessWidget {
   const AnimeScoreBadge({
     super.key,
@@ -448,13 +446,13 @@ class AnimeScoreBadge extends StatelessWidget {
         shape: SuperellipseBorder(
           borderRadius: const BorderRadius.all(Radius.circular(1000)),
           side: BorderSide(
-            color: palette.scoreStar.withValues(alpha: 0.30),
+            color: palette.frameBorder,
             width: 0.7,
           ),
         ),
         shadows: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -492,7 +490,7 @@ class AnimeScoreBadge extends StatelessWidget {
   }
 }
 
-/// Soft pastel tonal chip for anime genres / metadata.
+/// Soft tonal chip for anime genres / metadata.
 class AnimeTagPill extends StatelessWidget {
   const AnimeTagPill({
     super.key,

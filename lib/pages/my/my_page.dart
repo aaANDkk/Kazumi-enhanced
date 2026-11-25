@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:kazumi/bean/appbar/sys_app_bar.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/pages/menu/route_visibility.dart';
 import 'package:kazumi/pages/my/my_controller.dart';
 import 'package:kazumi/pages/my/my_space_view.dart';
@@ -95,14 +96,15 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      extendBody: true,
       appBar: SysAppBar(
-        toolbarHeight: 72,
+        toolbarHeight: 68,
+        backgroundColor: theme.colorScheme.surface,
         title: Text(
           '我的',
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
+          style: theme.textTheme.headlineSmall
               ?.copyWith(fontWeight: FontWeight.w700),
         ),
         needTopOffset: false,
@@ -115,14 +117,16 @@ class _MyPageState extends State<MyPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: Observer(
-          builder: (context) => MySpaceView(
-            stats: widget.controller.watchStats,
-            onOpen: _open,
-            controller: _scrollController,
+      body: AnimePastelBackdrop(
+        child: SafeArea(
+          top: false,
+          bottom: false,
+          child: Observer(
+            builder: (context) => MySpaceView(
+              stats: widget.controller.watchStats,
+              onOpen: _open,
+              controller: _scrollController,
+            ),
           ),
         ),
       ),

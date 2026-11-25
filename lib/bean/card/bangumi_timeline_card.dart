@@ -61,16 +61,10 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
     final source = widget.bangumiItem.metaTags.isNotEmpty
         ? widget.bangumiItem.metaTags
         : widget.bangumiItem.tags.map((tag) => tag.name);
-    final seen = <String>{};
-    final result = <String>[];
-    for (final raw in source) {
-      final cleaned = raw.trim();
-      if (cleaned.isNotEmpty && cleaned.length <= 6 && seen.add(cleaned)) {
-        result.add(cleaned);
-        if (result.length >= (widget.compact ? 2 : 3)) break;
-      }
-    }
-    return result;
+    return filterMeaningfulAnimeTags(
+      source,
+      limit: widget.compact ? 2 : 3,
+    );
   }
 
   @override
@@ -82,8 +76,8 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
     );
 
     final borderColor = _hovered
-        ? palette.sakura.withValues(alpha: palette.isDark ? 0.68 : 0.56)
-        : (widget.isWatching ? palette.watchingBorder : palette.frameBorder);
+        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
+        : palette.frameBorder;
 
     return Semantics(
       button: true,
@@ -100,35 +94,24 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
           curve: Curves.easeOutCubic,
           height: cardHeight,
           decoration: ShapeDecoration(
-            gradient: widget.isWatching
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      palette.watchingFillTop,
-                      palette.watchingFillBottom,
-                    ],
-                  )
-                : null,
-            color: widget.isWatching ? null : palette.frameFill,
+            color: palette.frameFill,
             shape: SuperellipseBorder(
               borderRadius: const BorderRadius.all(
                 Radius.circular(BangumiTimelineCard._cornerRadius),
               ),
               side: BorderSide(
                 color: borderColor,
-                width: widget.isWatching || _hovered ? 1.4 : 0.9,
+                width: _hovered ? 1.2 : 0.85,
               ),
             ),
             shadows: [
               BoxShadow(
-                color: _hovered || widget.isWatching
-                    ? palette.sakura
-                        .withValues(alpha: palette.isDark ? 0.16 : 0.12)
-                    : (palette.isDark
-                        ? Colors.black.withValues(alpha: 0.18)
-                        : palette.sakura.withValues(alpha: 0.05)),
-                blurRadius: _hovered ? 14 : 8,
+                color: _hovered
+                    ? palette.accent
+                        .withValues(alpha: palette.isDark ? 0.14 : 0.10)
+                    : Colors.black
+                        .withValues(alpha: palette.isDark ? 0.16 : 0.035),
+                blurRadius: _hovered ? 12 : 6,
                 offset: Offset(0, _hovered ? 4 : 2),
               ),
             ],
@@ -206,9 +189,8 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
             ),
             if (widget.isWatching) ...[
               const SizedBox(width: 6),
-              AnimeRibbonBadge(
+              const AnimeRibbonBadge(
                 label: '♥ 在追',
-                gradient: palette.watchingGradient,
                 compact: true,
               ),
             ],
@@ -326,7 +308,7 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
                           fontSize: 9.2,
                           height: 1.2,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFFFFF5FA),
+                          color: Color(0xFFF6F8FA),
                         ),
                       ),
                     ),

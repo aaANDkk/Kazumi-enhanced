@@ -100,7 +100,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
     final title = CollectLibraryQuery.titleOf(widget.entry);
     final year = DateTime.tryParse(item.airDate)?.year;
     final type = CollectType.fromValue(widget.entry.type);
-    final statusStyle = palette.statusStyle(type);
+    final statusStyle = palette.statusStyle(context, type, overlay: true);
     final hasRating = widget.showRating && item.ratingScore > 0;
     final watch = _CollectWatchSummary.fromHistory(widget.history);
     final compact = widget.compact;
@@ -126,7 +126,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
     }
 
     final borderColor = _hovered
-        ? palette.sakura.withValues(alpha: palette.isDark ? 0.65 : 0.55)
+        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
         : palette.frameBorder;
 
     return Semantics(
@@ -155,19 +155,18 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
               borderRadius: BorderRadius.circular(frameRadius),
               side: BorderSide(
                 color: borderColor,
-                width: _hovered ? 1.3 : 0.9,
+                width: _hovered ? 1.2 : 0.85,
               ),
             ),
             shadows: [
               BoxShadow(
                 color: _hovered
-                    ? palette.sakura
-                        .withValues(alpha: palette.isDark ? 0.20 : 0.16)
-                    : (palette.isDark
-                        ? Colors.black.withValues(alpha: 0.20)
-                        : palette.sakura.withValues(alpha: 0.06)),
-                blurRadius: _hovered ? 14 : 8,
-                offset: Offset(0, _hovered ? 5 : 3),
+                    ? palette.accent
+                        .withValues(alpha: palette.isDark ? 0.16 : 0.12)
+                    : Colors.black
+                        .withValues(alpha: palette.isDark ? 0.18 : 0.04),
+                blurRadius: _hovered ? 12 : 6,
+                offset: Offset(0, _hovered ? 4 : 2),
               ),
             ],
           ),
@@ -204,7 +203,6 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                               ),
                             ),
                           ),
-                          // Soft bottom veil for rating & progress contrast
                           IgnorePointer(
                             child: SuperellipseClip(
                               borderRadius: BorderRadius.circular(coverRadius),
@@ -213,10 +211,10 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                                   gradient: LinearGradient(
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
-                                    stops: const [0.58, 1.0],
+                                    stops: const [0.60, 1.0],
                                     colors: [
                                       Colors.transparent,
-                                      Colors.black.withValues(alpha: 0.42),
+                                      Colors.black.withValues(alpha: 0.36),
                                     ],
                                   ),
                                   shape: SuperellipseBorder(
@@ -227,7 +225,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                               ),
                             ),
                           ),
-                          if (widget.showStatus || type == CollectType.watching)
+                          if (widget.showStatus)
                             Positioned(
                               top: compact ? 5 : 6,
                               left: compact ? 5 : 6,
@@ -240,7 +238,6 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                                 ),
                               ),
                             ),
-                          // Compact top-right overlay menu button (replaces bulky footer button)
                           Positioned(
                             top: compact ? 4 : 5,
                             right: compact ? 4 : 5,
@@ -254,7 +251,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                           if (hasRating)
                             Positioned(
                               left: compact ? 5 : 6,
-                              bottom: watch != null
+                              bottom: watch != null && watch.ratio > 0.0
                                   ? (compact ? 10 : 11)
                                   : (compact ? 5 : 6),
                               child: IgnorePointer(
@@ -287,14 +284,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                                               watch.ratio.clamp(0.06, 1.0),
                                           child: DecoratedBox(
                                             decoration: ShapeDecoration(
-                                              gradient: watch.isCompleted
-                                                  ? const LinearGradient(
-                                                      colors: [
-                                                        Color(0xFF47D9BA),
-                                                        Color(0xFF9DF5DF),
-                                                      ],
-                                                    )
-                                                  : palette.ribbonGradient,
+                                              color: colors.primary,
                                               shape: const SuperellipseBorder(
                                                 borderRadius: BorderRadius.all(
                                                   Radius.circular(999),
@@ -346,11 +336,7 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                                     ? FontWeight.w700
                                     : FontWeight.w500,
                                 color: highlightSub
-                                    ? ((watch?.isCompleted ?? false)
-                                        ? (palette.isDark
-                                            ? const Color(0xFF7BE8CE)
-                                            : const Color(0xFF187C6C))
-                                        : palette.sakura)
+                                    ? palette.accent
                                     : palette.subtext,
                               ),
                             ),
@@ -422,18 +408,16 @@ class _CollectListTileState extends State<_CollectListTile> {
             borderRadius: BorderRadius.circular(18),
             side: BorderSide(
               color: _hovered
-                  ? palette.sakura.withValues(alpha: palette.isDark ? 0.6 : 0.5)
+                  ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
                   : palette.frameBorder,
-              width: _hovered ? 1.3 : 0.9,
+              width: _hovered ? 1.2 : 0.85,
             ),
           ),
           shadows: [
             BoxShadow(
               color: _hovered
-                  ? palette.sakura.withValues(alpha: palette.isDark ? 0.16 : 0.12)
-                  : (palette.isDark
-                      ? Colors.black.withValues(alpha: 0.16)
-                      : palette.sakura.withValues(alpha: 0.04)),
+                  ? palette.accent.withValues(alpha: palette.isDark ? 0.14 : 0.10)
+                  : Colors.black.withValues(alpha: palette.isDark ? 0.16 : 0.035),
               blurRadius: _hovered ? 12 : 6,
               offset: Offset(0, _hovered ? 4 : 2),
             ),
@@ -582,7 +566,6 @@ class _CollectInlineProgressCapsule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(8);
     final summary = watch;
@@ -628,15 +611,9 @@ class _CollectInlineProgressCapsule extends StatelessWidget {
     }
 
     final fillRatio = summary.ratio > 0 ? summary.ratio.clamp(0.05, 1.0) : 0.0;
-    final trackColor = palette.isDark
-        ? colors.surfaceContainerHigh
-        : palette.sakuraSoft.withValues(alpha: 0.75);
-    final fillColor = summary.isCompleted
-        ? (palette.isDark ? const Color(0xFF1E5247) : const Color(0xFFC8F2E8))
-        : (palette.isDark ? const Color(0xFF56283E) : const Color(0xFFFCD2E4));
-    final textColor = summary.isCompleted
-        ? (palette.isDark ? const Color(0xFFA6F5E2) : const Color(0xFF10584B))
-        : (palette.isDark ? const Color(0xFFFFD9EA) : const Color(0xFF8B2250));
+    final trackColor = colors.surfaceContainerHighest.withValues(alpha: 0.55);
+    final fillColor = colors.primaryContainer;
+    final textColor = colors.onPrimaryContainer;
     final leftLabel = summary.isCompleted
         ? '已看完 ${summary.episodeLabel}'
         : '看到 ${summary.episodeLabel}';
@@ -737,7 +714,7 @@ class _CollectEntryMenu extends StatelessWidget {
     final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
     final type = CollectType.fromValue(entry.type);
-    final statusStyle = palette.statusStyle(type);
+    final statusStyle = palette.statusStyle(context, type);
     final title = CollectLibraryQuery.titleOf(entry);
 
     return KazumiMenuButton(
@@ -795,10 +772,10 @@ class _CollectEntryMenu extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '${statusStyle.symbol} ${type.label}',
+                          type.label,
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
                             color: statusStyle.fg,
                           ),
                         ),

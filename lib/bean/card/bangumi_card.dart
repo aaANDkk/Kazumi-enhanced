@@ -6,7 +6,7 @@ import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
-// 番剧海报卡片 - 方案 B 轻樱手账风（Kawaii Pastel Glass）
+// 番剧海报卡片 - 主题色自适应轻手账风
 class BangumiCardV extends StatefulWidget {
   const BangumiCardV({
     super.key,
@@ -66,36 +66,25 @@ class _BangumiCardVState extends State<BangumiCardV> {
       return orig;
     }
     final year = DateTime.tryParse(widget.bangumiItem.airDate)?.year;
-    final firstTag = _resolvePrimaryTag();
+    final tags = filterMeaningfulAnimeTags(
+      widget.bangumiItem.metaTags.isNotEmpty
+          ? widget.bangumiItem.metaTags
+          : widget.bangumiItem.tags.map((t) => t.name),
+      limit: 1,
+    );
     return [
       if (year != null) '$year',
-      if (firstTag != null) firstTag,
+      if (tags.isNotEmpty) tags.first,
     ].join(' · ');
   }
 
-  String? _resolvePrimaryTag() {
-    for (final t in widget.bangumiItem.metaTags) {
-      final trimmed = t.trim();
-      if (trimmed.isNotEmpty) return trimmed;
-    }
-    for (final t in widget.bangumiItem.tags) {
-      final trimmed = t.name.trim();
-      if (trimmed.isNotEmpty && trimmed.length <= 5) return trimmed;
-    }
-    return null;
-  }
-
   String? _resolveRibbonText() {
+    if (widget.isWatching) {
+      return '♥ 在追';
+    }
     final rank = widget.rankIndex;
     if (rank != null && rank >= 0 && rank < 3) {
-      return '✿ 热门 No.${rank + 1}';
-    }
-    if (widget.isWatching) {
-      return '♥ 追更中';
-    }
-    final tag = _resolvePrimaryTag();
-    if (tag != null) {
-      return '✦ $tag';
+      return 'TOP ${rank + 1}';
     }
     return null;
   }
@@ -116,8 +105,8 @@ class _BangumiCardVState extends State<BangumiCardV> {
     final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15);
 
     final borderColor = _hovered
-        ? palette.sakura.withValues(alpha: palette.isDark ? 0.65 : 0.55)
-        : (widget.isWatching ? palette.watchingBorder : palette.frameBorder);
+        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
+        : palette.frameBorder;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -136,18 +125,16 @@ class _BangumiCardVState extends State<BangumiCardV> {
             borderRadius: BorderRadius.circular(frameRadius),
             side: BorderSide(
               color: borderColor,
-              width: _hovered || widget.isWatching ? 1.3 : 0.9,
+              width: _hovered ? 1.2 : 0.85,
             ),
           ),
           shadows: [
             BoxShadow(
               color: _hovered
-                  ? palette.sakura.withValues(alpha: palette.isDark ? 0.20 : 0.16)
-                  : (palette.isDark
-                      ? Colors.black.withValues(alpha: 0.22)
-                      : palette.sakura.withValues(alpha: 0.06)),
-              blurRadius: _hovered ? 14 : 8,
-              offset: Offset(0, _hovered ? 5 : 3),
+                  ? palette.accent.withValues(alpha: palette.isDark ? 0.16 : 0.12)
+                  : Colors.black.withValues(alpha: palette.isDark ? 0.18 : 0.04),
+              blurRadius: _hovered ? 12 : 6,
+              offset: Offset(0, _hovered ? 4 : 2),
             ),
           ],
         ),
@@ -206,7 +193,6 @@ class _BangumiCardVState extends State<BangumiCardV> {
                                     )
                                   : coverImg,
                             ),
-                            // Subtle bottom gradient veil so score badge reads clearly
                             IgnorePointer(
                               child: SuperellipseClip(
                                 borderRadius:
@@ -216,10 +202,10 @@ class _BangumiCardVState extends State<BangumiCardV> {
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      stops: const [0.58, 1.0],
+                                      stops: const [0.60, 1.0],
                                       colors: [
                                         Colors.transparent,
-                                        Colors.black.withValues(alpha: 0.34),
+                                        Colors.black.withValues(alpha: 0.30),
                                       ],
                                     ),
                                     shape: SuperellipseBorder(
@@ -234,27 +220,9 @@ class _BangumiCardVState extends State<BangumiCardV> {
                               Positioned(
                                 top: compact ? 5 : 6,
                                 left: compact ? 5 : 6,
-                                right: compact ? 18 : 24,
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: AnimeRibbonBadge(
-                                    label: ribbonText,
-                                    compact: compact,
-                                    gradient: widget.rankIndex != null &&
-                                            widget.rankIndex! < 3
-                                        ? palette.ribbonGradient
-                                        : (widget.isWatching
-                                            ? palette.watchingGradient
-                                            : null),
-                                    backgroundColor:
-                                        (widget.rankIndex == null ||
-                                                    widget.rankIndex! >= 3) &&
-                                                !widget.isWatching
-                                            ? (palette.isDark
-                                                ? const Color(0xCC3C2C46)
-                                                : const Color(0xD6E86E9E))
-                                            : null,
-                                  ),
+                                child: AnimeRibbonBadge(
+                                  label: ribbonText,
+                                  compact: compact,
                                 ),
                               ),
                             if (showScore)
