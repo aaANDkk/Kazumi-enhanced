@@ -222,24 +222,85 @@ class HistoryRecordTile extends StatelessWidget {
                   ],
                 );
 
+                final secondaryMeta = [
+                  if (history.adapterName.isNotEmpty) history.adapterName,
+                  time,
+                ].join(' · ');
+
                 final episodeRow = ExcludeSemantics(
                   child: IgnorePointer(
-                    child: Text(
-                      episode,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontSize: wide ? 13.5 : 13.0,
-                      ),
-                    ),
+                    child: largeText
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                episode,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: wide ? 13.5 : 13.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (secondaryMeta.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  secondaryMeta,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant
+                                        .withValues(alpha: 0.78),
+                                    fontSize: wide ? 12.0 : 11.5,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          )
+                        : Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Flexible(
+                                flex: 0,
+                                child: Text(
+                                  episode,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                    fontSize: wide ? 13.5 : 13.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              if (secondaryMeta.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    secondaryMeta,
+                                    maxLines: 1,
+                                    textAlign: TextAlign.end,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colors.onSurfaceVariant
+                                          .withValues(alpha: 0.78),
+                                      fontSize: wide ? 12.0 : 11.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                   ),
                 );
 
                 final progressSection = ExcludeSemantics(
                   child: IgnorePointer(
                     child: Padding(
-                      padding: EdgeInsets.only(top: wide ? 10 : 8),
+                      padding: EdgeInsets.only(top: wide ? 9 : 7),
                       child: _HistoryProgressCapsule(
                         wide: wide,
                         currentPosText: currentPosText,
@@ -252,19 +313,32 @@ class HistoryRecordTile extends StatelessWidget {
                   ),
                 );
 
-                final metaText = ExcludeSemantics(
+                final sourceBadge = ExcludeSemantics(
                   child: IgnorePointer(
-                    child: Text(
-                      [
-                        source,
-                        if (history.adapterName.isNotEmpty) history.adapterName,
-                        time,
-                      ].join(' · '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontSize: wide ? 12.0 : 11.5,
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        color: colors.secondaryContainer.withValues(
+                          alpha:
+                              theme.brightness == Brightness.dark ? 0.45 : 0.65,
+                        ),
+                        shape: SuperellipseBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7.5,
+                          vertical: 3,
+                        ),
+                        child: Text(
+                          source,
+                          maxLines: 1,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colors.onSecondaryContainer,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -281,7 +355,10 @@ class HistoryRecordTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          metaText,
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: sourceBadge,
+                          ),
                           const SizedBox(height: 8),
                           Align(
                             alignment: AlignmentDirectional.centerEnd,
@@ -292,7 +369,8 @@ class HistoryRecordTile extends StatelessWidget {
                     : Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(child: metaText),
+                          sourceBadge,
+                          const Spacer(),
                           const SizedBox(width: 8),
                           actionWidget,
                         ],
