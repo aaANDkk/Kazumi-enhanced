@@ -6,6 +6,7 @@ import 'package:kazumi/bean/appbar/sys_app_bar.dart';
 import 'package:kazumi/bean/card/bangumi_timeline_card.dart';
 import 'package:kazumi/bean/dialog/adaptive_bottom_sheet.dart';
 import 'package:kazumi/bean/dialog/material_bottom_sheet.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/bean/widget/bangumi_mirror_error_widget.dart';
 import 'package:kazumi/bean/widget/content_section.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
@@ -81,7 +82,17 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   String _seasonLabel(DateTime date) {
-    return '${date.year}年${getSeasonStringByMonth(date.month)}季';
+    return '${date.year}年${getSeasonStringByMonth(date.month)}季番';
+  }
+
+  String _seasonSymbol(DateTime date) {
+    final startMonth = ((date.month - 1) ~/ 3) * 3 + 1;
+    return switch (startMonth) {
+      1 => '❄',
+      4 => '✿',
+      7 => '☀',
+      _ => '🍁',
+    };
   }
 
   void _showSeasonBottomSheet(BuildContext context) {
@@ -179,31 +190,41 @@ class _TimelinePageState extends State<TimelinePage> {
 
   Widget _buildContent(BuildContext context) {
     final theme = Theme.of(context);
+    final palette = AnimePastelPalette.of(context);
     final scaler = MediaQuery.textScalerOf(context);
     return LayoutBuilder(builder: (context, constraints) {
       final narrowPortrait = constraints.maxWidth < 600 &&
           constraints.maxHeight > constraints.maxWidth;
-      final sidePadding = constraints.maxWidth < 600 ? 16.0 : 24.0;
+      final sidePadding = constraints.maxWidth < 600 ? 14.0 : 24.0;
       final contentWidth =
-          (constraints.maxWidth - sidePadding * 2).clamp(0.0, 1280.0);
+          (constraints.maxWidth - sidePadding * 2).clamp(0.0, 1400.0);
       final inset = (constraints.maxWidth - contentWidth) / 2;
-      final minCardWidth = scaler.scale(16) > 24 ? 440.0 : 340.0;
+      final minCardWidth = scaler.scale(16) > 24 ? 420.0 : 310.0;
       final columns =
           ((contentWidth + 12) / (minCardWidth + 12)).floor().clamp(1, 3);
+      final wideWeekBar = contentWidth >= 560;
+
       return Observer(builder: (context) {
         final loading = _controller.isLoading;
         final failed = _controller.isTimeOut;
         final watchingIds = _controller.loadWatchingBangumiIds();
         final calendar = _controller.filterCalendar(watchingIds);
+        final totalCount =
+            calendar.fold<int>(0, (sum, day) => sum + day.length);
         final today = DateTime.now();
         final currentSeason = isSameSeason(_controller.selectedDate, today);
         final seasonHeader = narrowPortrait
             ? null
-            : _buildSeasonHeader(context,
-                loading: loading, compact: constraints.maxHeight < 500);
-        final weekHeight = _TimelineWeekSelector.heightFor(scaler) + 16;
+            : _buildSeasonHeader(
+                context,
+                loading: loading,
+                compact: constraints.maxHeight < 500,
+                totalCount: totalCount,
+              );
+        final weekHeight =
+            _TimelineWeekSelector.heightFor(scaler, wide: wideWeekBar) + 14;
         final weekSelector = Padding(
-          padding: EdgeInsets.fromLTRB(inset, 0, inset, 16),
+          padding: EdgeInsets.fromLTRB(inset, 0, inset, 14),
           child: _TimelineWeekSelector(
             counts: calendar.map((day) => day.length).toList(),
             todayIndex: currentSeason ? today.weekday - 1 : null,
@@ -214,15 +235,40 @@ class _TimelinePageState extends State<TimelinePage> {
           extendBody: true,
           appBar: SysAppBar(
             needTopOffset: false,
-            toolbarHeight: 72,
+            toolbarHeight: 68,
+            backgroundColor: Colors.transparent,
             title: narrowPortrait
                 ? _buildSeasonPicker(context, loading: loading, inAppBar: true)
-                : Text(
-                    '时间表',
-                    style: theme.textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '✿ ON AIR SCHEDULE · 放送番組表',
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                          color: palette.sakura,
+                        ),
+                      ),
+                      Text(
+                        '放送时间表',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
             actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: _buildWatchingFilterChip(
+                  context,
+                  compact: narrowPortrait,
+                  active: _controller.onlyShowWatchingBangumis,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: _TimelineOptionsButton(
@@ -234,75 +280,142 @@ class _TimelinePageState extends State<TimelinePage> {
               ),
             ],
           ),
-          body: LayoutBuilder(
-            builder: (context, viewport) => NestedScrollView(
-                      key: _nestedKey,
-                      // Keep the outer viewport clamped and unstretched so tabs stay fixed.
-                      physics: const ClampingScrollPhysics(),
-                      scrollBehavior: ScrollConfiguration.of(context).copyWith(
-                        overscroll: false,
-                        scrollbars: false,
+          body: AnimePastelBackdrop(
+            child: LayoutBuilder(
+              builder: (context, viewport) => NestedScrollView(
+                key: _nestedKey,
+                // Keep the outer viewport clamped and unstretched so tabs stay fixed.
+                physics: const ClampingScrollPhysics(),
+                scrollBehavior: ScrollConfiguration.of(context).copyWith(
+                  overscroll: false,
+                  scrollbars: false,
+                ),
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  if (seasonHeader != null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(inset, 2, inset, 14),
+                        child: seasonHeader,
                       ),
-                      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                        if (seasonHeader != null)
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: EdgeInsets.fromLTRB(inset, 8, inset, 20),
-                              child: seasonHeader,
-                            ),
-                          ),
-                        SliverOverlapAbsorber(
-                          handle:
-                              NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context),
-                          sliver: SliverPersistentHeader(
-                            pinned: true,
-                            delegate: _WeekHeaderDelegate(
-                              height: weekHeight,
-                              color: theme.scaffoldBackgroundColor,
-                              child: weekSelector,
-                            ),
-                          ),
-                        ),
-                      ],
-                      body: loading && calendar.every((day) => day.isEmpty)
-                          ? _buildLoading(viewport.maxHeight, weekHeight)
-                          : failed
-                              ? _TimelineScrollView(
-                                  slivers: [
-                                    SliverPadding(
-                                      padding: const EdgeInsets.all(24),
-                                      sliver: SliverToBoxAdapter(
-                                        child: BangumiMirrorErrorWidget(
-                                          onRetry: () => _controller.loadSeason(
-                                              _controller.selectedDate),
-                                          onSettingsReturned: () {
-                                            if (mounted) setState(() {});
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : TabBarView(
-                                  children: [
-                                    for (var day = 0; day < 7; day++)
-                                      _buildDay(
-                                        context,
-                                        day: day,
-                                        items: calendar[day],
-                                        watchingIds: watchingIds,
-                                        columns: columns,
-                                        inset: inset,
-                                        compact: narrowPortrait,
-                                      ),
-                                  ],
-                                ),
                     ),
+                  SliverOverlapAbsorber(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context),
+                    sliver: SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _WeekHeaderDelegate(
+                        height: weekHeight,
+                        color: theme.scaffoldBackgroundColor
+                            .withValues(alpha: 0.92),
+                        child: weekSelector,
+                      ),
+                    ),
+                  ),
+                ],
+                body: loading && calendar.every((day) => day.isEmpty)
+                    ? _buildLoading(viewport.maxHeight, weekHeight)
+                    : failed
+                        ? _TimelineScrollView(
+                            slivers: [
+                              SliverPadding(
+                                padding: const EdgeInsets.all(24),
+                                sliver: SliverToBoxAdapter(
+                                  child: BangumiMirrorErrorWidget(
+                                    onRetry: () => _controller
+                                        .loadSeason(_controller.selectedDate),
+                                    onSettingsReturned: () {
+                                      if (mounted) setState(() {});
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : TabBarView(
+                            children: [
+                              for (var day = 0; day < 7; day++)
+                                _buildDay(
+                                  context,
+                                  day: day,
+                                  items: calendar[day],
+                                  watchingIds: watchingIds,
+                                  columns: columns,
+                                  inset: inset,
+                                  compact: narrowPortrait,
+                                ),
+                            ],
+                          ),
+              ),
+            ),
           ),
         );
       });
     });
+  }
+
+  Widget _buildWatchingFilterChip(
+    BuildContext context, {
+    required bool compact,
+    required bool active,
+  }) {
+    final palette = AnimePastelPalette.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: active ? '显示全部放送番剧' : '仅看正在追的番剧',
+      child: Material(
+        type: MaterialType.transparency,
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(14)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: SuperellipseBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          onTap: () => _controller.setOnlyShowWatchingBangumis(!active),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.symmetric(
+              horizontal: compact ? 10 : 12,
+              vertical: 8,
+            ),
+            decoration: ShapeDecoration(
+              gradient: active ? palette.watchingGradient : null,
+              color: active ? null : palette.frameFill,
+              shape: SuperellipseBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(
+                  color: active
+                      ? Colors.white.withValues(alpha: 0.28)
+                      : palette.frameBorder,
+                  width: 0.9,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  active
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  size: 15,
+                  color: active ? Colors.white : palette.sakura,
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  compact ? '在追' : '仅看在追',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                    color: active ? Colors.white : colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildLoading(double viewportHeight, double overlapHeight) {
@@ -331,12 +444,14 @@ class _TimelinePageState extends State<TimelinePage> {
       {required bool loading, bool compact = false, bool inAppBar = false}) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final palette = AnimePastelPalette.of(context);
     final label = _seasonLabel(_controller.selectedDate);
+    final symbol = _seasonSymbol(_controller.selectedDate);
     final style = inAppBar
         ? theme.textTheme.titleMedium
         : compact || MediaQuery.textScalerOf(context).scale(16) > 24
             ? theme.textTheme.titleLarge
-            : theme.textTheme.headlineMedium;
+            : theme.textTheme.headlineSmall;
     return Semantics(
       label: '切换放送季度，$label',
       button: true,
@@ -347,53 +462,98 @@ class _TimelinePageState extends State<TimelinePage> {
         message: '切换放送季度',
         child: InkWell(
           onTap: loading ? null : () => _showSeasonBottomSheet(context),
-          customBorder: SuperellipseBorder(borderRadius: BorderRadius.circular(20)),
+          customBorder:
+              SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
-                  child: Text(label,
-                      maxLines: inAppBar ? 1 : null,
-                      overflow: inAppBar ? TextOverflow.ellipsis : null,
-                      style: style?.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w700)),
-                ),
-                SizedBox(width: inAppBar ? 4 : 12),
-                if (inAppBar)
-                  const Icon(Icons.expand_more_rounded, size: 20)
-                else
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: colors.secondaryContainer,
-                    foregroundColor: colors.onSecondaryContainer,
-                    child: const Icon(Icons.expand_more_rounded, size: 24),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style?.copyWith(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
+                ),
+                const SizedBox(width: 8),
+                DecoratedBox(
+                  decoration: ShapeDecoration(
+                    color: palette.sakuraSoft,
+                    shape: SuperellipseBorder(
+                      borderRadius: BorderRadius.circular(11),
+                      side: BorderSide(color: palette.frameBorder, width: 0.8),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: inAppBar ? 7 : 10,
+                      vertical: inAppBar ? 3 : 5,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          inAppBar ? symbol : '$symbol 切换季度',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: palette.sakura,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.expand_more_rounded,
+                          size: 16,
+                          color: palette.sakura,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-          )),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildSeasonHeader(BuildContext context,
-      {required bool loading, required bool compact}) {
+  Widget _buildSeasonHeader(
+    BuildContext context, {
+    required bool loading,
+    required bool compact,
+    required int totalCount,
+  }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final date = _controller.selectedDate;
     final startMonth = ((date.month - 1) ~/ 3) * 3 + 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final subtitle = loading
+        ? '正在加载放送时间表…'
+        : '$startMonth — ${startMonth + 2} 月 · 每周放送${totalCount > 0 ? ' · 共 $totalCount 部' : ''}';
+    return Row(
       children: [
-        _buildSeasonPicker(context, loading: loading, compact: compact),
-        if (!compact)
-          Text(
-            loading ? '正在加载放送时间表…' : '$startMonth — ${startMonth + 2} 月 · 每周放送',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: colors.onSurfaceVariant),
+        Flexible(
+          child: _buildSeasonPicker(context, loading: loading, compact: compact),
+        ),
+        if (!compact) ...[
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
           ),
+        ],
       ],
     );
   }
@@ -446,8 +606,8 @@ class _TimelinePageState extends State<TimelinePage> {
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
+                mainAxisSpacing: 11,
+                crossAxisSpacing: 11,
                 mainAxisExtent: cardHeight,
               ),
               delegate: SliverChildBuilderDelegate(

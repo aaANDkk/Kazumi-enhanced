@@ -1,0 +1,229 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:kazumi/bean/card/bangumi_card.dart';
+import 'package:kazumi/bean/card/bangumi_timeline_card.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
+import 'package:kazumi/modules/bangumi/bangumi_item.dart';
+import 'package:kazumi/modules/bangumi/bangumi_tag.dart';
+import 'package:kazumi/modules/collect/collect_layout.dart';
+import 'package:kazumi/modules/collect/collect_module.dart';
+import 'package:kazumi/modules/collect/collect_type.dart';
+import 'package:kazumi/modules/history/history_module.dart';
+import 'package:kazumi/pages/collect/collect_library_view.dart';
+import 'package:kazumi/utils/theme.dart';
+
+void main() {
+  test('animePosterColumns computes compact desktop and portrait column counts',
+      () {
+    expect(animePosterColumns(366, isPortrait: true), 3);
+    expect(animePosterColumns(620, isPortrait: true), 4);
+    expect(animePosterColumns(860, isPortrait: false), 5);
+    expect(animePosterColumns(1200, isPortrait: false), 7);
+    expect(animePosterColumns(1360, isPortrait: false), 8);
+    expect(animePosterColumns(1560, isPortrait: false), 9);
+  });
+
+  testWidgets('BangumiCardV renders Kawaii Pastel Glass frame without overflow',
+      (tester) async {
+    final item = _sampleBangumi(
+      id: 101,
+      nameCn: '葬送的芙莉莲',
+      name: '葬送のフリーレン',
+      score: 9.1,
+      metaTags: const ['奇幻', '治愈'],
+    );
+    const width = 156.0;
+    final height = BangumiCardV.extentFor(width, TextScaler.noScaling);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
+        ),
+        home: Scaffold(
+          body: AnimePastelBackdrop(
+            child: Center(
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: BangumiCardV(
+                  bangumiItem: item,
+                  rankIndex: 0,
+                  isWatching: true,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('葬送的芙莉莲'), findsOneWidget);
+    expect(find.text('葬送のフリーレン'), findsOneWidget);
+    expect(find.text('✿ 热门 No.1'), findsOneWidget);
+    expect(find.text('9.1'), findsOneWidget);
+  });
+
+  testWidgets('BangumiTimelineCard renders watching badge, jp subtitle and tags',
+      (tester) async {
+    final watchingItem = _sampleBangumi(
+      id: 201,
+      nameCn: '孤独摇滚！',
+      name: 'ぼっち・ざ・ろっく！',
+      score: 8.8,
+      info: '12话 / 2026年10月',
+      metaTags: const ['音乐', '日常'],
+    );
+    final newItem = _sampleBangumi(
+      id: 202,
+      nameCn: '新番测试',
+      name: 'Shinsaku Test',
+      score: 0,
+      info: '',
+      metaTags: const ['校园'],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(
+            useMaterial3: true,
+            colorSchemeSeed: Colors.green,
+            brightness: Brightness.dark,
+          ),
+        ),
+        home: Scaffold(
+          body: Column(
+            children: [
+              SizedBox(
+                width: 380,
+                child: BangumiTimelineCard(
+                  bangumiItem: watchingItem,
+                  showRating: true,
+                  isWatching: true,
+                  onTap: () {},
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 380,
+                child: BangumiTimelineCard(
+                  bangumiItem: newItem,
+                  showRating: true,
+                  isWatching: false,
+                  onTap: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('♥ 在追'), findsOneWidget);
+    expect(find.text('12 话'), findsOneWidget);
+    expect(find.text('ぼっち・ざ・ろっく！'), findsOneWidget);
+    expect(find.text('8.8'), findsOneWidget);
+    expect(find.text('刚开播'), findsOneWidget);
+  });
+
+  testWidgets(
+      'CollectLibraryView renders linked watch progress in cards and list layouts',
+      (tester) async {
+    final item = _sampleBangumi(
+      id: 301,
+      nameCn: '药屋少女的呢喃',
+      name: '薬屋のひとりごと',
+      score: 8.6,
+    );
+    final entry = CollectedBangumi(
+      item,
+      DateTime(2026, 11, 25),
+      CollectType.watching.value,
+    );
+    final history = History(
+      item,
+      14,
+      '樱花动漫',
+      DateTime(2026, 11, 25, 19, 0),
+      'https://example.com/301',
+      '第 14 话',
+    );
+    history.progresses[14] = Progress(
+      14,
+      0,
+      const Duration(minutes: 14).inMilliseconds,
+      totalDurationInMilli: const Duration(minutes: 24).inMilliseconds,
+    );
+
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    Future<void> pumpLayout(CollectLayout layout) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: applySuperellipseTheme(
+            ThemeData(useMaterial3: true, colorSchemeSeed: Colors.green),
+          ),
+          home: Scaffold(
+            body: CollectLibraryView(
+              entries: [entry],
+              watchProgressMap: {item.id: history},
+              showRating: true,
+              onOpen: (_) {},
+              onChangeType: (_, __) {},
+              canEdit: (_) => true,
+              layout: layout,
+              onLayoutChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await pumpLayout(CollectLayout.cards);
+    expect(find.text('药屋少女的呢喃'), findsOneWidget);
+    expect(find.text('看到 第 14 话 · 58%'), findsOneWidget);
+
+    await pumpLayout(CollectLayout.list);
+    expect(find.text('药屋少女的呢喃'), findsOneWidget);
+    expect(find.text('看到 第 14 话'), findsOneWidget);
+    expect(find.text('58%'), findsOneWidget);
+  });
+}
+
+BangumiItem _sampleBangumi({
+  required int id,
+  required String nameCn,
+  required String name,
+  double score = 8.5,
+  String info = '',
+  List<String> metaTags = const [],
+}) {
+  return BangumiItem(
+    id: id,
+    type: 2,
+    name: name,
+    nameCn: nameCn,
+    summary: '',
+    airDate: '2026-10-01',
+    airWeekday: 3,
+    rank: 1,
+    images: const {
+      'large': '',
+      'common': '',
+      'medium': '',
+      'small': '',
+      'grid': '',
+    },
+    tags: const <BangumiTag>[],
+    alias: const [],
+    ratingScore: score,
+    votes: 1000,
+    votesCount: const [],
+    info: info,
+    metaTags: metaTags,
+  );
+}

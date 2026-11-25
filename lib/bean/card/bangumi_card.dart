@@ -2,110 +2,315 @@ import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
+import 'package:kazumi/utils/superellipse.dart';
 
-// 视频卡片 - 垂直布局
-class BangumiCardV extends StatelessWidget {
+// 番剧海报卡片 - 方案 B 轻樱手账风（Kawaii Pastel Glass）
+class BangumiCardV extends StatefulWidget {
   const BangumiCardV({
     super.key,
     required this.bangumiItem,
     this.canTap = true,
     this.enableHero = true,
+    this.rankIndex,
+    this.isWatching = false,
+    this.showRating = true,
+    this.compact = false,
   });
 
   final BangumiItem bangumiItem;
   final bool canTap;
   final bool enableHero;
+  final int? rankIndex;
+  final bool isWatching;
+  final bool showRating;
+  final bool compact;
+
+  static const double coverAspectRatio = 0.68;
+
+  static double extentFor(
+    double cardWidth,
+    TextScaler scaler, {
+    bool compact = false,
+  }) {
+    final clamped = scaler.clamp(maxScaleFactor: 1.15);
+    final framePad = compact ? 4.0 : 5.0;
+    final coverWidth = (cardWidth - framePad * 2).clamp(40.0, double.infinity);
+    final coverHeight = coverWidth / coverAspectRatio;
+    final titleHeight = clamped.scale(compact ? 12.0 : 13.0) * 1.32;
+    final subHeight = clamped.scale(compact ? 9.8 : 10.5) * 1.28;
+    final textSectionHeight = (compact ? 5.0 : 6.0) +
+        titleHeight +
+        2.0 +
+        subHeight +
+        (compact ? 3.0 : 4.0);
+    return framePad * 2 + coverHeight + textSectionHeight + 2.0;
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      clipBehavior: Clip.antiAlias,
-      margin: EdgeInsets.zero,
-      child: GestureDetector(
-        child: InkWell(
-          onTap: () {
-            if (!canTap) {
-              KazumiDialog.showToast(
-                message: '编辑模式',
-              );
-              return;
-            }
-            context.pushNamed('/info/', arguments: bangumiItem);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AspectRatio(
-                aspectRatio: 0.65,
-                child: LayoutBuilder(builder: (context, boxConstraints) {
-                  final double maxWidth = boxConstraints.maxWidth;
-                  final double maxHeight = boxConstraints.maxHeight;
-                  return enableHero
-                      ? Hero(
-                          transitionOnUserGestures: true,
-                          flightShuttleBuilder:
-                              NetworkImgLayer.heroFlightShuttleBuilder,
-                          tag: bangumiItem.id,
-                          child: NetworkImgLayer(
-                            src: bangumiItem.images['large'] ?? '',
-                            width: maxWidth,
-                            height: maxHeight,
-                          ),
-                        )
-                      : NetworkImgLayer(
-                          src: bangumiItem.images['large'] ?? '',
-                          width: maxWidth,
-                          height: maxHeight,
-                        );
-                }),
-              ),
-              BangumiContent(bangumiItem: bangumiItem)
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  State<BangumiCardV> createState() => _BangumiCardVState();
 }
 
-class BangumiContent extends StatelessWidget {
-  const BangumiContent({super.key, required this.bangumiItem});
+class _BangumiCardVState extends State<BangumiCardV> {
+  bool _hovered = false;
 
-  final BangumiItem bangumiItem;
+  String _resolvePrimaryTitle() {
+    final cn = widget.bangumiItem.nameCn.trim();
+    return cn.isNotEmpty ? cn : widget.bangumiItem.name.trim();
+  }
+
+  String _resolveSubtitle(String primaryTitle) {
+    final orig = widget.bangumiItem.name.trim();
+    if (orig.isNotEmpty && orig != primaryTitle) {
+      return orig;
+    }
+    final year = DateTime.tryParse(widget.bangumiItem.airDate)?.year;
+    final firstTag = _resolvePrimaryTag();
+    return [
+      if (year != null) '$year',
+      if (firstTag != null) firstTag,
+    ].join(' · ');
+  }
+
+  String? _resolvePrimaryTag() {
+    for (final t in widget.bangumiItem.metaTags) {
+      final trimmed = t.trim();
+      if (trimmed.isNotEmpty) return trimmed;
+    }
+    for (final t in widget.bangumiItem.tags) {
+      final trimmed = t.name.trim();
+      if (trimmed.isNotEmpty && trimmed.length <= 5) return trimmed;
+    }
+    return null;
+  }
+
+  String? _resolveRibbonText() {
+    final rank = widget.rankIndex;
+    if (rank != null && rank >= 0 && rank < 3) {
+      return '✿ 热门 No.${rank + 1}';
+    }
+    if (widget.isWatching) {
+      return '♥ 追更中';
+    }
+    final tag = _resolvePrimaryTag();
+    if (tag != null) {
+      return '✦ $tag';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ts = MediaQuery.textScalerOf(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final palette = AnimePastelPalette.of(context);
+    final compact = widget.compact;
+    final frameRadius = compact ? 15.0 : 17.0;
+    final coverRadius = compact ? 11.0 : 12.5;
+    final framePad = compact ? 4.0 : 5.0;
+    final title = _resolvePrimaryTitle();
+    final subtitle = _resolveSubtitle(title);
+    final ribbonText = _resolveRibbonText();
+    final showScore = widget.showRating && widget.bangumiItem.ratingScore > 0;
+    final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15);
 
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(5, 3, 5, 1),
-        child: LayoutBuilder(builder: (context, constraints) {
-          final style = DefaultTextStyle.of(context).style.copyWith(
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.3,
-              );
-          final textScaler = ts.clamp(maxScaleFactor: 1.1);
-          final painter = TextPainter(
-            text: TextSpan(text: bangumiItem.nameCn, style: style),
-            textDirection: Directionality.of(context),
-            textScaler: textScaler,
-          );
-          final lines = (constraints.maxHeight / painter.preferredLineHeight)
-              .floor()
-              .clamp(1, 3);
-          painter.dispose();
-          return Text(
-            bangumiItem.nameCn,
-            textAlign: TextAlign.start,
-            style: style,
-            textScaler: textScaler,
-            maxLines: lines,
-            overflow: TextOverflow.ellipsis,
-          );
-        }),
+    final borderColor = _hovered
+        ? palette.sakura.withValues(alpha: palette.isDark ? 0.65 : 0.55)
+        : (widget.isWatching ? palette.watchingBorder : palette.frameBorder);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) {
+        if (!_hovered) setState(() => _hovered = true);
+      },
+      onExit: (_) {
+        if (_hovered) setState(() => _hovered = false);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        decoration: ShapeDecoration(
+          color: palette.frameFill,
+          shape: SuperellipseBorder(
+            borderRadius: BorderRadius.circular(frameRadius),
+            side: BorderSide(
+              color: borderColor,
+              width: _hovered || widget.isWatching ? 1.3 : 0.9,
+            ),
+          ),
+          shadows: [
+            BoxShadow(
+              color: _hovered
+                  ? palette.sakura.withValues(alpha: palette.isDark ? 0.20 : 0.16)
+                  : (palette.isDark
+                      ? Colors.black.withValues(alpha: 0.22)
+                      : palette.sakura.withValues(alpha: 0.06)),
+              blurRadius: _hovered ? 14 : 8,
+              offset: Offset(0, _hovered ? 5 : 3),
+            ),
+          ],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          shape: SuperellipseBorder(
+            borderRadius: BorderRadius.circular(frameRadius),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            customBorder: SuperellipseBorder(
+              borderRadius: BorderRadius.circular(frameRadius),
+            ),
+            onTap: () {
+              if (!widget.canTap) {
+                KazumiDialog.showToast(
+                  message: '编辑模式',
+                );
+                return;
+              }
+              context.pushNamed('/info/', arguments: widget.bangumiItem);
+            },
+            child: Padding(
+              padding: EdgeInsets.all(framePad),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AspectRatio(
+                    aspectRatio: BangumiCardV.coverAspectRatio,
+                    child: LayoutBuilder(
+                      builder: (context, boxConstraints) {
+                        final maxWidth = boxConstraints.maxWidth;
+                        final maxHeight = boxConstraints.maxHeight;
+                        final coverImg = NetworkImgLayer(
+                          src: widget.bangumiItem.images['large'] ??
+                              widget.bangumiItem.images['common'] ??
+                              '',
+                          width: maxWidth,
+                          height: maxHeight,
+                          borderRadius: BorderRadius.circular(coverRadius),
+                        );
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            AnimatedScale(
+                              scale: _hovered ? 1.03 : 1.0,
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOutCubic,
+                              child: widget.enableHero
+                                  ? Hero(
+                                      transitionOnUserGestures: true,
+                                      flightShuttleBuilder: NetworkImgLayer
+                                          .heroFlightShuttleBuilder,
+                                      tag: widget.bangumiItem.id,
+                                      child: coverImg,
+                                    )
+                                  : coverImg,
+                            ),
+                            // Subtle bottom gradient veil so score badge reads clearly
+                            IgnorePointer(
+                              child: SuperellipseClip(
+                                borderRadius:
+                                    BorderRadius.circular(coverRadius),
+                                child: DecoratedBox(
+                                  decoration: ShapeDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: const [0.58, 1.0],
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withValues(alpha: 0.34),
+                                      ],
+                                    ),
+                                    shape: SuperellipseBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(coverRadius),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (ribbonText != null)
+                              Positioned(
+                                top: compact ? 5 : 6,
+                                left: compact ? 5 : 6,
+                                right: compact ? 18 : 24,
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: AnimeRibbonBadge(
+                                    label: ribbonText,
+                                    compact: compact,
+                                    gradient: widget.rankIndex != null &&
+                                            widget.rankIndex! < 3
+                                        ? palette.ribbonGradient
+                                        : (widget.isWatching
+                                            ? palette.watchingGradient
+                                            : null),
+                                    backgroundColor:
+                                        (widget.rankIndex == null ||
+                                                    widget.rankIndex! >= 3) &&
+                                                !widget.isWatching
+                                            ? (palette.isDark
+                                                ? const Color(0xCC3C2C46)
+                                                : const Color(0xD6E86E9E))
+                                            : null,
+                                  ),
+                                ),
+                              ),
+                            if (showScore)
+                              Positioned(
+                                right: compact ? 5 : 6,
+                                bottom: compact ? 5 : 6,
+                                child: AnimeScoreBadge(
+                                  score: widget.bangumiItem.ratingScore,
+                                  compact: compact,
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(height: compact ? 5 : 6),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: compact ? 2 : 3),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: scaler,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: compact ? 12.0 : 13.0,
+                            height: 1.32,
+                            fontWeight: FontWeight.w700,
+                            color: colors.onSurface,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle.isNotEmpty ? subtitle : ' ',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textScaler: scaler,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: compact ? 9.8 : 10.5,
+                            height: 1.28,
+                            color: palette.subtext,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

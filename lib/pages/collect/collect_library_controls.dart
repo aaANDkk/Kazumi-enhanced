@@ -15,10 +15,12 @@ class _CollectCategories extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    // Each lerped weight is a new font instance, so TabBar animates only the
-    // color and the selected label turns bold once per category change.
-    final labelStyle =
-        theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w500);
+    final palette = AnimePastelPalette.of(context);
+    final labelStyle = theme.textTheme.labelLarge?.copyWith(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w600,
+    );
+
     return TabBar(
       key: const PageStorageKey('collect-filter-strip'),
       controller: controller,
@@ -28,11 +30,19 @@ class _CollectCategories extends StatelessWidget {
       indicatorSize: TabBarIndicatorSize.tab,
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 2),
       indicator: ShapeDecoration(
-        color: colors.primary,
-        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+        gradient: palette.ribbonGradient,
+        shape: SuperellipseBorder(borderRadius: BorderRadius.circular(13)),
+        shadows: [
+          BoxShadow(
+            color:
+                palette.sakura.withValues(alpha: palette.isDark ? 0.24 : 0.24),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       indicatorAnimation: TabIndicatorAnimation.elastic,
-      labelColor: colors.onPrimary,
+      labelColor: Colors.white,
       unselectedLabelColor: colors.onSurfaceVariant,
       labelStyle: labelStyle,
       unselectedLabelStyle: labelStyle,
@@ -42,24 +52,61 @@ class _CollectCategories extends StatelessWidget {
       tabs: [
         for (final type in _collectCategories)
           Tab(
-            height: 48,
+            height: 36,
             child: Semantics(
               label: '${type?.label ?? '全部'}，${count(type)} 部',
               excludeSemantics: true,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 64),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ValueListenableBuilder(
-                    valueListenable: selected,
-                    builder: (context, value, _) => Text(
-                      type?.label ?? '全部',
-                      textAlign: TextAlign.center,
-                      style: value == type
-                          ? const TextStyle(fontWeight: FontWeight.w700)
-                          : null,
-                    ),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                child: ValueListenableBuilder(
+                  valueListenable: selected,
+                  builder: (context, value, _) {
+                    final isSelected = value == type;
+                    final numCount = count(type);
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          type?.label ?? '全部',
+                          style: isSelected
+                              ? const TextStyle(fontWeight: FontWeight.w800)
+                              : null,
+                        ),
+                        const SizedBox(width: 5),
+                        DecoratedBox(
+                          decoration: ShapeDecoration(
+                            color: isSelected
+                                ? Colors.white.withValues(alpha: 0.24)
+                                : palette.sakura.withValues(alpha: 0.11),
+                            shape: const SuperellipseBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(1000)),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5.5,
+                              vertical: 1.5,
+                            ),
+                            child: Text(
+                              '$numCount',
+                              style: TextStyle(
+                                fontSize: 10,
+                                height: 1.15,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? Colors.white
+                                    : palette.sakura.withValues(alpha: 0.9),
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures()
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -108,6 +155,8 @@ class _CollectSortMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AnimePastelPalette.of(context);
+    final colors = Theme.of(context).colorScheme;
     return KazumiMenuButton(
       menuChildren: [
         for (final sort in CollectSort.values)
@@ -121,15 +170,55 @@ class _CollectSortMenu extends StatelessWidget {
         return Tooltip(
           message: '排序：${value.label}',
           child: showLabel
-              ? TextButton.icon(
-                  onPressed: toggle,
-                  style: TextButton.styleFrom(
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onSurfaceVariant,
-                    minimumSize: const Size(48, 48),
+              ? Material(
+                  type: MaterialType.transparency,
+                  shape: SuperellipseBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  icon: const Icon(Icons.sort_rounded, size: 20),
-                  label: Text(value.label),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    customBorder: SuperellipseBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    onTap: toggle,
+                    child: DecoratedBox(
+                      decoration: ShapeDecoration(
+                        color: palette.frameFill,
+                        shape: SuperellipseBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: palette.frameBorder,
+                            width: 0.9,
+                          ),
+                        ),
+                      ),
+                      child: SizedBox(
+                        height: 38,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.sort_rounded,
+                                size: 17,
+                                color: palette.sakura,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                value.label,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 )
               : IconButton(
                   onPressed: toggle,

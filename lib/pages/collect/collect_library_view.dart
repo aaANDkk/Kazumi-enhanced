@@ -2,14 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/bean/widget/connected_button_group.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
 import 'package:kazumi/bean/widget/kazumi_menu.dart';
-import 'package:kazumi/bean/widget/tonal_card.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/collect/collect_layout.dart';
 import 'package:kazumi/modules/collect/collect_module.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
+import 'package:kazumi/modules/history/history_module.dart';
 import 'package:kazumi/pages/collect/collect_library_query.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
@@ -29,6 +30,7 @@ class CollectLibraryView extends StatefulWidget {
   const CollectLibraryView({
     super.key,
     required this.entries,
+    this.watchProgressMap = const <int, History>{},
     required this.showRating,
     required this.onOpen,
     required this.onChangeType,
@@ -38,6 +40,7 @@ class CollectLibraryView extends StatefulWidget {
   });
 
   final List<CollectedBangumi> entries;
+  final Map<int, History> watchProgressMap;
   final bool showRating;
   final ValueChanged<BangumiItem> onOpen;
   final void Function(BangumiItem, CollectType) onChangeType;
@@ -74,6 +77,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
       }
     }
   }
+
   final _searchController = TextEditingController();
   final _searchFocus = FocusNode();
   final _libraryFocus = FocusNode();
@@ -189,13 +193,18 @@ class CollectLibraryViewState extends State<CollectLibraryView>
         autofocus: true,
         child: LayoutBuilder(builder: (context, constraints) {
           final compact = constraints.maxWidth < 600;
+          final singleLineToolbar = constraints.maxWidth >= 980;
           final paged = mobile &&
               MediaQuery.orientationOf(context) == Orientation.portrait;
-          final width = constraints.maxWidth.clamp(0.0, 1560.0);
+          final width = constraints.maxWidth.clamp(0.0, 1600.0);
           final inset =
-              (constraints.maxWidth - width) / 2 + (compact ? 16.0 : 32.0);
+              (constraints.maxWidth - width) / 2 + (compact ? 12.0 : 24.0);
           final contentWidth = constraints.maxWidth - inset * 2;
-          final header = _header(query, compact: compact);
+          final header = _header(
+            query,
+            compact: compact,
+            singleLineToolbar: singleLineToolbar,
+          );
           return PageStorage(
             bucket: _resultsStorage,
             child: NotificationListener<ScrollUpdateNotification>(
@@ -250,27 +259,82 @@ class CollectLibraryViewState extends State<CollectLibraryView>
     );
   }
 
-  Widget _header(CollectLibraryQuery query, {required bool compact}) {
+  Widget _header(
+    CollectLibraryQuery query, {
+    required bool compact,
+    required bool singleLineToolbar,
+  }) {
+    final palette = AnimePastelPalette.of(context);
+
+    if (singleLineToolbar) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 4, bottom: 14),
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            color: palette.toolbarFill,
+            shape: SuperellipseBorder(
+              borderRadius: BorderRadius.circular(18),
+              side: BorderSide(color: palette.toolbarBorder, width: 0.9),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _CollectCategories(
+                    controller: _tabController,
+                    selected: _selectedType,
+                    count: query.count,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(width: 196, child: _compactSearchField()),
+                const SizedBox(width: 8),
+                _CollectSortMenu(
+                  value: _sort,
+                  showLabel: true,
+                  onChanged: (value) => setState(() {
+                    _sort = value;
+                    _resetResults();
+                  }),
+                ),
+                const SizedBox(width: 6),
+                _CollectLayoutSwitch(
+                  value: widget.layout,
+                  onChanged: (layout) {
+                    if (layout != widget.layout) _resetResults();
+                    widget.onLayoutChanged(layout);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _CollectCategories(
-                controller: _tabController,
-                selected: _selectedType,
-                count: query.count,
-              ),
+        DecoratedBox(
+          decoration: ShapeDecoration(
+            color: palette.toolbarFill,
+            shape: SuperellipseBorder(
+              borderRadius: BorderRadius.circular(18),
+              side: BorderSide(color: palette.toolbarBorder, width: 0.9),
             ),
-            if (!compact)
-              Padding(
-                padding: const EdgeInsetsDirectional.only(start: 16),
-                child: _countLabel(query),
-              ),
-          ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+            child: _CollectCategories(
+              controller: _tabController,
+              selected: _selectedType,
+              count: query.count,
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Row(
           children: [
             if (!compact)
@@ -278,14 +342,14 @@ class CollectLibraryViewState extends State<CollectLibraryView>
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 360),
-                    child: _searchBar(),
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: _compactSearchField(),
                   ),
                 ),
               )
             else
               Expanded(child: _countLabel(query)),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             _CollectSortMenu(
               value: _sort,
               showLabel: !compact,
@@ -302,7 +366,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
                 icon: const Icon(Icons.search_rounded),
                 onPressed: _searchExpanded ? _closeSearch : _focusSearch,
               ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             _CollectLayoutSwitch(
               value: widget.layout,
               onChanged: (layout) {
@@ -313,10 +377,10 @@ class CollectLibraryViewState extends State<CollectLibraryView>
           ],
         ),
         if (compact && _searchExpanded) ...[
-          const SizedBox(height: 12),
-          _searchBar(),
+          const SizedBox(height: 10),
+          _compactSearchField(),
         ],
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
       ],
     );
   }
@@ -324,42 +388,77 @@ class CollectLibraryViewState extends State<CollectLibraryView>
   Widget _countLabel(CollectLibraryQuery query) => ValueListenableBuilder(
         valueListenable: _selectedType,
         builder: (context, selected, _) => Text(
-          '${query.count(selected)} 部',
+          '共 ${query.count(selected)} 部收藏',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
               ),
         ),
       );
 
-  Widget _searchBar() => Semantics(
-        label: '搜索收藏',
-        child: SearchBar(
+  Widget _compactSearchField() {
+    final palette = AnimePastelPalette.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Semantics(
+      label: '搜索收藏',
+      child: SizedBox(
+        height: 38,
+        child: TextField(
           controller: _searchController,
           focusNode: _searchFocus,
-          leading: const Icon(Icons.search_rounded, size: 22),
-          trailing: [
-            if (_query.isNotEmpty)
-              IconButton(
-                tooltip: '清除搜索',
-                onPressed: () {
-                  _searchController.clear();
-                  _search('');
-                },
-                icon: const Icon(Icons.close_rounded),
-              ),
-          ],
-          elevation: const WidgetStatePropertyAll(0),
-          backgroundColor: WidgetStatePropertyAll(
-              Theme.of(context).colorScheme.surfaceContainerLow),
-          padding: const WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 16)),
-          constraints: const BoxConstraints(minHeight: 48),
           onChanged: _search,
           onSubmitted: (_) => _libraryFocus.requestFocus(),
+          style: TextStyle(fontSize: 13, color: colors.onSurface),
+          decoration: InputDecoration(
+            hintText: '筛选片名…',
+            hintStyle: TextStyle(fontSize: 12.5, color: palette.subtext),
+            filled: true,
+            fillColor: palette.frameFill,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 8,
+            ),
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              size: 18,
+              color: palette.sakura,
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 34,
+              minHeight: 34,
+            ),
+            suffixIcon: _query.isNotEmpty
+                ? IconButton(
+                    tooltip: '清除搜索',
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () {
+                      _searchController.clear();
+                      _search('');
+                    },
+                    icon: const Icon(Icons.close_rounded, size: 17),
+                  )
+                : null,
+            enabledBorder: SuperellipseInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: palette.frameBorder, width: 0.9),
+            ),
+            focusedBorder: SuperellipseInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: palette.sakura, width: 1.3),
+            ),
+            border: SuperellipseInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: palette.frameBorder, width: 0.9),
+            ),
+          ),
         ),
-      );
+      ),
+    );
+  }
 
   Widget _results(CollectLibraryQuery query, CollectType? type,
       {required double inset, required double contentWidth}) {
@@ -397,24 +496,28 @@ class CollectLibraryViewState extends State<CollectLibraryView>
     const spacing = 12.0;
     final textScale = (MediaQuery.textScalerOf(context).scale(14) / 14)
         .clamp(1.0, double.infinity);
-    final minWidth = 300 + 160 * (textScale - 1);
-    final preferredWidth = 400 + 160 * (textScale - 1);
+    final minWidth = 310 + 140 * (textScale - 1);
+    final preferredWidth = 420 + 140 * (textScale - 1);
     final maxColumns =
-        ((contentWidth + spacing) / (minWidth + spacing)).floor().clamp(1, 12);
+        ((contentWidth + spacing) / (minWidth + spacing)).floor().clamp(1, 3);
     final columns = ((contentWidth + spacing) / (preferredWidth + spacing))
         .ceil()
         .clamp(1, maxColumns);
 
-    Widget tile(int index) => IndexedSemantics(
-          index: index,
-          child: _CollectListTile(
-            key: ValueKey('collect-${entries[index].bangumiItem.id}'),
-            entry: entries[index],
-            showRating: widget.showRating,
-            onOpen: () => widget.onOpen(entries[index].bangumiItem),
-            onChangeType: _changeTypeFor(entries[index]),
-          ),
-        );
+    Widget tile(int index) {
+      final entry = entries[index];
+      return IndexedSemantics(
+        index: index,
+        child: _CollectListTile(
+          key: ValueKey('collect-${entry.bangumiItem.id}'),
+          entry: entry,
+          history: widget.watchProgressMap[entry.bangumiItem.id],
+          showRating: widget.showRating,
+          onOpen: () => widget.onOpen(entry.bangumiItem),
+          onChangeType: _changeTypeFor(entry),
+        ),
+      );
+    }
 
     return SliverList.builder(
       itemCount: (entries.length + columns - 1) ~/ columns,
@@ -452,32 +555,38 @@ class CollectLibraryViewState extends State<CollectLibraryView>
   Widget _grid(List<CollectedBangumi> entries, double contentWidth,
       {required CollectType? type}) {
     final portrait = MediaQuery.orientationOf(context) == Orientation.portrait;
-    final spacing = portrait ? (contentWidth < 600 ? 8.0 : 12.0) : 16.0;
+    final compact = contentWidth < 520;
+    final spacing = compact ? 9.0 : 12.0;
     final scaler = MediaQuery.textScalerOf(context);
-    final textScale = (scaler.scale(14) / 14).clamp(1.0, double.infinity);
-    final minWidth =
-        (contentWidth < 600 ? 136.0 : 172.0) + 32 * (textScale - 1);
-    final columns = portrait
-        ? 3
-        : ((contentWidth + spacing) / (minWidth + spacing)).floor().clamp(1, 6);
+    final columns = animePosterColumns(
+      contentWidth,
+      isPortrait: portrait,
+      spacing: spacing,
+      targetWidth: 152.0,
+    );
     final width = (contentWidth - spacing * (columns - 1)) / columns;
     return SliverGrid.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
         crossAxisSpacing: spacing,
-        mainAxisSpacing: portrait ? 12 : spacing,
-        mainAxisExtent: _CollectPosterCard.extent(width, scaler,
-            showRating: widget.showRating, showStatus: type == null),
+        mainAxisSpacing: spacing,
+        mainAxisExtent:
+            _CollectPosterCard.extent(width, scaler, compact: compact),
       ),
       itemCount: entries.length,
-      itemBuilder: (context, index) => _CollectPosterCard(
-        key: ValueKey('collect-${entries[index].bangumiItem.id}'),
-        entry: entries[index],
-        showRating: widget.showRating,
-        showStatus: type == null,
-        onOpen: () => widget.onOpen(entries[index].bangumiItem),
-        onChangeType: _changeTypeFor(entries[index]),
-      ),
+      itemBuilder: (context, index) {
+        final entry = entries[index];
+        return _CollectPosterCard(
+          key: ValueKey('collect-${entry.bangumiItem.id}'),
+          entry: entry,
+          history: widget.watchProgressMap[entry.bangumiItem.id],
+          showRating: widget.showRating,
+          showStatus: type == null,
+          compact: compact,
+          onOpen: () => widget.onOpen(entry.bangumiItem),
+          onChangeType: _changeTypeFor(entry),
+        );
+      },
     );
   }
 
