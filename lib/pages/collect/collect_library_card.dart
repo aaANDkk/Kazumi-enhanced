@@ -171,14 +171,17 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
                         fit: StackFit.expand,
                         children: [
                           ExcludeSemantics(
-                            child: AnimatedScale(
-                              scale: _hovered ? 1.03 : 1.0,
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeOutCubic,
-                              child: _CollectCover(
-                                item: item,
-                                borderRadius:
-                                    BorderRadius.circular(coverRadius),
+                            child: SuperellipseClip(
+                              borderRadius: BorderRadius.circular(coverRadius),
+                              child: AnimatedScale(
+                                scale: _hovered ? 1.03 : 1.0,
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                child: _CollectCover(
+                                  item: item,
+                                  borderRadius:
+                                      BorderRadius.circular(coverRadius),
+                                ),
                               ),
                             ),
                           ),

@@ -88,6 +88,10 @@ class AnimePastelPalette {
 
   /// Standard framed superellipse card decoration shared across Popular,
   /// Timeline, Collect, History, and Search cards.
+  ///
+  /// Border width stays constant (`1.0`) across rest/hover states so
+  /// [AnimatedContainer] never alters inner `ShapeDecoration.padding` and never
+  /// invalidates [NetworkImgLayer]'s `memCacheWidth` during hover animations.
   ShapeDecoration cardDecoration({
     required double radius,
     bool hovered = false,
@@ -99,9 +103,9 @@ class AnimePastelPalette {
     final borderSide = borderSideOverride ??
         BorderSide(
           color: hovered
-              ? accent.withValues(alpha: isDark ? 0.58 : 0.48)
+              ? accent.withValues(alpha: isDark ? 0.65 : 0.58)
               : frameBorder,
-          width: hovered ? 1.25 : 0.9,
+          width: 1.0,
         );
     return ShapeDecoration(
       color: fillColor ?? frameFill,
@@ -112,7 +116,7 @@ class AnimePastelPalette {
       shadows: [
         BoxShadow(
           color: hovered
-              ? accent.withValues(alpha: isDark ? 0.18 : 0.14)
+              ? accent.withValues(alpha: isDark ? 0.22 : 0.16)
               : Colors.black.withValues(alpha: isDark ? 0.18 : 0.045),
           blurRadius: hovered ? 12 : 7,
           offset: Offset(0, hovered ? 4 : 2),

@@ -258,6 +258,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(tapped, 2);
   });
+
+  testWidgets(
+      'cardDecoration keeps identical padding on hover to avoid image cache invalidation',
+      (tester) async {
+    late ShapeDecoration rest;
+    late ShapeDecoration hovered;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+        ),
+        home: Builder(
+          builder: (context) {
+            final palette = AnimePastelPalette.of(context);
+            rest = palette.cardDecoration(radius: 17, hovered: false);
+            hovered = palette.cardDecoration(radius: 17, hovered: true);
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    expect(rest.padding, equals(hovered.padding));
+  });
 }
 
 BangumiItem _sampleBangumi({

@@ -160,19 +160,22 @@ class _BangumiCardVState extends State<BangumiCardV> {
                         return Stack(
                           fit: StackFit.expand,
                           children: [
-                            AnimatedScale(
-                              scale: _hovered ? 1.03 : 1.0,
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeOutCubic,
-                              child: widget.enableHero
-                                  ? Hero(
-                                      transitionOnUserGestures: true,
-                                      flightShuttleBuilder: NetworkImgLayer
-                                          .heroFlightShuttleBuilder,
-                                      tag: widget.bangumiItem.id,
-                                      child: coverImg,
-                                    )
-                                  : coverImg,
+                            SuperellipseClip(
+                              borderRadius: BorderRadius.circular(coverRadius),
+                              child: AnimatedScale(
+                                scale: _hovered ? 1.03 : 1.0,
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeOutCubic,
+                                child: widget.enableHero
+                                    ? Hero(
+                                        transitionOnUserGestures: true,
+                                        flightShuttleBuilder: NetworkImgLayer
+                                            .heroFlightShuttleBuilder,
+                                        tag: widget.bangumiItem.id,
+                                        child: coverImg,
+                                      )
+                                    : coverImg,
+                              ),
                             ),
                             IgnorePointer(
                               child: SuperellipseClip(
