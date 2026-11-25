@@ -28,15 +28,26 @@ class PopularPage extends StatefulWidget {
   State<PopularPage> createState() => _PopularPageState();
 }
 
-class _PopularPageState extends State<PopularPage> {
+class _PopularPageState extends State<PopularPage>
+    with SingleTickerProviderStateMixin {
   late final ScrollController scrollController;
+  late final TabController _tagTabController;
   late final bool _showRating;
+  static final List<String> _allTags = ['', ...defaultAnimeTags];
+
   PopularController get popularController => widget.controller;
 
   @override
   void initState() {
     super.initState();
     _showRating = GStorage.getSetting(SettingsKeys.showRating);
+    final initialIndex =
+        _allTags.indexOf(popularController.currentTag).clamp(0, _allTags.length - 1);
+    _tagTabController = TabController(
+      length: _allTags.length,
+      initialIndex: initialIndex,
+      vsync: this,
+    );
     scrollController = ScrollController(
       initialScrollOffset: popularController.scrollOffset,
     );
@@ -52,6 +63,7 @@ class _PopularPageState extends State<PopularPage> {
     if (popularController.scrollToTop == _scrollToTop) {
       popularController.scrollToTop = null;
     }
+    _tagTabController.dispose();
     scrollController.removeListener(scrollListener);
     scrollController.dispose();
     super.dispose();
@@ -97,8 +109,6 @@ class _PopularPageState extends State<PopularPage> {
     final colors = theme.colorScheme;
     final orientation = MediaQuery.orientationOf(context);
     final isPortrait = orientation == Orientation.portrait;
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final isWide = screenWidth >= 780;
 
     return Scaffold(
       extendBody: true,
@@ -119,158 +129,97 @@ class _PopularPageState extends State<PopularPage> {
             );
           },
         ),
-        actions: buildActions(isWide: isWide),
+        actions: buildActions(isPortrait: isPortrait),
       ),
-      body: AnimePastelBackdrop(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final maxWidth = constraints.maxWidth;
-            final compact = maxWidth < 600;
-            final cappedWidth = maxWidth.clamp(0.0, 1600.0);
-            final sideInset =
-                (maxWidth - cappedWidth) / 2 + (compact ? 14.0 : 24.0);
-            final contentWidth =
-                (maxWidth - sideInset * 2).clamp(240.0, double.infinity);
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxWidth = constraints.maxWidth;
+          final compact = maxWidth < 600;
+          final cappedWidth = maxWidth.clamp(0.0, 1600.0);
+          final sideInset =
+              (maxWidth - cappedWidth) / 2 + (compact ? 14.0 : 24.0);
+          final contentWidth =
+              (maxWidth - sideInset * 2).clamp(240.0, double.infinity);
 
-            return CustomScrollView(
-              controller: scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: _buildTagStrip(sideInset: sideInset),
-                ),
-                SliverToBoxAdapter(
-                  child: Observer(
-                    builder: (_) => AnimatedOpacity(
-                      opacity: popularController.isLoadingMore ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 260),
-                      child: popularController.isLoadingMore
-                          ? const LinearProgressIndicator(minHeight: 3)
-                          : const SizedBox(height: 3),
-                    ),
-                  ),
-                ),
-                Observer(
-                  builder: (_) {
-                    if (popularController.isTimeOut) {
-                      return SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: sideInset),
-                          child: SizedBox(
-                            height: 400,
-                            child: BangumiMirrorErrorWidget(
-                              onRetry: () {
-                                if (popularController.trendList.isEmpty) {
-                                  popularController.queryBangumiByTrend();
-                                } else {
-                                  popularController.queryBangumiByTag();
-                                }
-                              },
-                              onSettingsReturned: () {
-                                if (mounted) {
-                                  setState(() {});
-                                }
-                              },
-                            ),
+          return CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(sideInset, 4, sideInset, 10),
+                  child: AnimePillTabTrack(
+                    tabBarKey: const PageStorageKey('popular-tag-strip'),
+                    controller: _tagTabController,
+                    isScrollable: true,
+                    onTap: (index) => _selectTag(_allTags[index]),
+                    tabs: [
+                      for (final tag in _allTags)
+                        Tab(
+                          height: 36,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(tag.isEmpty ? '热门番组' : tag),
                           ),
                         ),
-                      );
-                    }
-                    final isTrend = popularController.currentTag == '';
-                    final list = isTrend
-                        ? popularController.trendList
-                        : popularController.bangumiList;
-                    final watchingIds = _watchingIds();
-                    return contentGrid(
-                      list,
-                      contentWidth: contentWidth,
-                      sideInset: sideInset,
-                      isPortrait: isPortrait,
-                      isTrend: isTrend,
-                      watchingIds: watchingIds,
+                    ],
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Observer(
+                  builder: (_) => AnimatedOpacity(
+                    opacity: popularController.isLoadingMore ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 260),
+                    child: popularController.isLoadingMore
+                        ? const LinearProgressIndicator(minHeight: 3)
+                        : const SizedBox(height: 3),
+                  ),
+                ),
+              ),
+              Observer(
+                builder: (_) {
+                  if (popularController.isTimeOut) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: sideInset),
+                        child: SizedBox(
+                          height: 400,
+                          child: BangumiMirrorErrorWidget(
+                            onRetry: () {
+                              if (popularController.trendList.isEmpty) {
+                                popularController.queryBangumiByTrend();
+                              } else {
+                                popularController.queryBangumiByTag();
+                              }
+                            },
+                            onSettingsReturned: () {
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          ),
+                        ),
+                      ),
                     );
-                  },
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTagStrip({required double sideInset}) {
-    final palette = AnimePastelPalette.of(context);
-    final colors = Theme.of(context).colorScheme;
-    final tags = ['', ...defaultAnimeTags];
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 10),
-      child: SizedBox(
-        height: 36,
-        child: Observer(
-          builder: (_) {
-            final activeTag = popularController.currentTag;
-            return ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: sideInset),
-              itemCount: tags.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 7),
-              itemBuilder: (context, index) {
-                final tag = tags[index];
-                final selected = tag == activeTag;
-                final label = tag.isEmpty ? '热门番组' : tag;
-                return Material(
-                  type: MaterialType.transparency,
-                  shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    customBorder: SuperellipseBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    onTap: () => _selectTag(tag),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      curve: Curves.easeOutCubic,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 13,
-                        vertical: 6,
-                      ),
-                      decoration: ShapeDecoration(
-                        gradient: selected ? palette.ribbonGradient : null,
-                        color: selected ? null : palette.frameFill,
-                        shape: SuperellipseBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: selected
-                                ? palette.accent.withValues(alpha: 0.25)
-                                : palette.frameBorder,
-                            width: 0.85,
-                          ),
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.2,
-                            fontWeight:
-                                selected ? FontWeight.w700 : FontWeight.w500,
-                            color: selected
-                                ? palette.onAccent
-                                : colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
+                  }
+                  final isTrend = popularController.currentTag == '';
+                  final list = isTrend
+                      ? popularController.trendList
+                      : popularController.bangumiList;
+                  final watchingIds = _watchingIds();
+                  return contentGrid(
+                    list,
+                    contentWidth: contentWidth,
+                    sideInset: sideInset,
+                    isPortrait: isPortrait,
+                    isTrend: isTrend,
+                    watchingIds: watchingIds,
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -330,14 +279,12 @@ class _PopularPageState extends State<PopularPage> {
   }
 
   Widget _buildSkeletonCard({required bool compact}) {
-    final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: palette.frameFill,
+        color: colors.surfaceContainerLow,
         shape: SuperellipseBorder(
           borderRadius: BorderRadius.circular(compact ? 15 : 17),
-          side: BorderSide(color: palette.frameBorder, width: 0.85),
         ),
       ),
       child: Padding(
@@ -373,54 +320,9 @@ class _PopularPageState extends State<PopularPage> {
     );
   }
 
-  List<Widget> buildActions({required bool isWide}) {
-    final palette = AnimePastelPalette.of(context);
-    final colors = Theme.of(context).colorScheme;
+  List<Widget> buildActions({required bool isPortrait}) {
     return <Widget>[
-      if (isWide)
-        Padding(
-          padding: const EdgeInsets.only(right: 6),
-          child: Material(
-            type: MaterialType.transparency,
-            shape: SuperellipseBorder(borderRadius: BorderRadius.circular(13)),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              customBorder: SuperellipseBorder(
-                borderRadius: BorderRadius.circular(13),
-              ),
-              onTap: () => context.pushNamed('/search/'),
-              child: DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: palette.toolbarFill,
-                  shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(13),
-                    side: BorderSide(color: palette.toolbarBorder, width: 0.85),
-                  ),
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.search_rounded,
-                          size: 16, color: palette.accent),
-                      const SizedBox(width: 6),
-                      Text(
-                        '搜索番剧、标签…',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        )
-      else if (MediaQuery.orientationOf(context) == Orientation.portrait)
+      if (isPortrait)
         IconButton(
           tooltip: '搜索',
           onPressed: () => context.pushNamed('/search/'),

@@ -7,8 +7,8 @@ import 'package:kazumi/utils/superellipse.dart';
 
 /// Shared M3 theme-adaptive anime UI primitives for Popular, Timeline, and Collect.
 ///
-/// Every color derives strictly from [Theme.of(context).colorScheme] so the UI
-/// stays 100% harmonious with any user-chosen seed color or Monet dynamic theme.
+/// Strictly follows [Theme.of(context).colorScheme] with clean borderless M3
+/// tonal surfaces (`surfaceContainerLow`) and unified G2 superellipse corners.
 class AnimePastelPalette {
   const AnimePastelPalette({
     required this.isDark,
@@ -16,21 +16,14 @@ class AnimePastelPalette {
     required this.onAccent,
     required this.accentSoft,
     required this.onAccentSoft,
-    required this.accentSecondary,
-    required this.frameFill,
-    required this.frameBorder,
-    required this.watchingFillTop,
-    required this.watchingFillBottom,
-    required this.watchingBorder,
-    required this.toolbarFill,
-    required this.toolbarBorder,
+    required this.cardFill,
+    required this.cardHoverFill,
+    required this.trackFill,
     required this.tagFill,
     required this.tagText,
     required this.scoreBg,
     required this.scoreFg,
     required this.scoreStar,
-    required this.ribbonStart,
-    required this.ribbonEnd,
     required this.subtext,
   });
 
@@ -39,21 +32,14 @@ class AnimePastelPalette {
   final Color onAccent;
   final Color accentSoft;
   final Color onAccentSoft;
-  final Color accentSecondary;
-  final Color frameFill;
-  final Color frameBorder;
-  final Color watchingFillTop;
-  final Color watchingFillBottom;
-  final Color watchingBorder;
-  final Color toolbarFill;
-  final Color toolbarBorder;
+  final Color cardFill;
+  final Color cardHoverFill;
+  final Color trackFill;
   final Color tagFill;
   final Color tagText;
   final Color scoreBg;
   final Color scoreFg;
   final Color scoreStar;
-  final Color ribbonStart;
-  final Color ribbonEnd;
   final Color subtext;
 
   factory AnimePastelPalette.of(BuildContext context) {
@@ -61,52 +47,25 @@ class AnimePastelPalette {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final ribbonEnd = Color.lerp(colors.primary, colors.tertiary, 0.28) ??
-        colors.primary;
-
     return AnimePastelPalette(
       isDark: isDark,
       accent: colors.primary,
       onAccent: colors.onPrimary,
       accentSoft: colors.primaryContainer,
       onAccentSoft: colors.onPrimaryContainer,
-      accentSecondary: colors.tertiary,
-      frameFill: isDark
-          ? colors.surfaceContainerLow
-          : Color.alphaBlend(
-              colors.primary.withValues(alpha: 0.018),
-              colors.surfaceContainerLowest,
-            ),
-      frameBorder: colors.outlineVariant.withValues(alpha: isDark ? 0.42 : 0.55),
-      watchingFillTop: Color.alphaBlend(
-        colors.primaryContainer.withValues(alpha: isDark ? 0.40 : 0.42),
-        colors.surfaceContainerLow,
-      ),
-      watchingFillBottom: isDark
-          ? colors.surfaceContainerLow
-          : colors.surfaceContainerLowest,
-      watchingBorder: colors.primary.withValues(alpha: isDark ? 0.58 : 0.44),
-      toolbarFill: colors.surfaceContainerLow,
-      toolbarBorder:
-          colors.outlineVariant.withValues(alpha: isDark ? 0.34 : 0.45),
-      tagFill: colors.secondaryContainer.withValues(alpha: isDark ? 0.52 : 0.68),
+      cardFill: colors.surfaceContainerLow,
+      cardHoverFill: colors.surfaceContainer,
+      trackFill: colors.surfaceContainerLow,
+      tagFill: colors.secondaryContainer.withValues(alpha: isDark ? 0.52 : 0.72),
       tagText: colors.onSecondaryContainer,
       scoreBg: isDark
-          ? colors.surfaceContainerHighest.withValues(alpha: 0.88)
+          ? colors.surfaceContainerHighest.withValues(alpha: 0.90)
           : colors.surface.withValues(alpha: 0.92),
       scoreFg: colors.onSurface,
       scoreStar: isDark ? const Color(0xFFFFC95C) : const Color(0xFFE09612),
-      ribbonStart: colors.primary,
-      ribbonEnd: ribbonEnd,
       subtext: colors.onSurfaceVariant.withValues(alpha: 0.78),
     );
   }
-
-  LinearGradient get ribbonGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [ribbonStart, ribbonEnd],
-      );
 
   /// Tonal status style for pills/dropdowns (harmonious with active ColorScheme).
   AnimeStatusStyle statusStyle(
@@ -276,89 +235,91 @@ int animePosterColumns(
       .clamp(4, 9);
 }
 
-/// Subtle, theme-harmonious radial glow backdrop (strictly follows ColorScheme).
-class AnimePastelBackdrop extends StatelessWidget {
-  const AnimePastelBackdrop({
+/// Unified borderless M3E elastic sliding pill track shared across
+/// Popular (tags), Timeline (weekdays), and Collect (categories).
+///
+/// Tab children remain completely transparent so the sliding [colors.primary]
+/// superellipse indicator glides smoothly behind text with zero occlusion.
+class AnimePillTabTrack extends StatelessWidget {
+  const AnimePillTabTrack({
     super.key,
-    required this.child,
+    required this.tabs,
+    this.controller,
+    this.isScrollable = true,
+    this.tabAlignment,
+    this.onTap,
+    this.trackRadius = 18.0,
+    this.indicatorRadius = 14.0,
+    this.padding = const EdgeInsets.all(4),
+    this.labelPadding = const EdgeInsets.symmetric(horizontal: 2),
+    this.tabBarKey,
   });
 
-  final Widget child;
+  final List<Widget> tabs;
+  final TabController? controller;
+  final bool isScrollable;
+  final TabAlignment? tabAlignment;
+  final ValueChanged<int>? onTap;
+  final double trackRadius;
+  final double indicatorRadius;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry labelPadding;
+  final Key? tabBarKey;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AnimePastelPalette.of(context);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: IgnorePointer(
-            child: RepaintBoundary(
-              child: CustomPaint(
-                painter: _AnimePastelBackdropPainter(
-                  isDark: palette.isDark,
-                  primary: palette.accent,
-                  secondary: palette.accentSecondary,
-                ),
-              ),
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final labelStyle = theme.textTheme.labelLarge?.copyWith(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w700,
+    );
+    final unselectedStyle = theme.textTheme.labelLarge?.copyWith(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w500,
+    );
+
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: colors.surfaceContainerLow,
+        shape: SuperellipseBorder(
+          borderRadius: BorderRadius.circular(trackRadius),
+        ),
+      ),
+      child: Padding(
+        padding: padding,
+        child: TabBar(
+          key: tabBarKey,
+          controller: controller,
+          isScrollable: isScrollable,
+          tabAlignment: tabAlignment ??
+              (isScrollable ? TabAlignment.start : TabAlignment.fill),
+          dividerHeight: 0,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: ShapeDecoration(
+            color: colors.primary,
+            shape: SuperellipseBorder(
+              borderRadius: BorderRadius.circular(indicatorRadius),
             ),
           ),
+          indicatorAnimation: TabIndicatorAnimation.elastic,
+          labelColor: colors.onPrimary,
+          unselectedLabelColor: colors.onSurfaceVariant,
+          labelStyle: labelStyle,
+          unselectedLabelStyle: unselectedStyle,
+          labelPadding: labelPadding,
+          splashFactory: NoSplash.splashFactory,
+          overlayColor: WidgetStateProperty.resolveWith((states) =>
+              states.contains(WidgetState.hovered) ||
+                      states.contains(WidgetState.focused)
+                  ? colors.primary.withValues(alpha: 0.08)
+                  : Colors.transparent),
+          splashBorderRadius: BorderRadius.circular(indicatorRadius),
+          onTap: onTap,
+          tabs: tabs,
         ),
-        child,
-      ],
+      ),
     );
-  }
-}
-
-class _AnimePastelBackdropPainter extends CustomPainter {
-  const _AnimePastelBackdropPainter({
-    required this.isDark,
-    required this.primary,
-    required this.secondary,
-  });
-
-  final bool isDark;
-  final Color primary;
-  final Color secondary;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-
-    final leftCenter = Offset(size.width * 0.16, 0);
-    final leftRadius = math.max(size.width * 0.45, 240.0);
-    final leftPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          primary.withValues(alpha: isDark ? 0.09 : 0.08),
-          primary.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromCircle(center: leftCenter, radius: leftRadius));
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 260)),
-      leftPaint,
-    );
-
-    final rightCenter = Offset(size.width * 0.88, 12);
-    final rightRadius = math.max(size.width * 0.36, 200.0);
-    final rightPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          secondary.withValues(alpha: isDark ? 0.07 : 0.06),
-          secondary.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromCircle(center: rightCenter, radius: rightRadius));
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, math.min(size.height, 240)),
-      rightPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _AnimePastelBackdropPainter oldDelegate) {
-    return oldDelegate.isDark != isDark ||
-        oldDelegate.primary != primary ||
-        oldDelegate.secondary != secondary;
   }
 }
 
@@ -367,42 +328,27 @@ class AnimeRibbonBadge extends StatelessWidget {
   const AnimeRibbonBadge({
     super.key,
     required this.label,
-    this.gradient,
     this.backgroundColor,
     this.foregroundColor,
     this.compact = false,
   });
 
   final String label;
-  final Gradient? gradient;
   final Color? backgroundColor;
   final Color? foregroundColor;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AnimePastelPalette.of(context);
-    final fg = foregroundColor ?? palette.onAccent;
+    final colors = Theme.of(context).colorScheme;
+    final bg = backgroundColor ?? colors.primary.withValues(alpha: 0.92);
+    final fg = foregroundColor ?? colors.onPrimary;
     return DecoratedBox(
       decoration: ShapeDecoration(
-        gradient: backgroundColor == null
-            ? (gradient ?? palette.ribbonGradient)
-            : null,
-        color: backgroundColor,
-        shape: SuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(1000)),
-          side: BorderSide(
-            color: fg.withValues(alpha: 0.22),
-            width: 0.6,
-          ),
+        color: bg,
+        shape: const SuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(1000)),
         ),
-        shadows: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
-            blurRadius: 5,
-            offset: const Offset(0, 1.5),
-          ),
-        ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -426,7 +372,7 @@ class AnimeRibbonBadge extends StatelessWidget {
   }
 }
 
-/// Crisp translucent rating pill (`★ 9.1`).
+/// Crisp borderless translucent rating pill (`★ 9.1`).
 class AnimeScoreBadge extends StatelessWidget {
   const AnimeScoreBadge({
     super.key,
@@ -443,20 +389,9 @@ class AnimeScoreBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.scoreBg,
-        shape: SuperellipseBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(1000)),
-          side: BorderSide(
-            color: palette.frameBorder,
-            width: 0.7,
-          ),
+        shape: const SuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(1000)),
         ),
-        shadows: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.10),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(

@@ -6,7 +6,6 @@ import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:kazumi/bean/appbar/sys_app_bar.dart';
 import 'package:kazumi/bean/dialog/dialog_helper.dart';
-import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/modules/bangumi/sync_priority.dart';
@@ -210,23 +209,21 @@ class _CollectPageState extends State<CollectPage> with KazumiDialogOwner {
           ),
         ],
       ),
-      body: AnimePastelBackdrop(
-        child: SafeArea(
-          top: false,
-          bottom: false,
-          child: Observer(
-            builder: (context) => CollectLibraryView(
-              key: _libraryKey,
-              entries: collectController.collectibles.toList(),
-              watchProgressMap: _buildLatestHistoryMap(),
-              showRating: GStorage.getSetting(SettingsKeys.showRating),
-              layout: _layout,
-              onLayoutChanged: _changeLayout,
-              canEdit: (item) =>
-                  !_syncDialogOpen && !_pendingIds.contains(item.id),
-              onOpen: (item) => context.pushNamed('/info/', arguments: item),
-              onChangeType: (item, type) => unawaited(_changeType(item, type)),
-            ),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Observer(
+          builder: (context) => CollectLibraryView(
+            key: _libraryKey,
+            entries: collectController.collectibles.toList(),
+            watchProgressMap: _buildLatestHistoryMap(),
+            showRating: GStorage.getSetting(SettingsKeys.showRating),
+            layout: _layout,
+            onLayoutChanged: _changeLayout,
+            canEdit: (item) =>
+                !_syncDialogOpen && !_pendingIds.contains(item.id),
+            onOpen: (item) => context.pushNamed('/info/', arguments: item),
+            onChangeType: (item, type) => unawaited(_changeType(item, type)),
           ),
         ),
       ),

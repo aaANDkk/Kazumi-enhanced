@@ -125,10 +125,6 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
       highlightSub = false;
     }
 
-    final borderColor = _hovered
-        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
-        : palette.frameBorder;
-
     return Semantics(
       button: true,
       label: [
@@ -147,28 +143,13 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
           if (_hovered) setState(() => _hovered = false);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 160),
           curve: Curves.easeOutCubic,
           decoration: ShapeDecoration(
-            color: palette.frameFill,
+            color: _hovered ? palette.cardHoverFill : palette.cardFill,
             shape: SuperellipseBorder(
               borderRadius: BorderRadius.circular(frameRadius),
-              side: BorderSide(
-                color: borderColor,
-                width: _hovered ? 1.2 : 0.85,
-              ),
             ),
-            shadows: [
-              BoxShadow(
-                color: _hovered
-                    ? palette.accent
-                        .withValues(alpha: palette.isDark ? 0.16 : 0.12)
-                    : Colors.black
-                        .withValues(alpha: palette.isDark ? 0.18 : 0.04),
-                blurRadius: _hovered ? 12 : 6,
-                offset: Offset(0, _hovered ? 4 : 2),
-              ),
-            ],
           ),
           child: Material(
             type: MaterialType.transparency,
@@ -400,28 +381,13 @@ class _CollectListTileState extends State<_CollectListTile> {
         if (_hovered) setState(() => _hovered = false);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 160),
         curve: Curves.easeOutCubic,
         decoration: ShapeDecoration(
-          color: palette.frameFill,
+          color: _hovered ? palette.cardHoverFill : palette.cardFill,
           shape: SuperellipseBorder(
             borderRadius: BorderRadius.circular(18),
-            side: BorderSide(
-              color: _hovered
-                  ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
-                  : palette.frameBorder,
-              width: _hovered ? 1.2 : 0.85,
-            ),
           ),
-          shadows: [
-            BoxShadow(
-              color: _hovered
-                  ? palette.accent.withValues(alpha: palette.isDark ? 0.14 : 0.10)
-                  : Colors.black.withValues(alpha: palette.isDark ? 0.16 : 0.035),
-              blurRadius: _hovered ? 12 : 6,
-              offset: Offset(0, _hovered ? 4 : 2),
-            ),
-          ],
         ),
         child: Material(
           type: MaterialType.transparency,

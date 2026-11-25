@@ -75,10 +75,6 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
       compact: widget.compact,
     );
 
-    final borderColor = _hovered
-        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
-        : palette.frameBorder;
-
     return Semantics(
       button: true,
       child: MouseRegion(
@@ -90,31 +86,16 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
           if (_hovered) setState(() => _hovered = false);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 160),
           curve: Curves.easeOutCubic,
           height: cardHeight,
           decoration: ShapeDecoration(
-            color: palette.frameFill,
-            shape: SuperellipseBorder(
-              borderRadius: const BorderRadius.all(
+            color: _hovered ? palette.cardHoverFill : palette.cardFill,
+            shape: const SuperellipseBorder(
+              borderRadius: BorderRadius.all(
                 Radius.circular(BangumiTimelineCard._cornerRadius),
               ),
-              side: BorderSide(
-                color: borderColor,
-                width: _hovered ? 1.2 : 0.85,
-              ),
             ),
-            shadows: [
-              BoxShadow(
-                color: _hovered
-                    ? palette.accent
-                        .withValues(alpha: palette.isDark ? 0.14 : 0.10)
-                    : Colors.black
-                        .withValues(alpha: palette.isDark ? 0.16 : 0.035),
-                blurRadius: _hovered ? 12 : 6,
-                offset: Offset(0, _hovered ? 4 : 2),
-              ),
-            ],
           ),
           child: Material(
             type: MaterialType.transparency,
@@ -288,10 +269,6 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
                       color: const Color(0xAA16121A),
                       shape: SuperellipseBorder(
                         borderRadius: BorderRadius.circular(7),
-                        side: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          width: 0.6,
-                        ),
                       ),
                     ),
                     child: Padding(

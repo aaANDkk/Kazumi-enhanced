@@ -17,53 +17,28 @@ class _TimelineWeekSelector extends StatelessWidget {
   static double heightFor(TextScaler scaler, {bool wide = false}) {
     final clamped = scaler.clamp(maxScaleFactor: 1.2);
     if (wide) {
-      return 24 + clamped.scale(13) + clamped.scale(11);
+      return 30 + clamped.scale(13) + clamped.scale(11);
     }
-    return 22 + clamped.scale(14) + clamped.scale(11);
+    return 28 + clamped.scale(14) + clamped.scale(11);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final palette = AnimePastelPalette.of(context);
     final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.2);
 
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 560;
-      final tabHeight = heightFor(scaler, wide: wide);
-      final minTabWidth = wide ? 80.0 : 44.0;
-      final scrollable = constraints.maxWidth < minTabWidth * 7;
-      final itemGap = wide ? 3.5 : 3.0;
+      final tabHeight = heightFor(scaler, wide: wide) - 8;
+      final minTabWidth = wide ? 80.0 : 42.0;
+      final scrollable = constraints.maxWidth - 8 < minTabWidth * 7;
 
-      return TabBar(
+      return AnimePillTabTrack(
         isScrollable: scrollable,
         tabAlignment: scrollable ? TabAlignment.start : TabAlignment.fill,
-        dividerHeight: 0,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: EdgeInsets.symmetric(horizontal: itemGap),
-        indicator: ShapeDecoration(
-          gradient: palette.ribbonGradient,
-          shape: SuperellipseBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: palette.accent.withValues(alpha: 0.25),
-              width: 0.85,
-            ),
-          ),
-        ),
-        indicatorAnimation: TabIndicatorAnimation.elastic,
-        labelColor: palette.onAccent,
-        unselectedLabelColor: colors.onSurfaceVariant,
-        labelPadding: EdgeInsets.symmetric(horizontal: itemGap),
-        labelStyle: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-        ),
-        unselectedLabelStyle: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-        splashFactory: NoSplash.splashFactory,
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+        trackRadius: 18,
+        indicatorRadius: 14,
+        padding: const EdgeInsets.all(4),
+        labelPadding: EdgeInsets.symmetric(horizontal: wide ? 4 : 2),
         tabs: [
           for (var day = 0; day < 7; day++)
             Tab(
@@ -74,21 +49,18 @@ class _TimelineWeekSelector extends StatelessWidget {
                     '${isLoading ? '，加载中' : '，${counts[day]}部'}',
                 excludeSemantics: true,
                 child: SizedBox(
-                  width: scrollable ? minTabWidth : double.infinity,
-                  height: tabHeight,
+                  width: scrollable ? minTabWidth : null,
                   child: wide
                       ? _WideWeekdayTabContent(
                           jp: _jpWeekdays[day],
-                          cn: day == todayIndex ? '✦ 今日' : _cnWeekdays[day],
+                          cn: day == todayIndex ? '今天' : _cnWeekdays[day],
                           countText: isLoading ? '—' : '${counts[day]}',
-                          isToday: day == todayIndex,
                         )
                       : _CompactWeekdayTabContent(
                           jp: _jpWeekdays[day],
                           countText: day == todayIndex
                               ? '今'
                               : (isLoading ? '—' : '${counts[day]}'),
-                          isToday: day == todayIndex,
                         ),
                 ),
               ),
@@ -104,103 +76,60 @@ class _WideWeekdayTabContent extends StatelessWidget {
     required this.jp,
     required this.cn,
     required this.countText,
-    required this.isToday,
   });
 
   final String jp;
   final String cn;
   final String countText;
-  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AnimePastelPalette.of(context);
     final fg = DefaultTextStyle.of(context).style.color ??
         Theme.of(context).colorScheme.onSurfaceVariant;
-    final isSelected = fg == palette.onAccent;
 
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: isSelected ? Colors.transparent : palette.frameFill,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: isSelected
-              ? BorderSide.none
-              : BorderSide(color: palette.frameBorder, width: 0.85),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          jp,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w800,
+            color: fg,
+          ),
         ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
+        const SizedBox(width: 6),
+        Flexible(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: isSelected
-                      ? palette.onAccent.withValues(alpha: 0.18)
-                      : (isToday
-                          ? palette.accent.withValues(alpha: 0.14)
-                          : palette.accent.withValues(alpha: 0.08)),
-                  shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Center(
-                    child: Text(
-                      jp,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: isSelected
-                            ? palette.onAccent
-                            : (isToday ? palette.accent : fg),
-                      ),
-                    ),
-                  ),
+              Text(
+                cn,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  height: 1.15,
+                  color: fg,
                 ),
               ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cn,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.15,
-                        fontWeight: isSelected || isToday
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      countText,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 10,
-                        height: 1.15,
-                        fontWeight: FontWeight.w600,
-                        color: fg.withValues(alpha: isSelected ? 0.9 : 0.7),
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
+              Text(
+                countText,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 10,
+                  height: 1.15,
+                  fontWeight: FontWeight.w500,
+                  color: fg.withValues(alpha: 0.78),
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -209,57 +138,40 @@ class _CompactWeekdayTabContent extends StatelessWidget {
   const _CompactWeekdayTabContent({
     required this.jp,
     required this.countText,
-    required this.isToday,
   });
 
   final String jp;
   final String countText;
-  final bool isToday;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AnimePastelPalette.of(context);
     final fg = DefaultTextStyle.of(context).style.color ??
         Theme.of(context).colorScheme.onSurfaceVariant;
-    final isSelected = fg == palette.onAccent;
 
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: isSelected ? Colors.transparent : palette.frameFill,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: isSelected
-              ? BorderSide.none
-              : BorderSide(color: palette.frameBorder, width: 0.85),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          jp,
+          style: TextStyle(
+            fontSize: 13,
+            height: 1.15,
+            fontWeight: FontWeight.w700,
+            color: fg,
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            jp,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.15,
-              fontWeight: FontWeight.w700,
-              color: isSelected
-                  ? palette.onAccent
-                  : (isToday ? palette.accent : fg),
-            ),
+        const SizedBox(height: 2),
+        Text(
+          countText,
+          style: TextStyle(
+            fontSize: 9.8,
+            height: 1.1,
+            fontWeight: FontWeight.w500,
+            color: fg.withValues(alpha: 0.8),
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
-          const SizedBox(height: 2),
-          Text(
-            countText,
-            style: TextStyle(
-              fontSize: 9.8,
-              height: 1.1,
-              fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-              color: fg.withValues(alpha: isSelected ? 0.92 : 0.72),
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

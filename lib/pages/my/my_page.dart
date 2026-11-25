@@ -3,7 +3,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 
 import 'package:kazumi/bean/appbar/sys_app_bar.dart';
-import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/pages/menu/route_visibility.dart';
 import 'package:kazumi/pages/my/my_controller.dart';
 import 'package:kazumi/pages/my/my_space_view.dart';
@@ -117,16 +116,14 @@ class _MyPageState extends State<MyPage> {
           ),
         ],
       ),
-      body: AnimePastelBackdrop(
-        child: SafeArea(
-          top: false,
-          bottom: false,
-          child: Observer(
-            builder: (context) => MySpaceView(
-              stats: widget.controller.watchStats,
-              onOpen: _open,
-              controller: _scrollController,
-            ),
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Observer(
+          builder: (context) => MySpaceView(
+            stats: widget.controller.watchStats,
+            onOpen: _open,
+            controller: _scrollController,
           ),
         ),
       ),

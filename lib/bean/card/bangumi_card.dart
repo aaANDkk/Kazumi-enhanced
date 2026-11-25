@@ -6,7 +6,7 @@ import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/modules/bangumi/bangumi_item.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
-// 番剧海报卡片 - 主题色自适应轻手账风
+// 番剧海报卡片 - 无描边 M3E 超椭圆海报卡
 class BangumiCardV extends StatefulWidget {
   const BangumiCardV({
     super.key,
@@ -104,10 +104,6 @@ class _BangumiCardVState extends State<BangumiCardV> {
     final showScore = widget.showRating && widget.bangumiItem.ratingScore > 0;
     final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15);
 
-    final borderColor = _hovered
-        ? palette.accent.withValues(alpha: palette.isDark ? 0.55 : 0.45)
-        : palette.frameBorder;
-
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) {
@@ -117,26 +113,13 @@ class _BangumiCardVState extends State<BangumiCardV> {
         if (_hovered) setState(() => _hovered = false);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 160),
         curve: Curves.easeOutCubic,
         decoration: ShapeDecoration(
-          color: palette.frameFill,
+          color: _hovered ? palette.cardHoverFill : palette.cardFill,
           shape: SuperellipseBorder(
             borderRadius: BorderRadius.circular(frameRadius),
-            side: BorderSide(
-              color: borderColor,
-              width: _hovered ? 1.2 : 0.85,
-            ),
           ),
-          shadows: [
-            BoxShadow(
-              color: _hovered
-                  ? palette.accent.withValues(alpha: palette.isDark ? 0.16 : 0.12)
-                  : Colors.black.withValues(alpha: palette.isDark ? 0.18 : 0.04),
-              blurRadius: _hovered ? 12 : 6,
-              offset: Offset(0, _hovered ? 4 : 2),
-            ),
-          ],
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -205,7 +188,7 @@ class _BangumiCardVState extends State<BangumiCardV> {
                                       stops: const [0.60, 1.0],
                                       colors: [
                                         Colors.transparent,
-                                        Colors.black.withValues(alpha: 0.30),
+                                        Colors.black.withValues(alpha: 0.28),
                                       ],
                                     ),
                                     shape: SuperellipseBorder(

@@ -13,40 +13,14 @@ class _CollectCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final palette = AnimePastelPalette.of(context);
-    final labelStyle = theme.textTheme.labelLarge?.copyWith(
-      fontSize: 12.5,
-      fontWeight: FontWeight.w500,
-    );
-
-    return TabBar(
-      key: const PageStorageKey('collect-filter-strip'),
+    return AnimePillTabTrack(
+      tabBarKey: const PageStorageKey('collect-filter-strip'),
       controller: controller,
       isScrollable: true,
-      tabAlignment: TabAlignment.start,
-      dividerHeight: 0,
-      indicatorSize: TabBarIndicatorSize.tab,
-      indicatorPadding: const EdgeInsets.symmetric(horizontal: 3.5),
-      indicator: ShapeDecoration(
-        gradient: palette.ribbonGradient,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: palette.accent.withValues(alpha: 0.25),
-            width: 0.85,
-          ),
-        ),
-      ),
-      indicatorAnimation: TabIndicatorAnimation.elastic,
-      labelColor: palette.onAccent,
-      unselectedLabelColor: colors.onSurfaceVariant,
-      labelStyle: labelStyle,
-      unselectedLabelStyle: labelStyle,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 3.5),
-      splashFactory: NoSplash.splashFactory,
-      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      trackRadius: 18,
+      indicatorRadius: 14,
+      padding: const EdgeInsets.all(4),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
       tabs: [
         for (final type in _collectCategories)
           Tab(
@@ -54,77 +28,39 @@ class _CollectCategories extends StatelessWidget {
             child: Semantics(
               label: '${type?.label ?? '全部'}，${count(type)} 部',
               excludeSemantics: true,
-              child: ValueListenableBuilder(
-                valueListenable: selected,
-                builder: (context, value, _) {
-                  final isSelected = value == type;
-                  final numCount = count(type);
-                  return DecoratedBox(
-                    decoration: ShapeDecoration(
-                      color:
-                          isSelected ? Colors.transparent : palette.frameFill,
-                      shape: SuperellipseBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: isSelected
-                            ? BorderSide.none
-                            : BorderSide(
-                                color: palette.frameBorder,
-                                width: 0.85,
-                              ),
-                      ),
-                    ),
-                    child: SizedBox(
-                      height: 36,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              type?.label ?? '全部',
-                              style: isSelected
-                                  ? const TextStyle(fontWeight: FontWeight.w700)
-                                  : null,
-                            ),
-                            const SizedBox(width: 5),
-                            DecoratedBox(
-                              decoration: ShapeDecoration(
-                                color: isSelected
-                                    ? palette.onAccent.withValues(alpha: 0.22)
-                                    : palette.accent.withValues(alpha: 0.11),
-                                shape: const SuperellipseBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(1000)),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.5,
-                                  vertical: 1.5,
-                                ),
-                                child: Text(
-                                  '$numCount',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    height: 1.15,
-                                    fontWeight: FontWeight.w700,
-                                    color: isSelected
-                                        ? palette.onAccent
-                                        : palette.accent
-                                            .withValues(alpha: 0.9),
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures()
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: ValueListenableBuilder(
+                  valueListenable: selected,
+                  builder: (context, value, _) {
+                    final isSelected = value == type;
+                    final numCount = count(type);
+                    final fg = DefaultTextStyle.of(context).style.color ??
+                        Theme.of(context).colorScheme.onSurfaceVariant;
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          type?.label ?? '全部',
+                          style: isSelected
+                              ? const TextStyle(fontWeight: FontWeight.w700)
+                              : null,
                         ),
-                      ),
-                    ),
-                  );
-                },
+                        const SizedBox(width: 5),
+                        Text(
+                          '$numCount',
+                          style: TextStyle(
+                            fontSize: 11,
+                            height: 1.15,
+                            fontWeight: FontWeight.w600,
+                            color: fg.withValues(alpha: isSelected ? 0.88 : 0.65),
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -190,36 +126,32 @@ class _CollectSortMenu extends StatelessWidget {
               ? Material(
                   type: MaterialType.transparency,
                   shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     customBorder: SuperellipseBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     onTap: toggle,
                     child: DecoratedBox(
                       decoration: ShapeDecoration(
-                        color: palette.frameFill,
+                        color: palette.cardFill,
                         shape: SuperellipseBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: palette.frameBorder,
-                            width: 0.85,
-                          ),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       child: SizedBox(
                         height: 38,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 Icons.sort_rounded,
                                 size: 17,
-                                color: palette.accent,
+                                color: colors.onSurfaceVariant,
                               ),
                               const SizedBox(width: 5),
                               Text(

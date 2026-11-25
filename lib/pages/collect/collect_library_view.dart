@@ -392,7 +392,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
             hintText: '筛选片名…',
             hintStyle: TextStyle(fontSize: 12.5, color: palette.subtext),
             filled: true,
-            fillColor: palette.frameFill,
+            fillColor: palette.cardFill,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 10,
@@ -401,7 +401,7 @@ class CollectLibraryViewState extends State<CollectLibraryView>
             prefixIcon: Icon(
               Icons.search_rounded,
               size: 18,
-              color: palette.accent,
+              color: colors.onSurfaceVariant,
             ),
             prefixIconConstraints: const BoxConstraints(
               minWidth: 34,
@@ -420,16 +420,19 @@ class CollectLibraryViewState extends State<CollectLibraryView>
                   )
                 : null,
             enabledBorder: SuperellipseInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: palette.frameBorder, width: 0.9),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: SuperellipseInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: palette.accent, width: 1.3),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: palette.accent.withValues(alpha: 0.6),
+                width: 1.2,
+              ),
             ),
             border: SuperellipseInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: palette.frameBorder, width: 0.9),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
             ),
           ),
         ),

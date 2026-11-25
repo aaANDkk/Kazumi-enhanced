@@ -203,14 +203,6 @@ class _TimelinePageState extends State<TimelinePage> {
             calendar.fold<int>(0, (sum, day) => sum + day.length);
         final today = DateTime.now();
         final currentSeason = isSameSeason(_controller.selectedDate, today);
-        final seasonHeader = narrowPortrait
-            ? null
-            : _buildSeasonHeader(
-                context,
-                loading: loading,
-                compact: constraints.maxHeight < 500,
-                totalCount: totalCount,
-              );
         final weekHeight =
             _TimelineWeekSelector.heightFor(scaler, wide: wideWeekBar) + 16;
         final weekSelector = Padding(
@@ -227,14 +219,12 @@ class _TimelinePageState extends State<TimelinePage> {
             needTopOffset: false,
             toolbarHeight: 68,
             backgroundColor: colors.surface,
-            title: narrowPortrait
-                ? _buildSeasonPicker(context, loading: loading, inAppBar: true)
-                : Text(
-                    '时间表',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+            title: _buildSeasonTitle(
+              context,
+              loading: loading,
+              showMeta: !narrowPortrait && constraints.maxWidth >= 680,
+              totalCount: totalCount,
+            ),
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -247,71 +237,62 @@ class _TimelinePageState extends State<TimelinePage> {
               ),
             ],
           ),
-          body: AnimePastelBackdrop(
-            child: LayoutBuilder(
-              builder: (context, viewport) => NestedScrollView(
-                key: _nestedKey,
-                // Keep the outer viewport clamped and unstretched so tabs stay fixed.
-                physics: const ClampingScrollPhysics(),
-                scrollBehavior: ScrollConfiguration.of(context).copyWith(
-                  overscroll: false,
-                  scrollbars: false,
-                ),
-                headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                  if (seasonHeader != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(inset, 4, inset, 14),
-                        child: seasonHeader,
-                      ),
-                    ),
-                  SliverOverlapAbsorber(
-                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context),
-                    sliver: SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _WeekHeaderDelegate(
-                        height: weekHeight,
-                        color: colors.surface,
-                        child: weekSelector,
-                      ),
+          body: LayoutBuilder(
+            builder: (context, viewport) => NestedScrollView(
+              key: _nestedKey,
+              // Keep the outer viewport clamped and unstretched so tabs stay fixed.
+              physics: const ClampingScrollPhysics(),
+              scrollBehavior: ScrollConfiguration.of(context).copyWith(
+                overscroll: false,
+                scrollbars: false,
+              ),
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverOverlapAbsorber(
+                  handle:
+                      NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                  sliver: SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _WeekHeaderDelegate(
+                      height: weekHeight,
+                      color: colors.surface,
+                      child: weekSelector,
                     ),
                   ),
-                ],
-                body: loading && calendar.every((day) => day.isEmpty)
-                    ? _buildLoading(viewport.maxHeight, weekHeight)
-                    : failed
-                        ? _TimelineScrollView(
-                            slivers: [
-                              SliverPadding(
-                                padding: const EdgeInsets.all(24),
-                                sliver: SliverToBoxAdapter(
-                                  child: BangumiMirrorErrorWidget(
-                                    onRetry: () => _controller
-                                        .loadSeason(_controller.selectedDate),
-                                    onSettingsReturned: () {
-                                      if (mounted) setState(() {});
-                                    },
-                                  ),
+                ),
+              ],
+              body: loading && calendar.every((day) => day.isEmpty)
+                  ? _buildLoading(viewport.maxHeight, weekHeight)
+                  : failed
+                      ? _TimelineScrollView(
+                          slivers: [
+                            SliverPadding(
+                              padding: const EdgeInsets.all(24),
+                              sliver: SliverToBoxAdapter(
+                                child: BangumiMirrorErrorWidget(
+                                  onRetry: () => _controller
+                                      .loadSeason(_controller.selectedDate),
+                                  onSettingsReturned: () {
+                                    if (mounted) setState(() {});
+                                  },
                                 ),
                               ),
-                            ],
-                          )
-                        : TabBarView(
-                            children: [
-                              for (var day = 0; day < 7; day++)
-                                _buildDay(
-                                  context,
-                                  day: day,
-                                  items: calendar[day],
-                                  watchingIds: watchingIds,
-                                  columns: columns,
-                                  inset: inset,
-                                  compact: narrowPortrait,
-                                ),
-                            ],
-                          ),
-              ),
+                            ),
+                          ],
+                        )
+                      : TabBarView(
+                          children: [
+                            for (var day = 0; day < 7; day++)
+                              _buildDay(
+                                context,
+                                day: day,
+                                items: calendar[day],
+                                watchingIds: watchingIds,
+                                columns: columns,
+                                inset: inset,
+                                compact: narrowPortrait,
+                              ),
+                          ],
+                        ),
             ),
           ),
         );
@@ -341,86 +322,76 @@ class _TimelinePageState extends State<TimelinePage> {
     });
   }
 
-  Widget _buildSeasonPicker(BuildContext context,
-      {required bool loading, bool compact = false, bool inAppBar = false}) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final label = _seasonLabel(_controller.selectedDate);
-    final style = inAppBar
-        ? theme.textTheme.headlineSmall
-        : compact || MediaQuery.textScalerOf(context).scale(16) > 24
-            ? theme.textTheme.titleLarge
-            : theme.textTheme.headlineSmall;
-    return Semantics(
-      label: '切换放送季度，$label',
-      button: true,
-      enabled: !loading,
-      onTap: loading ? null : () => _showSeasonBottomSheet(context),
-      excludeSemantics: true,
-      child: Tooltip(
-        message: '切换放送季度',
-        child: InkWell(
-          onTap: loading ? null : () => _showSeasonBottomSheet(context),
-          customBorder:
-              SuperellipseBorder(borderRadius: BorderRadius.circular(14)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: style?.copyWith(
-                      color: colors.onSurface,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.expand_more_rounded,
-                  size: inAppBar ? 22 : 24,
-                  color: colors.onSurfaceVariant,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSeasonHeader(
+  Widget _buildSeasonTitle(
     BuildContext context, {
     required bool loading,
-    required bool compact,
+    required bool showMeta,
     required int totalCount,
   }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final date = _controller.selectedDate;
+    final label = _seasonLabel(date);
     final startMonth = ((date.month - 1) ~/ 3) * 3 + 1;
-    final subtitle = loading
-        ? '正在加载放送时间表…'
-        : '$startMonth — ${startMonth + 2} 月 · 每周放送${totalCount > 0 ? ' · 共 $totalCount 部' : ''}';
+    final meta = loading
+        ? '加载中…'
+        : '$startMonth—${startMonth + 2} 月${totalCount > 0 ? ' · $totalCount 部' : ''}';
+
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Flexible(
-          child: _buildSeasonPicker(context, loading: loading, compact: compact),
-        ),
-        if (!compact) ...[
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
+          child: Semantics(
+            label: '切换放送季度，$label',
+            button: true,
+            enabled: !loading,
+            onTap: loading ? null : () => _showSeasonBottomSheet(context),
+            excludeSemantics: true,
+            child: Tooltip(
+              message: '切换放送季度',
+              child: InkWell(
+                onTap: loading ? null : () => _showSeasonBottomSheet(context),
+                customBorder:
+                    SuperellipseBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.expand_more_rounded,
+                        size: 22,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
               ),
+            ),
+          ),
+        ),
+        if (showMeta) ...[
+          const SizedBox(width: 10),
+          Text(
+            meta,
+            maxLines: 1,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

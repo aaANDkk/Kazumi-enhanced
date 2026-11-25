@@ -58,31 +58,29 @@ void main() {
           ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
         ),
         home: Scaffold(
-          body: AnimePastelBackdrop(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: width,
-                  height: height,
-                  child: BangumiCardV(
-                    bangumiItem: topItem,
-                    rankIndex: 0,
-                    isWatching: false,
-                  ),
+          body: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: width,
+                height: height,
+                child: BangumiCardV(
+                  bangumiItem: topItem,
+                  rankIndex: 0,
+                  isWatching: false,
                 ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: width,
-                  height: height,
-                  child: BangumiCardV(
-                    bangumiItem: watchingItem,
-                    rankIndex: 5,
-                    isWatching: true,
-                  ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: width,
+                height: height,
+                child: BangumiCardV(
+                  bangumiItem: watchingItem,
+                  rankIndex: 5,
+                  isWatching: true,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
