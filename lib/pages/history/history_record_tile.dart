@@ -166,14 +166,15 @@ class HistoryRecordTile extends StatelessWidget {
                 final wide = constraints.maxWidth >= 600;
                 final largeText =
                     MediaQuery.textScalerOf(context).scale(14) > 21;
-                final coverWidth = wide ? 72.0 : 68.0;
-                final coverHeight = coverWidth * 1.4;
-                final pad = wide ? 14.0 : 12.0;
+                final pad = wide ? 12.0 : 10.0;
+                final coverWidth = wide ? 92.0 : 84.0;
+                final coverHeight = wide ? 128.0 : 118.0;
+                final coverRadius = BorderRadius.circular(12);
 
                 final cover = ExcludeSemantics(
                   child: IgnorePointer(
                     child: SuperellipseClip(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: coverRadius,
                       child: image.isEmpty
                           ? Container(
                               width: coverWidth,
@@ -186,7 +187,7 @@ class HistoryRecordTile extends StatelessWidget {
                               src: image,
                               width: coverWidth,
                               height: coverHeight,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: coverRadius,
                             ),
                     ),
                   ),
@@ -238,7 +239,7 @@ class HistoryRecordTile extends StatelessWidget {
                 final progressSection = ExcludeSemantics(
                   child: IgnorePointer(
                     child: Padding(
-                      padding: EdgeInsets.only(top: wide ? 7 : 5),
+                      padding: EdgeInsets.only(top: wide ? 10 : 8),
                       child: _HistoryProgressCapsule(
                         wide: wide,
                         currentPosText: currentPosText,
@@ -298,24 +299,26 @@ class HistoryRecordTile extends StatelessWidget {
                       );
 
                 return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: wide ? 16 : pad,
-                    vertical: pad,
-                  ),
+                  padding: EdgeInsets.all(pad),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AnimatedSize(
                         duration: animDuration,
                         curve: Curves.easeInOutCubicEmphasized,
                         child: editing
-                            ? Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: ExcludeSemantics(
-                                  child: IgnorePointer(
-                                    child: _SelectionCircle(
-                                      selected: selected,
-                                      duration: animDuration,
+                            ? SizedBox(
+                                height: coverHeight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 12),
+                                  child: Center(
+                                    child: ExcludeSemantics(
+                                      child: IgnorePointer(
+                                        child: _SelectionCircle(
+                                          selected: selected,
+                                          duration: animDuration,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -323,28 +326,32 @@ class HistoryRecordTile extends StatelessWidget {
                             : const SizedBox.shrink(),
                       ),
                       cover,
-                      SizedBox(width: wide ? 16 : 12),
+                      SizedBox(width: wide ? 14 : 12),
                       Expanded(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(minHeight: coverHeight),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  titleRow,
-                                  SizedBox(height: wide ? 4 : 3),
-                                  episodeRow,
-                                  progressSection,
-                                ],
-                              ),
-                              SizedBox(height: wide ? 9 : 7),
-                              bottomRow,
-                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 2),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    titleRow,
+                                    SizedBox(height: wide ? 4 : 3),
+                                    episodeRow,
+                                    progressSection,
+                                  ],
+                                ),
+                                SizedBox(height: wide ? 10 : 8),
+                                bottomRow,
+                              ],
+                            ),
                           ),
                         ),
                       ),
