@@ -17,20 +17,22 @@ class _TimelineWeekSelector extends StatelessWidget {
   static double heightFor(TextScaler scaler, {bool wide = false}) {
     final clamped = scaler.clamp(maxScaleFactor: 1.2);
     if (wide) {
-      return 24 + clamped.scale(13) + clamped.scale(11);
+      return 24 + clamped.scale(14);
     }
     return 22 + clamped.scale(14) + clamped.scale(11);
   }
 
   @override
   Widget build(BuildContext context) {
+    final palette = AnimePastelPalette.of(context);
     final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.2);
 
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 560;
+      final extraWide = constraints.maxWidth >= 820;
       final tabHeight = heightFor(scaler, wide: wide);
-      final minTabWidth = wide ? 80.0 : 44.0;
-      final spacing = wide ? 7.0 : 6.0;
+      final minTabWidth = extraWide ? 96.0 : (wide ? 72.0 : 44.0);
+      final spacing = wide ? 8.0 : 6.0;
       final scrollable = constraints.maxWidth < minTabWidth * 7 + spacing * 6;
 
       return AnimeSeparatedTabBar(
@@ -45,54 +47,74 @@ class _TimelineWeekSelector extends StatelessWidget {
         itemBuilder: (context, day, selection, fgColor) {
           final isToday = day == todayIndex;
           final countText = isLoading ? '—' : '${counts[day]}';
+          final badgeBg = Color.lerp(
+            palette.accent.withValues(alpha: 0.11),
+            palette.onAccent.withValues(alpha: 0.22),
+            selection,
+          )!;
+          final badgeFg = Color.lerp(
+            palette.accent.withValues(alpha: 0.90),
+            palette.onAccent,
+            selection,
+          )!;
+
           final inner = wide
               ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if (extraWide) ...[
+                        Text(
+                          _jpWeekdays[day],
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            height: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: fgColor.withValues(alpha: 0.85),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                      ],
                       Text(
-                        _jpWeekdays[day],
+                        isToday ? '今天' : _cnWeekdays[day],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 12.5,
+                          height: 1.2,
+                          fontWeight: selection > 0.5 || isToday
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                           color: fgColor,
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isToday ? '今天' : _cnWeekdays[day],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                height: 1.15,
-                                fontWeight: selection > 0.5 || isToday
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: fgColor,
-                              ),
+                      const SizedBox(width: 5),
+                      DecoratedBox(
+                        decoration: ShapeDecoration(
+                          color: badgeBg,
+                          shape: const SuperellipseBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(1000)),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5.5,
+                            vertical: 1.5,
+                          ),
+                          child: Text(
+                            countText,
+                            style: TextStyle(
+                              fontSize: 10,
+                              height: 1.15,
+                              fontWeight: FontWeight.w700,
+                              color: badgeFg,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures()
+                              ],
                             ),
-                            Text(
-                              countText,
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontSize: 10,
-                                height: 1.15,
-                                fontWeight: FontWeight.w600,
-                                color: fgColor.withValues(alpha: 0.78),
-                                fontFeatures: const [
-                                  FontFeature.tabularFigures()
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ],

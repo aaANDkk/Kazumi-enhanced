@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kazumi/bean/widget/empty_state_widget.dart';
-import 'package:kazumi/bean/widget/split_list_row.dart';
 import 'package:kazumi/bean/widget/state_presentation.dart';
 import 'package:kazumi/modules/history/history_module.dart';
 import 'package:kazumi/pages/history/history_list_query.dart';
@@ -231,13 +230,10 @@ class _HistoryListViewState extends State<HistoryListView> {
         ),
       );
     }
-    final shape = splitListRowRadius(
-      first: entryIndex == 0,
-      last: entryIndex == group.entries.length - 1,
-    );
+    const shape = BorderRadius.all(Radius.circular(20));
     return Padding(
       key: row.key,
-      padding: const EdgeInsets.only(bottom: splitListRowGap),
+      padding: const EdgeInsets.only(bottom: 10),
       child: widget.itemBuilder(group.entries[entryIndex], shape),
     );
   }

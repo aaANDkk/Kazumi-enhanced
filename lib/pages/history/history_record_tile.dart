@@ -86,7 +86,7 @@ class HistoryRecordTile extends StatelessWidget {
 
     final palette = AnimePastelPalette.of(context);
     final effectiveRadius =
-        editing && selected ? BorderRadius.circular(16) : borderRadius;
+        editing && selected ? BorderRadius.circular(20) : borderRadius;
     final surfaceColor = editing && selected
         ? Color.alphaBlend(
             colors.errorContainer.withValues(alpha: 0.35),
@@ -173,7 +173,7 @@ class HistoryRecordTile extends StatelessWidget {
                 final cover = ExcludeSemantics(
                   child: IgnorePointer(
                     child: SuperellipseClip(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       child: image.isEmpty
                           ? Container(
                               width: coverWidth,
@@ -186,6 +186,7 @@ class HistoryRecordTile extends StatelessWidget {
                               src: image,
                               width: coverWidth,
                               height: coverHeight,
+                              borderRadius: BorderRadius.circular(12),
                             ),
                     ),
                   ),

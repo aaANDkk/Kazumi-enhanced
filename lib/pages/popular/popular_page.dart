@@ -182,35 +182,39 @@ class _PopularPageState extends State<PopularPage>
               (maxWidth - sideInset * 2).clamp(240.0, double.infinity);
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 4, bottom: 10),
-                child: AnimeSeparatedTabBar(
-                  controller: _tagTabController,
-                  itemCount: _allTags.length,
-                  scrollable: true,
-                  height: 36,
-                  spacing: 7,
-                  borderRadius: 12,
-                  padding: EdgeInsets.symmetric(horizontal: sideInset),
-                  onTap: (index) => unawaited(_selectTag(_allTags[index])),
-                  itemBuilder: (context, index, selection, fgColor) {
-                    final tag = _allTags[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 13),
-                      child: Text(
-                        tag.isEmpty ? '热门番组' : tag,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          height: 1.2,
-                          fontWeight: selection > 0.5
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: fgColor,
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AnimeSeparatedTabBar(
+                    controller: _tagTabController,
+                    itemCount: _allTags.length,
+                    scrollable: true,
+                    height: 36,
+                    spacing: 7,
+                    borderRadius: 12,
+                    padding: EdgeInsets.symmetric(horizontal: sideInset),
+                    onTap: (index) => unawaited(_selectTag(_allTags[index])),
+                    itemBuilder: (context, index, selection, fgColor) {
+                      final tag = _allTags[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                        child: Text(
+                          tag.isEmpty ? '热门番组' : tag,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            height: 1.2,
+                            fontWeight: selection > 0.5
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: fgColor,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
               Observer(
