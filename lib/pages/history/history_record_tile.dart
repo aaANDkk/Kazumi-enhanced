@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kazumi/bean/card/network_img_layer.dart';
+import 'package:kazumi/bean/widget/anime_pastel_style.dart';
 import 'package:kazumi/bean/widget/kazumi_menu.dart';
 import 'package:kazumi/bean/widget/loading_indicator.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
@@ -83,14 +84,15 @@ class HistoryRecordTile extends StatelessWidget {
     final isFinished =
         (prog?.isCompleted ?? false) || (hasRatioBar && progressRatio >= 0.95);
 
+    final palette = AnimePastelPalette.of(context);
     final effectiveRadius =
         editing && selected ? BorderRadius.circular(16) : borderRadius;
     final surfaceColor = editing && selected
         ? Color.alphaBlend(
             colors.errorContainer.withValues(alpha: 0.35),
-            colors.surfaceContainerLow,
+            palette.frameFill,
           )
-        : colors.surfaceContainerLow;
+        : palette.frameFill;
 
     return Dismissible(
       key: ValueKey(history.key),
@@ -124,7 +126,14 @@ class HistoryRecordTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: animDuration,
         curve: Curves.easeInOutCubicEmphasized,
-        decoration: ShapeDecoration(color: surfaceColor, shape: SuperellipseBorder(borderRadius: effectiveRadius, side: editing && selected ? BorderSide(color: colors.error, width: 1.5) : BorderSide.none)),
+        decoration: palette.cardDecoration(
+          radius: 16,
+          borderRadius: effectiveRadius,
+          fillColor: surfaceColor,
+          borderSideOverride: editing && selected
+              ? BorderSide(color: colors.error, width: 1.5)
+              : null,
+        ),
         clipBehavior: Clip.antiAlias,
         child: Material(
           color: Colors.transparent,

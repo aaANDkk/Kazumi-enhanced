@@ -86,16 +86,12 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
           if (_hovered) setState(() => _hovered = false);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
+          duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
           height: cardHeight,
-          decoration: ShapeDecoration(
-            color: _hovered ? palette.cardHoverFill : palette.cardFill,
-            shape: const SuperellipseBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(BangumiTimelineCard._cornerRadius),
-              ),
-            ),
+          decoration: palette.cardDecoration(
+            radius: BangumiTimelineCard._cornerRadius,
+            hovered: _hovered,
           ),
           child: Material(
             type: MaterialType.transparency,

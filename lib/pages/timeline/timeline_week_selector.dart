@@ -17,9 +17,9 @@ class _TimelineWeekSelector extends StatelessWidget {
   static double heightFor(TextScaler scaler, {bool wide = false}) {
     final clamped = scaler.clamp(maxScaleFactor: 1.2);
     if (wide) {
-      return 30 + clamped.scale(13) + clamped.scale(11);
+      return 24 + clamped.scale(13) + clamped.scale(11);
     }
-    return 28 + clamped.scale(14) + clamped.scale(11);
+    return 22 + clamped.scale(14) + clamped.scale(11);
   }
 
   @override
@@ -28,150 +28,107 @@ class _TimelineWeekSelector extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 560;
-      final tabHeight = heightFor(scaler, wide: wide) - 8;
-      final minTabWidth = wide ? 80.0 : 42.0;
-      final scrollable = constraints.maxWidth - 8 < minTabWidth * 7;
+      final tabHeight = heightFor(scaler, wide: wide);
+      final minTabWidth = wide ? 80.0 : 44.0;
+      final spacing = wide ? 7.0 : 6.0;
+      final scrollable = constraints.maxWidth < minTabWidth * 7 + spacing * 6;
 
-      return AnimePillTabTrack(
-        isScrollable: scrollable,
-        tabAlignment: scrollable ? TabAlignment.start : TabAlignment.fill,
-        trackRadius: 18,
-        indicatorRadius: 14,
-        padding: const EdgeInsets.all(4),
-        labelPadding: EdgeInsets.symmetric(horizontal: wide ? 4 : 2),
-        tabs: [
-          for (var day = 0; day < 7; day++)
-            Tab(
-              height: tabHeight,
-              child: Semantics(
-                label: '${_cnWeekdays[day]}'
-                    '${day == todayIndex ? '，今天' : ''}'
-                    '${isLoading ? '，加载中' : '，${counts[day]}部'}',
-                excludeSemantics: true,
-                child: SizedBox(
-                  width: scrollable ? minTabWidth : null,
-                  child: wide
-                      ? _WideWeekdayTabContent(
-                          jp: _jpWeekdays[day],
-                          cn: day == todayIndex ? '今天' : _cnWeekdays[day],
-                          countText: isLoading ? '—' : '${counts[day]}',
-                        )
-                      : _CompactWeekdayTabContent(
-                          jp: _jpWeekdays[day],
-                          countText: day == todayIndex
-                              ? '今'
-                              : (isLoading ? '—' : '${counts[day]}'),
+      return AnimeSeparatedTabBar(
+        itemCount: 7,
+        scrollable: scrollable,
+        height: tabHeight,
+        spacing: spacing,
+        borderRadius: 12,
+        semanticLabelBuilder: (day) => '${_cnWeekdays[day]}'
+            '${day == todayIndex ? '，今天' : ''}'
+            '${isLoading ? '，加载中' : '，${counts[day]}部'}',
+        itemBuilder: (context, day, selection, fgColor) {
+          final isToday = day == todayIndex;
+          final countText = isLoading ? '—' : '${counts[day]}';
+          final inner = wide
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _jpWeekdays[day],
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                          color: fgColor,
                         ),
-                ),
-              ),
-            ),
-        ],
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isToday ? '今天' : _cnWeekdays[day],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                height: 1.15,
+                                fontWeight: selection > 0.5 || isToday
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: fgColor,
+                              ),
+                            ),
+                            Text(
+                              countText,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 10,
+                                height: 1.15,
+                                fontWeight: FontWeight.w600,
+                                color: fgColor.withValues(alpha: 0.78),
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures()
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      _jpWeekdays[day],
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.15,
+                        fontWeight: FontWeight.w700,
+                        color: fgColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isToday ? '今' : countText,
+                      style: TextStyle(
+                        fontSize: 9.8,
+                        height: 1.1,
+                        fontWeight:
+                            isToday ? FontWeight.w800 : FontWeight.w500,
+                        color: fgColor.withValues(alpha: 0.80),
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                );
+          return scrollable
+              ? SizedBox(width: minTabWidth, child: Center(child: inner))
+              : inner;
+        },
       );
     });
-  }
-}
-
-class _WideWeekdayTabContent extends StatelessWidget {
-  const _WideWeekdayTabContent({
-    required this.jp,
-    required this.cn,
-    required this.countText,
-  });
-
-  final String jp;
-  final String cn;
-  final String countText;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = DefaultTextStyle.of(context).style.color ??
-        Theme.of(context).colorScheme.onSurfaceVariant;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          jp,
-          style: TextStyle(
-            fontSize: 13.5,
-            fontWeight: FontWeight.w800,
-            color: fg,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Flexible(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                cn,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  height: 1.15,
-                  color: fg,
-                ),
-              ),
-              Text(
-                countText,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 1.15,
-                  fontWeight: FontWeight.w500,
-                  color: fg.withValues(alpha: 0.78),
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CompactWeekdayTabContent extends StatelessWidget {
-  const _CompactWeekdayTabContent({
-    required this.jp,
-    required this.countText,
-  });
-
-  final String jp;
-  final String countText;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = DefaultTextStyle.of(context).style.color ??
-        Theme.of(context).colorScheme.onSurfaceVariant;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          jp,
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.15,
-            fontWeight: FontWeight.w700,
-            color: fg,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          countText,
-          style: TextStyle(
-            fontSize: 9.8,
-            height: 1.1,
-            fontWeight: FontWeight.w500,
-            color: fg.withValues(alpha: 0.8),
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
-        ),
-      ],
-    );
   }
 }

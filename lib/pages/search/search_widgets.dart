@@ -81,121 +81,37 @@ class _SearchResultGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final titleStyle = textTheme.titleSmall!
-        .copyWith(fontWeight: FontWeight.w600, height: 1.4);
-
-    double textHeight(String text, TextStyle style) {
-      // Measure with nonlinear accessibility scaling.
-      final painter = TextPainter(
-        text: TextSpan(text: text, style: style),
-        textDirection: Directionality.of(context),
-        textScaler: MediaQuery.textScalerOf(context),
-        locale: Localizations.maybeLocaleOf(context),
-      )..layout();
-      final height = painter.height.ceilToDouble();
-      painter.dispose();
-      return height;
-    }
-
-    final titleHeight = textHeight('番剧\n番剧', titleStyle);
-    final metadataHeight = math.max(_SearchResultCard.ratingIconSize,
-        textHeight('0.0 0000', textTheme.labelMedium!));
-    final columns = math.max(2, (width / 180).floor());
-    final cardWidth = (width - (columns - 1) * 12) / columns;
+    final isPortrait =
+        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final compact = width < 520;
+    final spacing = compact ? 9.0 : 12.0;
+    final columns = animePosterColumns(
+      width,
+      isPortrait: isPortrait,
+      spacing: spacing,
+      targetWidth: 156.0,
+    );
+    final cardWidth = (width - (columns - 1) * spacing) / columns;
+    final extent = BangumiCardV.extentFor(
+      cardWidth,
+      MediaQuery.textScalerOf(context),
+      compact: compact,
+    );
 
     return SliverGrid.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 20,
-          mainAxisExtent: cardWidth / _SearchResultCard.coverAspectRatio +
-              titleHeight +
-              metadataHeight +
-              _SearchResultCard.titleSpacing +
-              _SearchResultCard.metadataSpacing +
-              6),
+        crossAxisCount: columns,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        mainAxisExtent: extent,
+      ),
       itemCount: items.length,
-      itemBuilder: (_, index) => _SearchResultCard(
-          item: items[index],
-          showRating: showRating,
-          titleHeight: titleHeight,
-          titleStyle: titleStyle),
+      itemBuilder: (_, index) => BangumiCardV(
+        bangumiItem: items[index],
+        showRating: showRating,
+        compact: compact,
+      ),
     );
-  }
-}
-
-class _SearchResultCard extends StatelessWidget {
-  const _SearchResultCard({
-    required this.item,
-    required this.showRating,
-    required this.titleHeight,
-    required this.titleStyle,
-  });
-
-  static const coverAspectRatio = 0.7;
-  static const titleSpacing = 10.0;
-  static const metadataSpacing = 4.0;
-  static const ratingIconSize = 14.0;
-
-  final BangumiItem item;
-  final bool showRating;
-  final double titleHeight;
-  final TextStyle titleStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final title = item.nameCn.isNotEmpty ? item.nameCn : item.name;
-    final year = item.airDate.length >= 4 ? item.airDate.substring(0, 4) : '';
-    return Material(
-      type: MaterialType.transparency,
-      clipBehavior: Clip.antiAlias,
-      shape: SuperellipseBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-          onTap: () => context.pushNamed('/info/', arguments: item),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            SuperellipseClip(
-                borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: coverAspectRatio,
-                  child: LayoutBuilder(
-                      builder: (_, constraints) => NetworkImgLayer(
-                            src: item.images['large'] ??
-                                item.images['common'] ??
-                                '',
-                            width: constraints.maxWidth,
-                            height: constraints.maxHeight,
-                          )),
-                )),
-            const SizedBox(height: titleSpacing),
-            SizedBox(
-                height: titleHeight,
-                child: Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: titleStyle,
-                )),
-            const SizedBox(height: metadataSpacing),
-            Row(children: [
-              if (showRating && item.ratingScore > 0) ...[
-                Icon(Icons.star_rounded,
-                    size: ratingIconSize, color: theme.colorScheme.primary),
-                const SizedBox(width: 3),
-                Text(item.ratingScore.toStringAsFixed(1),
-                    style: theme.textTheme.labelMedium),
-                const SizedBox(width: 10),
-              ],
-              Expanded(
-                  child: Text(year,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant))),
-            ]),
-          ])));
   }
 }
 

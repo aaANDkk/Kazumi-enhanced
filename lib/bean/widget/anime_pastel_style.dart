@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:kazumi/modules/collect/collect_type.dart';
 import 'package:kazumi/utils/superellipse.dart';
 
-/// Shared M3 theme-adaptive anime UI primitives for Popular, Timeline, and Collect.
+/// Shared M3 theme-adaptive anime UI primitives for Popular, Timeline, Collect,
+/// History, and Search.
 ///
-/// Strictly follows [Theme.of(context).colorScheme] with clean borderless M3
-/// tonal surfaces (`surfaceContainerLow`) and unified G2 superellipse corners.
+/// Every color derives strictly from [Theme.of(context).colorScheme] with
+/// refined bordered superellipse cards, glowing rating pills, and zero-glitch
+/// separated tab capsules.
 class AnimePastelPalette {
   const AnimePastelPalette({
     required this.isDark,
@@ -16,14 +18,15 @@ class AnimePastelPalette {
     required this.onAccent,
     required this.accentSoft,
     required this.onAccentSoft,
-    required this.cardFill,
-    required this.cardHoverFill,
-    required this.trackFill,
+    required this.frameFill,
+    required this.frameBorder,
     required this.tagFill,
     required this.tagText,
     required this.scoreBg,
     required this.scoreFg,
     required this.scoreStar,
+    required this.ribbonStart,
+    required this.ribbonEnd,
     required this.subtext,
   });
 
@@ -32,14 +35,15 @@ class AnimePastelPalette {
   final Color onAccent;
   final Color accentSoft;
   final Color onAccentSoft;
-  final Color cardFill;
-  final Color cardHoverFill;
-  final Color trackFill;
+  final Color frameFill;
+  final Color frameBorder;
   final Color tagFill;
   final Color tagText;
   final Color scoreBg;
   final Color scoreFg;
   final Color scoreStar;
+  final Color ribbonStart;
+  final Color ribbonEnd;
   final Color subtext;
 
   factory AnimePastelPalette.of(BuildContext context) {
@@ -47,23 +51,73 @@ class AnimePastelPalette {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
+    final ribbonEnd =
+        Color.lerp(colors.primary, colors.tertiary, 0.28) ?? colors.primary;
+
     return AnimePastelPalette(
       isDark: isDark,
       accent: colors.primary,
       onAccent: colors.onPrimary,
       accentSoft: colors.primaryContainer,
       onAccentSoft: colors.onPrimaryContainer,
-      cardFill: colors.surfaceContainerLow,
-      cardHoverFill: colors.surfaceContainer,
-      trackFill: colors.surfaceContainerLow,
+      frameFill: isDark
+          ? colors.surfaceContainerLow
+          : Color.alphaBlend(
+              colors.primary.withValues(alpha: 0.022),
+              colors.surfaceContainerLowest,
+            ),
+      frameBorder: colors.outlineVariant.withValues(alpha: isDark ? 0.46 : 0.60),
       tagFill: colors.secondaryContainer.withValues(alpha: isDark ? 0.52 : 0.72),
       tagText: colors.onSecondaryContainer,
       scoreBg: isDark
           ? colors.surfaceContainerHighest.withValues(alpha: 0.90)
-          : colors.surface.withValues(alpha: 0.92),
+          : colors.surface.withValues(alpha: 0.94),
       scoreFg: colors.onSurface,
-      scoreStar: isDark ? const Color(0xFFFFC95C) : const Color(0xFFE09612),
+      scoreStar: isDark ? const Color(0xFFFFCA5C) : const Color(0xFFE49A12),
+      ribbonStart: colors.primary,
+      ribbonEnd: ribbonEnd,
       subtext: colors.onSurfaceVariant.withValues(alpha: 0.78),
+    );
+  }
+
+  LinearGradient get ribbonGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [ribbonStart, ribbonEnd],
+      );
+
+  /// Standard framed superellipse card decoration shared across Popular,
+  /// Timeline, Collect, History, and Search cards.
+  ShapeDecoration cardDecoration({
+    required double radius,
+    bool hovered = false,
+    BorderRadius? borderRadius,
+    Color? fillColor,
+    BorderSide? borderSideOverride,
+  }) {
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(radius);
+    final borderSide = borderSideOverride ??
+        BorderSide(
+          color: hovered
+              ? accent.withValues(alpha: isDark ? 0.58 : 0.48)
+              : frameBorder,
+          width: hovered ? 1.25 : 0.9,
+        );
+    return ShapeDecoration(
+      color: fillColor ?? frameFill,
+      shape: SuperellipseBorder(
+        borderRadius: effectiveRadius,
+        side: borderSide,
+      ),
+      shadows: [
+        BoxShadow(
+          color: hovered
+              ? accent.withValues(alpha: isDark ? 0.18 : 0.14)
+              : Colors.black.withValues(alpha: isDark ? 0.18 : 0.045),
+          blurRadius: hovered ? 12 : 7,
+          offset: Offset(0, hovered ? 4 : 2),
+        ),
+      ],
     );
   }
 
@@ -235,90 +289,239 @@ int animePosterColumns(
       .clamp(4, 9);
 }
 
-/// Unified borderless M3E elastic sliding pill track shared across
+/// Unified separated superellipse capsule tab bar shared across
 /// Popular (tags), Timeline (weekdays), and Collect (categories).
 ///
-/// Tab children remain completely transparent so the sliding [colors.primary]
-/// superellipse indicator glides smoothly behind text with zero occlusion.
-class AnimePillTabTrack extends StatelessWidget {
-  const AnimePillTabTrack({
+/// Each capsule smoothly cross-fades fill, border, glow, and foreground color
+/// 1:1 with [TabController.animation] during taps AND horizontal screen swipes —
+/// no enclosing rectangle and zero indicator z-order overlap.
+class AnimeSeparatedTabBar extends StatefulWidget {
+  const AnimeSeparatedTabBar({
     super.key,
-    required this.tabs,
+    required this.itemCount,
+    required this.itemBuilder,
     this.controller,
-    this.isScrollable = true,
-    this.tabAlignment,
+    this.scrollable = true,
+    this.height = 36.0,
+    this.spacing = 7.0,
+    this.borderRadius = 12.0,
+    this.padding = EdgeInsets.zero,
     this.onTap,
-    this.trackRadius = 18.0,
-    this.indicatorRadius = 14.0,
-    this.padding = const EdgeInsets.all(4),
-    this.labelPadding = const EdgeInsets.symmetric(horizontal: 2),
-    this.tabBarKey,
+    this.semanticLabelBuilder,
   });
 
-  final List<Widget> tabs;
+  final int itemCount;
+  final Widget Function(
+    BuildContext context,
+    int index,
+    double selection,
+    Color foregroundColor,
+  ) itemBuilder;
   final TabController? controller;
-  final bool isScrollable;
-  final TabAlignment? tabAlignment;
-  final ValueChanged<int>? onTap;
-  final double trackRadius;
-  final double indicatorRadius;
+  final bool scrollable;
+  final double height;
+  final double spacing;
+  final double borderRadius;
   final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry labelPadding;
-  final Key? tabBarKey;
+  final ValueChanged<int>? onTap;
+  final String Function(int index)? semanticLabelBuilder;
+
+  @override
+  State<AnimeSeparatedTabBar> createState() => _AnimeSeparatedTabBarState();
+}
+
+class _AnimeSeparatedTabBarState extends State<AnimeSeparatedTabBar> {
+  TabController? _controller;
+  List<GlobalKey> _itemKeys = const [];
+  int _lastCenteredIndex = -1;
+
+  void _syncKeys() {
+    if (_itemKeys.length != widget.itemCount) {
+      _itemKeys = List.generate(widget.itemCount, (_) => GlobalKey());
+    }
+  }
+
+  void _attachController(TabController? next) {
+    if (_controller == next) return;
+    _controller?.removeListener(_handleControllerChanged);
+    _controller = next;
+    _controller?.addListener(_handleControllerChanged);
+    _lastCenteredIndex = _controller?.index ?? -1;
+  }
+
+  void _handleControllerChanged() {
+    final ctrl = _controller;
+    if (ctrl == null || !widget.scrollable) return;
+    if (ctrl.index != _lastCenteredIndex) {
+      _lastCenteredIndex = ctrl.index;
+      _scrollActiveIntoView(ctrl.index);
+    }
+  }
+
+  void _scrollActiveIntoView(int index) {
+    if (index < 0 || index >= _itemKeys.length) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctx = _itemKeys[index].currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.5,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 240),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _syncKeys();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncKeys();
+    _attachController(widget.controller ?? DefaultTabController.maybeOf(context));
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimeSeparatedTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncKeys();
+    _attachController(widget.controller ?? DefaultTabController.maybeOf(context));
+  }
+
+  @override
+  void dispose() {
+    _controller?.removeListener(_handleControllerChanged);
+    super.dispose();
+  }
+
+  Widget _buildPill(
+    BuildContext context,
+    int index,
+    double animValue,
+    AnimePastelPalette palette,
+    ColorScheme colors,
+  ) {
+    final selection = (1.0 - (animValue - index).abs()).clamp(0.0, 1.0);
+    final bgColor = Color.lerp(palette.frameFill, palette.accent, selection)!;
+    final borderColor = Color.lerp(
+      palette.frameBorder,
+      palette.accent,
+      selection,
+    )!;
+    final fgColor = Color.lerp(
+      colors.onSurfaceVariant,
+      palette.onAccent,
+      selection,
+    )!;
+    final shadowAlpha = selection * (palette.isDark ? 0.22 : 0.18);
+    final radius = BorderRadius.circular(widget.borderRadius);
+    final shape = SuperellipseBorder(borderRadius: radius);
+
+    final pill = DecoratedBox(
+      key: _itemKeys[index],
+      decoration: ShapeDecoration(
+        color: bgColor,
+        shape: SuperellipseBorder(
+          borderRadius: radius,
+          side: BorderSide(
+            color: borderColor,
+            width: 0.9,
+          ),
+        ),
+        shadows: shadowAlpha > 0.01
+            ? [
+                BoxShadow(
+                  color: palette.accent.withValues(alpha: shadowAlpha),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : const [],
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: shape,
+          onTap: () {
+            final ctrl = _controller;
+            if (ctrl != null && ctrl.index != index) {
+              ctrl.animateTo(index);
+            }
+            widget.onTap?.call(index);
+          },
+          child: SizedBox(
+            height: widget.height,
+            child: Center(
+              child: widget.itemBuilder(context, index, selection, fgColor),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final label = widget.semanticLabelBuilder?.call(index);
+    if (label == null) return pill;
+    return Semantics(
+      label: label,
+      selected: selection > 0.5,
+      button: true,
+      excludeSemantics: true,
+      child: pill,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final labelStyle = theme.textTheme.labelLarge?.copyWith(
-      fontSize: 12.5,
-      fontWeight: FontWeight.w700,
-    );
-    final unselectedStyle = theme.textTheme.labelLarge?.copyWith(
-      fontSize: 12.5,
-      fontWeight: FontWeight.w500,
-    );
+    final palette = AnimePastelPalette.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final ctrl = _controller;
+    final Listenable listenable =
+        ctrl?.animation ?? const AlwaysStoppedAnimation<double>(0.0);
 
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: colors.surfaceContainerLow,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(trackRadius),
-        ),
-      ),
-      child: Padding(
-        padding: padding,
-        child: TabBar(
-          key: tabBarKey,
-          controller: controller,
-          isScrollable: isScrollable,
-          tabAlignment: tabAlignment ??
-              (isScrollable ? TabAlignment.start : TabAlignment.fill),
-          dividerHeight: 0,
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicator: ShapeDecoration(
-            color: colors.primary,
-            shape: SuperellipseBorder(
-              borderRadius: BorderRadius.circular(indicatorRadius),
+    return AnimatedBuilder(
+      animation: listenable,
+      builder: (context, _) {
+        final animValue = ctrl?.animation?.value ?? (ctrl?.index.toDouble() ?? 0.0);
+        if (!widget.scrollable) {
+          return Padding(
+            padding: widget.padding,
+            child: Row(
+              children: [
+                for (var i = 0; i < widget.itemCount; i++) ...[
+                  if (i > 0) SizedBox(width: widget.spacing),
+                  Expanded(
+                    child: _buildPill(context, i, animValue, palette, colors),
+                  ),
+                ],
+              ],
             ),
+          );
+        }
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: widget.padding,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < widget.itemCount; i++) ...[
+                if (i > 0) SizedBox(width: widget.spacing),
+                _buildPill(context, i, animValue, palette, colors),
+              ],
+            ],
           ),
-          indicatorAnimation: TabIndicatorAnimation.elastic,
-          labelColor: colors.onPrimary,
-          unselectedLabelColor: colors.onSurfaceVariant,
-          labelStyle: labelStyle,
-          unselectedLabelStyle: unselectedStyle,
-          labelPadding: labelPadding,
-          splashFactory: NoSplash.splashFactory,
-          overlayColor: WidgetStateProperty.resolveWith((states) =>
-              states.contains(WidgetState.hovered) ||
-                      states.contains(WidgetState.focused)
-                  ? colors.primary.withValues(alpha: 0.08)
-                  : Colors.transparent),
-          splashBorderRadius: BorderRadius.circular(indicatorRadius),
-          onTap: onTap,
-          tabs: tabs,
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -328,27 +531,42 @@ class AnimeRibbonBadge extends StatelessWidget {
   const AnimeRibbonBadge({
     super.key,
     required this.label,
+    this.gradient,
     this.backgroundColor,
     this.foregroundColor,
     this.compact = false,
   });
 
   final String label;
+  final Gradient? gradient;
   final Color? backgroundColor;
   final Color? foregroundColor;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final bg = backgroundColor ?? colors.primary.withValues(alpha: 0.92);
-    final fg = foregroundColor ?? colors.onPrimary;
+    final palette = AnimePastelPalette.of(context);
+    final fg = foregroundColor ?? palette.onAccent;
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: bg,
-        shape: const SuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(1000)),
+        gradient: backgroundColor == null
+            ? (gradient ?? palette.ribbonGradient)
+            : null,
+        color: backgroundColor,
+        shape: SuperellipseBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(1000)),
+          side: BorderSide(
+            color: fg.withValues(alpha: 0.22),
+            width: 0.6,
+          ),
         ),
+        shadows: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.16),
+            blurRadius: 5,
+            offset: const Offset(0, 1.5),
+          ),
+        ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -372,7 +590,7 @@ class AnimeRibbonBadge extends StatelessWidget {
   }
 }
 
-/// Crisp borderless translucent rating pill (`★ 9.1`).
+/// Crisp translucent rating pill (`★ 9.1`) with delicate warm star glow.
 class AnimeScoreBadge extends StatelessWidget {
   const AnimeScoreBadge({
     super.key,
@@ -389,9 +607,26 @@ class AnimeScoreBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.scoreBg,
-        shape: const SuperellipseBorder(
-          borderRadius: BorderRadius.all(Radius.circular(1000)),
+        shape: SuperellipseBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(1000)),
+          side: BorderSide(
+            color: palette.scoreStar.withValues(alpha: 0.36),
+            width: 0.75,
+          ),
         ),
+        shadows: [
+          BoxShadow(
+            color: palette.scoreStar
+                .withValues(alpha: palette.isDark ? 0.24 : 0.22),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(

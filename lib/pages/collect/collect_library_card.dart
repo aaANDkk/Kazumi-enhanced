@@ -143,13 +143,11 @@ class _CollectPosterCardState extends State<_CollectPosterCard> {
           if (_hovered) setState(() => _hovered = false);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
+          duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
-          decoration: ShapeDecoration(
-            color: _hovered ? palette.cardHoverFill : palette.cardFill,
-            shape: SuperellipseBorder(
-              borderRadius: BorderRadius.circular(frameRadius),
-            ),
+          decoration: palette.cardDecoration(
+            radius: frameRadius,
+            hovered: _hovered,
           ),
           child: Material(
             type: MaterialType.transparency,
@@ -381,13 +379,11 @@ class _CollectListTileState extends State<_CollectListTile> {
         if (_hovered) setState(() => _hovered = false);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
-        decoration: ShapeDecoration(
-          color: _hovered ? palette.cardHoverFill : palette.cardFill,
-          shape: SuperellipseBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+        decoration: palette.cardDecoration(
+          radius: 18,
+          hovered: _hovered,
         ),
         child: Material(
           type: MaterialType.transparency,

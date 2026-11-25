@@ -228,6 +228,36 @@ void main() {
     expect(find.text('看到 第 14 话'), findsOneWidget);
     expect(find.text('58%'), findsOneWidget);
   });
+
+  testWidgets('AnimeSeparatedTabBar switches tabs smoothly with DefaultTabController',
+      (tester) async {
+    var tapped = -1;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+        ),
+        home: DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            body: AnimeSeparatedTabBar(
+              itemCount: 3,
+              scrollable: false,
+              onTap: (i) => tapped = i,
+              itemBuilder: (context, index, selection, fg) => Text(
+                '标签 $index',
+                style: TextStyle(color: fg),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('标签 2'));
+    await tester.pumpAndSettle();
+    expect(tapped, 2);
+  });
 }
 
 BangumiItem _sampleBangumi({

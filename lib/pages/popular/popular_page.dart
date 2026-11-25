@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -30,31 +32,45 @@ class PopularPage extends StatefulWidget {
 
 class _PopularPageState extends State<PopularPage>
     with SingleTickerProviderStateMixin {
-  late final ScrollController scrollController;
-  late final TabController _tagTabController;
-  late final bool _showRating;
   static final List<String> _allTags = ['', ...defaultAnimeTags];
 
+  late final TabController _tagTabController;
+  late final bool _showRating;
+  final Map<int, ScrollController> _scrollControllers = {};
+  final Map<String, List<BangumiItem>> _tagCache = {};
+
   PopularController get popularController => widget.controller;
+
+  ScrollController _controllerFor(int index) {
+    return _scrollControllers.putIfAbsent(index, () {
+      final ctrl = ScrollController(
+        initialScrollOffset:
+            index == _tagTabController.index ? popularController.scrollOffset : 0.0,
+      );
+      ctrl.addListener(() => _onScroll(index, ctrl));
+      return ctrl;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _showRating = GStorage.getSetting(SettingsKeys.showRating);
-    final initialIndex =
-        _allTags.indexOf(popularController.currentTag).clamp(0, _allTags.length - 1);
+    final initialIndex = _allTags
+        .indexOf(popularController.currentTag)
+        .clamp(0, _allTags.length - 1);
     _tagTabController = TabController(
       length: _allTags.length,
       initialIndex: initialIndex,
       vsync: this,
-    );
-    scrollController = ScrollController(
-      initialScrollOffset: popularController.scrollOffset,
-    );
-    scrollController.addListener(scrollListener);
+    )..addListener(_onTabChanged);
     popularController.scrollToTop = _scrollToTop;
-    if (popularController.trendList.isEmpty) {
-      popularController.queryBangumiByTrend();
+    if (popularController.currentTag.isEmpty) {
+      if (popularController.trendList.isEmpty) {
+        popularController.queryBangumiByTrend();
+      }
+    } else if (popularController.bangumiList.isEmpty) {
+      popularController.queryBangumiByTag(type: 'init');
     }
   }
 
@@ -63,15 +79,26 @@ class _PopularPageState extends State<PopularPage>
     if (popularController.scrollToTop == _scrollToTop) {
       popularController.scrollToTop = null;
     }
+    _tagTabController.removeListener(_onTabChanged);
     _tagTabController.dispose();
-    scrollController.removeListener(scrollListener);
-    scrollController.dispose();
+    for (final ctrl in _scrollControllers.values) {
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
+  void _onTabChanged() {
+    if (_tagTabController.indexIsChanging) return;
+    final tag = _allTags[_tagTabController.index];
+    if (tag != popularController.currentTag) {
+      unawaited(_selectTag(tag));
+    }
+  }
+
   void _scrollToTop() {
-    if (scrollController.hasClients) {
-      scrollController.animateTo(
+    final ctrl = _scrollControllers[_tagTabController.index];
+    if (ctrl != null && ctrl.hasClients) {
+      ctrl.animateTo(
         0,
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeOut,
@@ -79,10 +106,10 @@ class _PopularPageState extends State<PopularPage>
     }
   }
 
-  void scrollListener() {
-    popularController.scrollOffset = scrollController.offset;
-    if (scrollController.position.pixels >=
-            scrollController.position.maxScrollExtent - 200 &&
+  void _onScroll(int tabIndex, ScrollController ctrl) {
+    if (tabIndex != _tagTabController.index) return;
+    popularController.scrollOffset = ctrl.offset;
+    if (ctrl.position.pixels >= ctrl.position.maxScrollExtent - 200 &&
         !popularController.isLoadingMore) {
       KazumiLogger()
           .i('PopularPageController: Fetching next recommendation batch');
@@ -101,6 +128,19 @@ class _PopularPageState extends State<PopularPage>
         .where((e) => e.type == CollectType.watching.value)
         .map((e) => e.bangumiItem.id)
         .toSet();
+  }
+
+  List<BangumiItem> _itemsForTag(String tag) {
+    if (tag.isEmpty) {
+      return popularController.trendList;
+    }
+    if (tag == popularController.currentTag) {
+      if (popularController.bangumiList.isNotEmpty) {
+        _tagCache[tag] = List<BangumiItem>.of(popularController.bangumiList);
+      }
+      return popularController.bangumiList;
+    }
+    return _tagCache[tag] ?? const <BangumiItem>[];
   }
 
   @override
@@ -141,86 +181,120 @@ class _PopularPageState extends State<PopularPage>
           final contentWidth =
               (maxWidth - sideInset * 2).clamp(240.0, double.infinity);
 
-          return CustomScrollView(
-            controller: scrollController,
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(sideInset, 4, sideInset, 10),
-                  child: AnimePillTabTrack(
-                    tabBarKey: const PageStorageKey('popular-tag-strip'),
-                    controller: _tagTabController,
-                    isScrollable: true,
-                    onTap: (index) => _selectTag(_allTags[index]),
-                    tabs: [
-                      for (final tag in _allTags)
-                        Tab(
-                          height: 36,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(tag.isEmpty ? '热门番组' : tag),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Observer(
-                  builder: (_) => AnimatedOpacity(
-                    opacity: popularController.isLoadingMore ? 1.0 : 0.0,
-                    duration: const Duration(milliseconds: 260),
-                    child: popularController.isLoadingMore
-                        ? const LinearProgressIndicator(minHeight: 3)
-                        : const SizedBox(height: 3),
-                  ),
-                ),
-              ),
-              Observer(
-                builder: (_) {
-                  if (popularController.isTimeOut) {
-                    return SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: sideInset),
-                        child: SizedBox(
-                          height: 400,
-                          child: BangumiMirrorErrorWidget(
-                            onRetry: () {
-                              if (popularController.trendList.isEmpty) {
-                                popularController.queryBangumiByTrend();
-                              } else {
-                                popularController.queryBangumiByTag();
-                              }
-                            },
-                            onSettingsReturned: () {
-                              if (mounted) {
-                                setState(() {});
-                              }
-                            },
-                          ),
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 10),
+                child: AnimeSeparatedTabBar(
+                  controller: _tagTabController,
+                  itemCount: _allTags.length,
+                  scrollable: true,
+                  height: 36,
+                  spacing: 7,
+                  borderRadius: 12,
+                  padding: EdgeInsets.symmetric(horizontal: sideInset),
+                  onTap: (index) => unawaited(_selectTag(_allTags[index])),
+                  itemBuilder: (context, index, selection, fgColor) {
+                    final tag = _allTags[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 13),
+                      child: Text(
+                        tag.isEmpty ? '热门番组' : tag,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          height: 1.2,
+                          fontWeight: selection > 0.5
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: fgColor,
                         ),
                       ),
                     );
-                  }
-                  final isTrend = popularController.currentTag == '';
-                  final list = isTrend
-                      ? popularController.trendList
-                      : popularController.bangumiList;
-                  final watchingIds = _watchingIds();
-                  return contentGrid(
-                    list,
-                    contentWidth: contentWidth,
-                    sideInset: sideInset,
-                    isPortrait: isPortrait,
-                    isTrend: isTrend,
-                    watchingIds: watchingIds,
-                  );
-                },
+                  },
+                ),
+              ),
+              Observer(
+                builder: (_) => AnimatedOpacity(
+                  opacity: popularController.isLoadingMore ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 240),
+                  child: popularController.isLoadingMore
+                      ? const LinearProgressIndicator(minHeight: 3)
+                      : const SizedBox(height: 3),
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tagTabController,
+                  children: [
+                    for (var i = 0; i < _allTags.length; i++)
+                      _buildTagPage(
+                        index: i,
+                        tag: _allTags[i],
+                        contentWidth: contentWidth,
+                        sideInset: sideInset,
+                        isPortrait: isPortrait,
+                      ),
+                  ],
+                ),
               ),
             ],
           );
         },
       ),
+    );
+  }
+
+  Widget _buildTagPage({
+    required int index,
+    required String tag,
+    required double contentWidth,
+    required double sideInset,
+    required bool isPortrait,
+  }) {
+    final isTrend = tag.isEmpty;
+    final ctrl = _controllerFor(index);
+    return Observer(
+      builder: (_) {
+        final isActive = tag == popularController.currentTag;
+        if (isActive && popularController.isTimeOut) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: sideInset),
+              child: BangumiMirrorErrorWidget(
+                onRetry: () {
+                  if (isTrend) {
+                    popularController.queryBangumiByTrend();
+                  } else {
+                    popularController.queryBangumiByTag(type: 'init');
+                  }
+                },
+                onSettingsReturned: () {
+                  if (mounted) setState(() {});
+                },
+              ),
+            ),
+          );
+        }
+        final list = _itemsForTag(tag);
+        final watchingIds = _watchingIds();
+        return HeroMode(
+          enabled: isActive,
+          child: CustomScrollView(
+            key: PageStorageKey('popular-tag-$tag'),
+            controller: ctrl,
+            slivers: [
+              contentGrid(
+                list,
+                contentWidth: contentWidth,
+                sideInset: sideInset,
+                isPortrait: isPortrait,
+                isTrend: isTrend,
+                watchingIds: watchingIds,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -279,14 +353,10 @@ class _PopularPageState extends State<PopularPage>
   }
 
   Widget _buildSkeletonCard({required bool compact}) {
+    final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
     return DecoratedBox(
-      decoration: ShapeDecoration(
-        color: colors.surfaceContainerLow,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(compact ? 15 : 17),
-        ),
-      ),
+      decoration: palette.cardDecoration(radius: compact ? 15 : 17),
       child: Padding(
         padding: EdgeInsets.all(compact ? 4 : 5),
         child: Column(
@@ -341,13 +411,6 @@ class _PopularPageState extends State<PopularPage>
 
   Future<void> _selectTag(String selected) async {
     if (!mounted || selected == popularController.currentTag) return;
-    if (scrollController.hasClients) {
-      scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-      );
-    }
     popularController.setCurrentTag(selected);
     if (selected.isEmpty) {
       popularController.clearBangumiList();
@@ -355,7 +418,18 @@ class _PopularPageState extends State<PopularPage>
         await popularController.queryBangumiByTrend();
       }
     } else {
+      final cached = _tagCache[selected];
+      if (cached != null && cached.isNotEmpty) {
+        popularController.clearBangumiList();
+        popularController.bangumiList.addAll(cached);
+        return;
+      }
       await popularController.queryBangumiByTag(type: 'init');
+      if (mounted &&
+          popularController.currentTag == selected &&
+          popularController.bangumiList.isNotEmpty) {
+        _tagCache[selected] = List<BangumiItem>.of(popularController.bangumiList);
+      }
     }
   }
 }

@@ -13,58 +13,76 @@ class _CollectCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimePillTabTrack(
-      tabBarKey: const PageStorageKey('collect-filter-strip'),
+    final palette = AnimePastelPalette.of(context);
+    return AnimeSeparatedTabBar(
+      key: const PageStorageKey('collect-filter-strip'),
       controller: controller,
-      isScrollable: true,
-      trackRadius: 18,
-      indicatorRadius: 14,
-      padding: const EdgeInsets.all(4),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-      tabs: [
-        for (final type in _collectCategories)
-          Tab(
-            height: 36,
-            child: Semantics(
-              label: '${type?.label ?? '全部'}，${count(type)} 部',
-              excludeSemantics: true,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: ValueListenableBuilder(
-                  valueListenable: selected,
-                  builder: (context, value, _) {
-                    final isSelected = value == type;
-                    final numCount = count(type);
-                    final fg = DefaultTextStyle.of(context).style.color ??
-                        Theme.of(context).colorScheme.onSurfaceVariant;
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          type?.label ?? '全部',
-                          style: isSelected
-                              ? const TextStyle(fontWeight: FontWeight.w700)
-                              : null,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '$numCount',
-                          style: TextStyle(
-                            fontSize: 11,
-                            height: 1.15,
-                            fontWeight: FontWeight.w600,
-                            color: fg.withValues(alpha: isSelected ? 0.88 : 0.65),
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+      itemCount: _collectCategories.length,
+      scrollable: true,
+      height: 36,
+      spacing: 7,
+      borderRadius: 12,
+      semanticLabelBuilder: (index) {
+        final type = _collectCategories[index];
+        return '${type?.label ?? '全部'}，${count(type)} 部';
+      },
+      itemBuilder: (context, index, selection, fgColor) {
+        final type = _collectCategories[index];
+        final numCount = count(type);
+        final badgeBg = Color.lerp(
+          palette.accent.withValues(alpha: 0.11),
+          palette.onAccent.withValues(alpha: 0.22),
+          selection,
+        )!;
+        final badgeFg = Color.lerp(
+          palette.accent.withValues(alpha: 0.90),
+          palette.onAccent,
+          selection,
+        )!;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                type?.label ?? '全部',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  height: 1.2,
+                  fontWeight:
+                      selection > 0.5 ? FontWeight.w700 : FontWeight.w500,
+                  color: fgColor,
                 ),
               ),
-            ),
+              const SizedBox(width: 5),
+              DecoratedBox(
+                decoration: ShapeDecoration(
+                  color: badgeBg,
+                  shape: const SuperellipseBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(1000)),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5.5,
+                    vertical: 1.5,
+                  ),
+                  child: Text(
+                    '$numCount',
+                    style: TextStyle(
+                      fontSize: 10,
+                      height: 1.15,
+                      fontWeight: FontWeight.w700,
+                      color: badgeFg,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-      ],
+        );
+      },
     );
   }
 }
@@ -126,32 +144,36 @@ class _CollectSortMenu extends StatelessWidget {
               ? Material(
                   type: MaterialType.transparency,
                   shape: SuperellipseBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     customBorder: SuperellipseBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     onTap: toggle,
                     child: DecoratedBox(
                       decoration: ShapeDecoration(
-                        color: palette.cardFill,
+                        color: palette.frameFill,
                         shape: SuperellipseBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: palette.frameBorder,
+                            width: 0.9,
+                          ),
                         ),
                       ),
                       child: SizedBox(
-                        height: 38,
+                        height: 36,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 11),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 Icons.sort_rounded,
                                 size: 17,
-                                color: colors.onSurfaceVariant,
+                                color: palette.accent,
                               ),
                               const SizedBox(width: 5),
                               Text(
