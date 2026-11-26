@@ -64,58 +64,33 @@ class _TimelineWeekSelector extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       if (extraWide) ...[
-                        Text(
+                        AnimeCapsuleText(
                           _jpWeekdays[day],
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.2,
-                            fontWeight: FontWeight.w800,
-                            color: fgColor.withValues(alpha: 0.85),
-                          ),
+                          fontSize: 12.5,
+                          lineHeight: 1.15,
+                          fontWeight: FontWeight.w800,
+                          color: fgColor.withValues(alpha: 0.85),
+                          overflow: TextOverflow.visible,
                         ),
                         const SizedBox(width: 4),
                       ],
-                      Text(
+                      AnimeCapsuleText(
                         isToday ? '今天' : _cnWeekdays[day],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          height: 1.2,
-                          fontWeight: selection > 0.5 || isToday
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: fgColor,
-                        ),
+                        fontSize: 12.5,
+                        lineHeight: 1.15,
+                        fontWeight: selection > 0.5 || isToday
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: fgColor,
                       ),
                       const SizedBox(width: 5),
-                      DecoratedBox(
-                        decoration: ShapeDecoration(
-                          color: badgeBg,
-                          shape: const SuperellipseBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(1000)),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5.5,
-                            vertical: 1.5,
-                          ),
-                          child: Text(
-                            countText,
-                            style: TextStyle(
-                              fontSize: 10,
-                              height: 1.15,
-                              fontWeight: FontWeight.w700,
-                              color: badgeFg,
-                              fontFeatures: const [
-                                FontFeature.tabularFigures()
-                              ],
-                            ),
-                          ),
-                        ),
+                      AnimeCountPill(
+                        label: countText,
+                        backgroundColor: badgeBg,
+                        foregroundColor: badgeFg,
                       ),
                     ],
                   ),
@@ -123,26 +98,23 @@ class _TimelineWeekSelector extends StatelessWidget {
               : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    AnimeCapsuleText(
                       _jpWeekdays[day],
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.15,
-                        fontWeight: FontWeight.w700,
-                        color: fgColor,
-                      ),
+                      fontSize: 13.0,
+                      lineHeight: 1.15,
+                      fontWeight: FontWeight.w700,
+                      color: fgColor,
+                      overflow: TextOverflow.visible,
                     ),
                     const SizedBox(height: 2),
-                    Text(
+                    AnimeCapsuleText(
                       isToday ? '今' : countText,
-                      style: TextStyle(
-                        fontSize: 9.8,
-                        height: 1.1,
-                        fontWeight:
-                            isToday ? FontWeight.w800 : FontWeight.w500,
-                        color: fgColor.withValues(alpha: 0.80),
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
+                      fontSize: 9.8,
+                      lineHeight: 1.1,
+                      fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                      color: fgColor.withValues(alpha: 0.80),
+                      tabularFigures: true,
+                      overflow: TextOverflow.visible,
                     ),
                   ],
                 );

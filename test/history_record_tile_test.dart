@@ -113,6 +113,48 @@ void main() {
     expect(find.text('暂无观看进度'), findsOneWidget);
     expect(find.text('0%'), findsOneWidget);
   });
+
+  testWidgets(
+      'keeps long title single-line and preserves watch time when episode name is long',
+      (tester) async {
+    final item = BangumiItem(
+      id: 5,
+      type: 2,
+      name: 'Mushoku Tensei',
+      nameCn: '无职转生 第三季 ～到了异世界就拿出真本事～超长副标题测试',
+      summary: '',
+      airDate: '2026-01-01',
+      airWeekday: 1,
+      rank: 0,
+      images: const {
+        'large': '',
+        'common': '',
+        'medium': '',
+        'small': '',
+        'grid': '',
+      },
+      tags: const <BangumiTag>[],
+      alias: const [],
+      ratingScore: 0,
+      votes: 0,
+      votesCount: const [],
+      info: '',
+    );
+    final history = History(
+      item,
+      13,
+      'xfdmnext',
+      DateTime(2026, 11, 24, 11, 0),
+      'https://example.com/5',
+      '本喵也是人生父母养的喵超级长的集数名称测试',
+    );
+    history.progresses[13] = Progress(13, 0, 0);
+
+    await tester.pumpWidget(wrapTile(history, onPlayNext: () {}));
+    final titleText = tester.widget<Text>(find.text(item.nameCn));
+    expect(titleText.maxLines, 1);
+    expect(find.textContaining('11:00'), findsOneWidget);
+  });
 }
 
 History _history({

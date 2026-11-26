@@ -281,6 +281,111 @@ void main() {
     );
     expect(rest.padding, equals(hovered.padding));
   });
+
+  testWidgets(
+      'BangumiCardV separates TOP rank and watching badges without overlap',
+      (tester) async {
+    final item = _sampleBangumi(
+      id: 401,
+      nameCn: '葬送的芙莉莲',
+      name: '葬送のフリーレン',
+      score: 9.1,
+    );
+    const width = 160.0;
+    final height = BangumiCardV.extentFor(width, TextScaler.noScaling);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+        ),
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: BangumiCardV(
+                bangumiItem: item,
+                rankIndex: 0,
+                isWatching: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final topRect = tester.getRect(find.text('TOP 1'));
+    final watchRect = tester.getRect(find.text('♥ 在追'));
+    expect(topRect.overlaps(watchRect), isFalse);
+    expect(topRect.right, lessThan(watchRect.left));
+  });
+
+  testWidgets(
+      'AnimeScoreBadge and AnimeTagPill share identical height and even leading',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+        ),
+        home: const Scaffold(
+          body: Row(
+            children: [
+              AnimeScoreBadge(score: 7.7),
+              SizedBox(width: 6),
+              AnimeTagPill(label: '2026 年'),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final scoreRect = tester.getRect(find.byType(AnimeScoreBadge));
+    final tagRect = tester.getRect(find.byType(AnimeTagPill));
+    expect(scoreRect.height, equals(tagRect.height));
+  });
+
+  testWidgets('CollectLibraryView supports horizontal TabBarView in landscape',
+      (tester) async {
+    final item = _sampleBangumi(
+      id: 501,
+      nameCn: '药屋少女的呢喃',
+      name: '薬屋のひとりごと',
+      score: 8.6,
+    );
+    final entry = CollectedBangumi(
+      item,
+      DateTime(2026, 11, 25),
+      CollectType.watching.value,
+    );
+
+    tester.view.physicalSize = const Size(1024, 600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: applySuperellipseTheme(
+          ThemeData(useMaterial3: true, colorSchemeSeed: Colors.teal),
+        ),
+        home: Scaffold(
+          body: CollectLibraryView(
+            entries: [entry],
+            showRating: true,
+            onOpen: (_) {},
+            onChangeType: (_, __) {},
+            canEdit: (_) => true,
+            layout: CollectLayout.list,
+            onLayoutChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TabBarView), findsOneWidget);
+  });
 }
 
 BangumiItem _sampleBangumi({

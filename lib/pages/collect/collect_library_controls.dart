@@ -43,41 +43,22 @@ class _CollectCategories extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              AnimeCapsuleText(
                 type?.label ?? '全部',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  height: 1.2,
-                  fontWeight:
-                      selection > 0.5 ? FontWeight.w700 : FontWeight.w500,
-                  color: fgColor,
-                ),
+                fontSize: 12.5,
+                lineHeight: 1.15,
+                fontWeight:
+                    selection > 0.5 ? FontWeight.w700 : FontWeight.w500,
+                color: fgColor,
+                overflow: TextOverflow.visible,
               ),
               const SizedBox(width: 5),
-              DecoratedBox(
-                decoration: ShapeDecoration(
-                  color: badgeBg,
-                  shape: const SuperellipseBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(1000)),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5.5,
-                    vertical: 1.5,
-                  ),
-                  child: Text(
-                    '$numCount',
-                    style: TextStyle(
-                      fontSize: 10,
-                      height: 1.15,
-                      fontWeight: FontWeight.w700,
-                      color: badgeFg,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ),
+              AnimeCountPill(
+                label: '$numCount',
+                backgroundColor: badgeBg,
+                foregroundColor: badgeFg,
               ),
             ],
           ),
@@ -169,6 +150,7 @@ class _CollectSortMenu extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 11),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.sort_rounded,
@@ -176,13 +158,13 @@ class _CollectSortMenu extends StatelessWidget {
                                 color: palette.accent,
                               ),
                               const SizedBox(width: 5),
-                              Text(
+                              AnimeCapsuleText(
                                 value.label,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.onSurfaceVariant,
-                                ),
+                                fontSize: 12.0,
+                                lineHeight: 1.15,
+                                fontWeight: FontWeight.w600,
+                                color: colors.onSurfaceVariant,
+                                overflow: TextOverflow.visible,
                               ),
                             ],
                           ),

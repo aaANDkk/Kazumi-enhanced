@@ -176,9 +176,6 @@ class CollectLibraryViewState extends State<CollectLibraryView>
   @override
   Widget build(BuildContext context) {
     final query = CollectLibraryQuery(widget.entries, _query);
-    final platform = Theme.of(context).platform;
-    final mobile =
-        platform == TargetPlatform.android || platform == TargetPlatform.iOS;
 
     return CallbackShortcuts(
       bindings: {
@@ -194,8 +191,6 @@ class CollectLibraryViewState extends State<CollectLibraryView>
         child: LayoutBuilder(builder: (context, constraints) {
           final compact = constraints.maxWidth < 600;
           final singleLineToolbar = constraints.maxWidth >= 980;
-          final paged = mobile &&
-              MediaQuery.orientationOf(context) == Orientation.portrait;
           final width = constraints.maxWidth.clamp(0.0, 1600.0);
           final inset =
               (constraints.maxWidth - width) / 2 + (compact ? 12.0 : 24.0);
@@ -229,28 +224,21 @@ class CollectLibraryViewState extends State<CollectLibraryView>
                     sliver: SliverToBoxAdapter(child: header),
                   ),
                 ],
-                body: paged
-                    ? TabBarView(
-                        controller: _tabController,
-                        children: [
-                          for (final type in _collectCategories)
-                            ValueListenableBuilder(
-                              valueListenable: _selectedType,
-                              builder: (context, selected, child) => HeroMode(
-                                enabled: type == selected,
-                                child: child!,
-                              ),
-                              child: _results(query, type,
-                                  inset: inset, contentWidth: contentWidth),
-                            ),
-                        ],
-                      )
-                    : ValueListenableBuilder(
+                body: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    for (final type in _collectCategories)
+                      ValueListenableBuilder(
                         valueListenable: _selectedType,
-                        builder: (context, selected, _) => _results(
-                            query, selected,
+                        builder: (context, selected, child) => HeroMode(
+                          enabled: type == selected,
+                          child: child!,
+                        ),
+                        child: _results(query, type,
                             inset: inset, contentWidth: contentWidth),
                       ),
+                  ],
+                ),
               ),
             ),
           );

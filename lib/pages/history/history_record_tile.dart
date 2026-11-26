@@ -194,14 +194,14 @@ class HistoryRecordTile extends StatelessWidget {
                 );
 
                 final titleRow = Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: ExcludeSemantics(
                         child: IgnorePointer(
                           child: Text(
                             title,
-                            maxLines: wide ? 1 : 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: (wide
                                     ? theme.textTheme.titleMedium
@@ -227,6 +227,11 @@ class HistoryRecordTile extends StatelessWidget {
                   time,
                 ].join(' · ');
 
+                final metaStyle = theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                  fontSize: wide ? 12.0 : 11.5,
+                );
+
                 final episodeRow = ExcludeSemantics(
                   child: IgnorePointer(
                     child: largeText
@@ -250,21 +255,15 @@ class HistoryRecordTile extends StatelessWidget {
                                   secondaryMeta,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colors.onSurfaceVariant
-                                        .withValues(alpha: 0.78),
-                                    fontSize: wide ? 12.0 : 11.5,
-                                  ),
+                                  style: metaStyle,
                                 ),
                               ],
                             ],
                           )
                         : Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Flexible(
-                                flex: 0,
+                              Expanded(
                                 child: Text(
                                   episode,
                                   maxLines: 1,
@@ -276,19 +275,35 @@ class HistoryRecordTile extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (secondaryMeta.isNotEmpty) ...[
+                              if (history.adapterName.isNotEmpty) ...[
                                 const SizedBox(width: 8),
-                                Expanded(
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: wide ? 140 : 76,
+                                  ),
                                   child: Text(
-                                    secondaryMeta,
+                                    history.adapterName,
                                     maxLines: 1,
                                     textAlign: TextAlign.end,
                                     overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant
-                                          .withValues(alpha: 0.78),
-                                      fontSize: wide ? 12.0 : 11.5,
-                                    ),
+                                    style: metaStyle,
+                                  ),
+                                ),
+                              ],
+                              if (time.isNotEmpty) ...[
+                                SizedBox(
+                                  width: history.adapterName.isNotEmpty ? 0 : 8,
+                                ),
+                                Text(
+                                  history.adapterName.isNotEmpty
+                                      ? ' · $time'
+                                      : time,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  style: metaStyle?.copyWith(
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -315,31 +330,13 @@ class HistoryRecordTile extends StatelessWidget {
 
                 final sourceBadge = ExcludeSemantics(
                   child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: ShapeDecoration(
-                        color: colors.secondaryContainer.withValues(
-                          alpha:
-                              theme.brightness == Brightness.dark ? 0.45 : 0.65,
-                        ),
-                        shape: SuperellipseBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    child: AnimeTagPill(
+                      label: source,
+                      backgroundColor: colors.secondaryContainer.withValues(
+                        alpha:
+                            theme.brightness == Brightness.dark ? 0.45 : 0.65,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7.5,
-                          vertical: 3,
-                        ),
-                        child: Text(
-                          source,
-                          maxLines: 1,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: colors.onSecondaryContainer,
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
+                      foregroundColor: colors.onSecondaryContainer,
                     ),
                   ),
                 );
@@ -518,15 +515,17 @@ class HistoryRecordTile extends StatelessWidget {
               decoration: ShapeDecoration(color: colors.error, shape: SuperellipseBorder(borderRadius: BorderRadius.circular(13))),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.delete_rounded, size: 13, color: colors.onError),
                   const SizedBox(width: 4),
-                  Text(
+                  AnimeCapsuleText(
                     '待删除',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colors.onError,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    fontSize: 11.0,
+                    lineHeight: 1.15,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onError,
+                    overflow: TextOverflow.visible,
                   ),
                 ],
               ),
@@ -549,16 +548,18 @@ class HistoryRecordTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.delete_outline_rounded,
                       size: 16, color: colors.onErrorContainer),
                   const SizedBox(width: 4),
-                  Text(
+                  AnimeCapsuleText(
                     '删除',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: colors.onErrorContainer,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    fontSize: 12.0,
+                    lineHeight: 1.15,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onErrorContainer,
+                    overflow: TextOverflow.visible,
                   ),
                 ],
               ),
@@ -649,11 +650,7 @@ class _HistoryProgressCapsule extends StatelessWidget {
         ? 1.0
         : (hasRatioBar ? progressRatio.clamp(0.0, 1.0) : 0.0);
 
-    final baseTextStyle = theme.textTheme.labelSmall?.copyWith(
-      fontSize: wide ? 11.0 : 10.5,
-      height: 1.15,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    final fontSize = wide ? 11.0 : 10.5;
 
     final Widget leftContent;
     final String rightText;
@@ -663,27 +660,25 @@ class _HistoryProgressCapsule extends StatelessWidget {
       final finishedLeft = totalDurText.isNotEmpty
           ? '$totalDurText / $totalDurText'
           : (currentPosText.isNotEmpty ? '看到 $currentPosText' : '本集已看完');
-      leftContent = Text(
+      leftContent = AnimeCapsuleText(
         finishedLeft,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: baseTextStyle?.copyWith(
-          color: colors.onPrimaryContainer,
-          fontWeight: FontWeight.w700,
-        ),
+        fontSize: fontSize,
+        lineHeight: 1.15,
+        fontWeight: FontWeight.w700,
+        color: colors.onPrimaryContainer,
+        tabularFigures: true,
       );
       rightText = '已看完';
       rightColor = colors.onPrimaryContainer;
     } else if (hasRatioBar) {
       final pct = (progressRatio * 100).round().clamp(1, 100);
-      leftContent = Text(
+      leftContent = AnimeCapsuleText(
         '${currentPosText.isEmpty ? '0:00' : currentPosText} / $totalDurText',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: baseTextStyle?.copyWith(
-          color: colors.onPrimaryContainer,
-          fontWeight: FontWeight.w700,
-        ),
+        fontSize: fontSize,
+        lineHeight: 1.15,
+        fontWeight: FontWeight.w700,
+        color: colors.onPrimaryContainer,
+        tabularFigures: true,
       );
       rightText = '$pct%';
       rightColor =
@@ -691,6 +686,7 @@ class _HistoryProgressCapsule extends StatelessWidget {
     } else if (isUnknownDuration) {
       leftContent = Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             Icons.schedule_rounded,
@@ -699,14 +695,13 @@ class _HistoryProgressCapsule extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Flexible(
-            child: Text(
+            child: AnimeCapsuleText(
               '看到 $currentPosText',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: baseTextStyle?.copyWith(
-                color: colors.onPrimaryContainer,
-                fontWeight: FontWeight.w700,
-              ),
+              fontSize: fontSize,
+              lineHeight: 1.15,
+              fontWeight: FontWeight.w700,
+              color: colors.onPrimaryContainer,
+              tabularFigures: true,
             ),
           ),
         ],
@@ -714,14 +709,12 @@ class _HistoryProgressCapsule extends StatelessWidget {
       rightText = '未知总长';
       rightColor = colors.onSurfaceVariant.withValues(alpha: 0.78);
     } else {
-      leftContent = Text(
+      leftContent = AnimeCapsuleText(
         '暂无观看进度',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: baseTextStyle?.copyWith(
-          color: colors.onSurfaceVariant,
-          fontWeight: FontWeight.w600,
-        ),
+        fontSize: fontSize,
+        lineHeight: 1.15,
+        fontWeight: FontWeight.w600,
+        color: colors.onSurfaceVariant,
       );
       rightText = '0%';
       rightColor = colors.onSurfaceVariant;
@@ -753,20 +746,21 @@ class _HistoryProgressCapsule extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: wide ? 10 : 8,
-                vertical: 3,
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(child: leftContent),
                   const SizedBox(width: 6),
-                  Text(
+                  AnimeCapsuleText(
                     rightText,
-                    maxLines: 1,
-                    style: baseTextStyle?.copyWith(
-                      color: rightColor,
-                      fontWeight:
-                          isEmptyState ? FontWeight.w600 : FontWeight.w700,
-                    ),
+                    fontSize: fontSize,
+                    lineHeight: 1.15,
+                    fontWeight:
+                        isEmptyState ? FontWeight.w600 : FontWeight.w700,
+                    color: rightColor,
+                    tabularFigures: true,
+                    overflow: TextOverflow.visible,
                   ),
                 ],
               ),
@@ -854,9 +848,7 @@ class _HistoryActionPill extends StatelessWidget {
     final colors = theme.colorScheme;
     final outer = Radius.circular(height / 2);
     const inner = Radius.circular(6);
-    final labelStyle = theme.textTheme.labelMedium?.copyWith(
-      fontWeight: FontWeight.w700,
-    );
+    const labelFontSize = 12.0;
 
     if (onPlayNext == null) {
       return Tooltip(
@@ -873,6 +865,7 @@ class _HistoryActionPill extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: wide ? 16 : 13),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
                       isFinished
@@ -882,12 +875,15 @@ class _HistoryActionPill extends StatelessWidget {
                       color: colors.onPrimaryContainer,
                     ),
                     const SizedBox(width: 4),
-                    Text(
+                    AnimeCapsuleText(
                       isFinished
                           ? (wide ? '重播本集' : '重播')
                           : (wide ? '继续播放' : '继续'),
-                      style: labelStyle?.copyWith(
-                          color: colors.onPrimaryContainer),
+                      fontSize: labelFontSize,
+                      lineHeight: 1.15,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onPrimaryContainer,
+                      overflow: TextOverflow.visible,
                     ),
                   ],
                 ),
@@ -917,6 +913,7 @@ class _HistoryActionPill extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: wide ? 14 : 11),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.play_arrow_rounded,
@@ -925,11 +922,13 @@ class _HistoryActionPill extends StatelessWidget {
                       ),
                       if (wide) ...[
                         const SizedBox(width: 4),
-                        Text(
+                        AnimeCapsuleText(
                           '继续播放',
-                          style: labelStyle?.copyWith(
-                            color: colors.onPrimaryContainer,
-                          ),
+                          fontSize: labelFontSize,
+                          lineHeight: 1.15,
+                          fontWeight: FontWeight.w700,
+                          color: colors.onPrimaryContainer,
+                          overflow: TextOverflow.visible,
                         ),
                       ],
                     ],
@@ -959,6 +958,7 @@ class _HistoryActionPill extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.skip_next_rounded,
@@ -966,11 +966,13 @@ class _HistoryActionPill extends StatelessWidget {
                         color: colors.onSecondaryContainer,
                       ),
                       const SizedBox(width: 3),
-                      Text(
+                      AnimeCapsuleText(
                         wide ? '下一集' : '下集',
-                        style: labelStyle?.copyWith(
-                          color: colors.onSecondaryContainer,
-                        ),
+                        fontSize: labelFontSize,
+                        lineHeight: 1.15,
+                        fontWeight: FontWeight.w700,
+                        color: colors.onSecondaryContainer,
+                        overflow: TextOverflow.visible,
                       ),
                     ],
                   ),

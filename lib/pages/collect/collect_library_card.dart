@@ -489,11 +489,11 @@ class _CollectListTileState extends State<_CollectListTile> {
                                 child: Wrap(
                                   spacing: 6,
                                   runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     if (hasRating)
                                       AnimeScoreBadge(
                                         score: item.ratingScore,
-                                        compact: true,
                                       ),
                                     if (airDate != null)
                                       AnimeTagPill(label: '${airDate.year} 年'),
@@ -546,27 +546,26 @@ class _CollectInlineProgressCapsule extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 9),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Text(
+                  child: AnimeCapsuleText(
                     '尚未开始观看',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                    ),
+                    fontSize: 10.5,
+                    lineHeight: 1.15,
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                 ),
-                Text(
+                const SizedBox(width: 6),
+                AnimeCapsuleText(
                   '0%',
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.55),
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
+                  fontSize: 10.5,
+                  lineHeight: 1.15,
+                  fontWeight: FontWeight.w700,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.55),
+                  tabularFigures: true,
+                  overflow: TextOverflow.visible,
                 ),
               ],
             ),
@@ -603,28 +602,26 @@ class _CollectInlineProgressCapsule extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 9),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Text(
+                    child: AnimeCapsuleText(
                       leftLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                      ),
+                      fontSize: 10.5,
+                      lineHeight: 1.15,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Text(
+                  AnimeCapsuleText(
                     rightLabel,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+                    fontSize: 10.5,
+                    lineHeight: 1.15,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                    tabularFigures: true,
+                    overflow: TextOverflow.visible,
                   ),
                 ],
               ),
@@ -709,48 +706,47 @@ class _CollectEntryMenu extends StatelessWidget {
       ],
       builder: (context, toggle) {
         if (showStatusLabel) {
+          const pillShape = SuperellipseBorder(
+            borderRadius: BorderRadius.all(Radius.circular(1000)),
+          );
           return Tooltip(
             message: '调整《$title》的观看状态',
             child: Material(
               type: MaterialType.transparency,
-              shape:
-                  SuperellipseBorder(borderRadius: BorderRadius.circular(10)),
+              shape: pillShape,
               clipBehavior: Clip.antiAlias,
               child: InkWell(
-                customBorder: SuperellipseBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                customBorder: pillShape,
                 onTap: toggle,
                 child: DecoratedBox(
                   decoration: ShapeDecoration(
                     color: statusStyle.bg,
-                    shape: SuperellipseBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    shape: pillShape,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          type.label,
-                          style: TextStyle(
+                  child: SizedBox(
+                    height: 26,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10, right: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          AnimeCapsuleText(
+                            type.label,
                             fontSize: 11.5,
+                            lineHeight: 1.15,
                             fontWeight: FontWeight.w700,
                             color: statusStyle.fg,
+                            overflow: TextOverflow.visible,
                           ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          Icons.expand_more_rounded,
-                          size: 15,
-                          color: statusStyle.fg,
-                        ),
-                      ],
+                          const SizedBox(width: 2),
+                          Icon(
+                            Icons.expand_more_rounded,
+                            size: 15,
+                            color: statusStyle.fg,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

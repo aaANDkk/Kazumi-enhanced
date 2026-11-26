@@ -65,6 +65,10 @@ class _PopularPageState extends State<PopularPage>
       vsync: this,
     )..addListener(_onTabChanged);
     popularController.scrollToTop = _scrollToTop;
+    final collect = widget.collectController;
+    if (collect != null && collect.collectibles.isEmpty) {
+      collect.loadCollectibles();
+    }
     if (popularController.currentTag.isEmpty) {
       if (popularController.trendList.isEmpty) {
         popularController.queryBangumiByTrend();
@@ -201,16 +205,15 @@ class _PopularPageState extends State<PopularPage>
                       final tag = _allTags[index];
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 13),
-                        child: Text(
+                        child: AnimeCapsuleText(
                           tag.isEmpty ? '热门番组' : tag,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.2,
-                            fontWeight: selection > 0.5
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: fgColor,
-                          ),
+                          fontSize: 12.5,
+                          lineHeight: 1.15,
+                          fontWeight: selection > 0.5
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: fgColor,
+                          overflow: TextOverflow.visible,
                         ),
                       );
                     },

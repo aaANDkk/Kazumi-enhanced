@@ -200,7 +200,10 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
                         children: [
                           for (var i = 0; i < tags.length; i++) ...[
                             if (i > 0) const SizedBox(width: 5),
-                            AnimeTagPill(label: tags[i]),
+                            AnimeTagPill(
+                              label: tags[i],
+                              compact: widget.compact,
+                            ),
                           ],
                         ],
                       ),
@@ -264,24 +267,22 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
                     decoration: ShapeDecoration(
                       color: const Color(0xAA16121A),
                       shape: SuperellipseBorder(
-                        borderRadius: BorderRadius.circular(7),
+                        borderRadius: BorderRadius.circular(1000),
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      child: Text(
-                        epLabel,
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 9.2,
-                          height: 1.2,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFFF6F8FA),
+                    child: SizedBox(
+                      height: 18,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Center(
+                          child: AnimeCapsuleText(
+                            epLabel,
+                            fontSize: 9.2,
+                            lineHeight: 1.1,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFF6F8FA),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
@@ -298,25 +299,13 @@ class _BangumiTimelineCardState extends State<BangumiTimelineCard> {
     final palette = AnimePastelPalette.of(context);
     final colors = Theme.of(context).colorScheme;
     if (widget.bangumiItem.ratingScore <= 0) {
-      return DecoratedBox(
-        decoration: ShapeDecoration(
-          color: palette.isDark
-              ? colors.surfaceContainerHighest.withValues(alpha: 0.55)
-              : colors.surfaceContainerHighest.withValues(alpha: 0.72),
-          shape: SuperellipseBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-          child: Text(
-            '刚开播',
-            maxLines: 1,
-            style: TextStyle(
-              fontSize: 10.5,
-              fontWeight: FontWeight.w600,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ),
+      return AnimeTagPill(
+        label: '刚开播',
+        compact: widget.compact,
+        backgroundColor: palette.isDark
+            ? colors.surfaceContainerHighest.withValues(alpha: 0.55)
+            : colors.surfaceContainerHighest.withValues(alpha: 0.72),
+        foregroundColor: colors.onSurfaceVariant,
       );
     }
     return Semantics(

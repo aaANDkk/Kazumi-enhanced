@@ -78,10 +78,7 @@ class _BangumiCardVState extends State<BangumiCardV> {
     ].join(' · ');
   }
 
-  String? _resolveRibbonText() {
-    if (widget.isWatching) {
-      return '♥ 在追';
-    }
+  String? _resolveRankText() {
     final rank = widget.rankIndex;
     if (rank != null && rank >= 0 && rank < 3) {
       return 'TOP ${rank + 1}';
@@ -100,7 +97,8 @@ class _BangumiCardVState extends State<BangumiCardV> {
     final framePad = compact ? 4.0 : 5.0;
     final title = _resolvePrimaryTitle();
     final subtitle = _resolveSubtitle(title);
-    final ribbonText = _resolveRibbonText();
+    final rankText = _resolveRankText();
+    final showWatching = widget.isWatching;
     final showScore = widget.showRating && widget.bangumiItem.ratingScore > 0;
     final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.15);
 
@@ -200,12 +198,24 @@ class _BangumiCardVState extends State<BangumiCardV> {
                                 ),
                               ),
                             ),
-                            if (ribbonText != null)
+                            if (rankText != null)
                               Positioned(
                                 top: compact ? 5 : 6,
                                 left: compact ? 5 : 6,
                                 child: AnimeRibbonBadge(
-                                  label: ribbonText,
+                                  label: rankText,
+                                  backgroundColor: colors.inverseSurface
+                                      .withValues(alpha: 0.84),
+                                  foregroundColor: colors.onInverseSurface,
+                                  compact: compact,
+                                ),
+                              ),
+                            if (showWatching)
+                              Positioned(
+                                top: compact ? 5 : 6,
+                                right: compact ? 5 : 6,
+                                child: AnimeRibbonBadge(
+                                  label: '♥ 在追',
                                   compact: compact,
                                 ),
                               ),

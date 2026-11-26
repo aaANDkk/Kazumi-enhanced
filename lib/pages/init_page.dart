@@ -58,7 +58,7 @@ class _InitPageState extends State<InitPage> {
 
   Future<void> _initializeApp() async {
     widget.danmakuShieldSync.start();
-    _migrateStorage();
+    await _migrateStorage();
     _loadShaders();
     unawaited(myController.loadShieldList());
     _webDavInit();
@@ -141,9 +141,11 @@ class _InitPageState extends State<InitPage> {
     };
   }
 
-  // migrate collect from old version (favorites)
+  // migrate collect from old version (favorites) and hydrate collectibles early
+  // so PopularPage shows watching badges on the very first frame.
   Future<void> _migrateStorage() async {
     await collectController.migrateCollect();
+    collectController.loadCollectibles();
   }
 
   Future<void> _loadShaders() async {

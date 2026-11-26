@@ -530,11 +530,126 @@ class _AnimeSeparatedTabBarState extends State<AnimeSeparatedTabBar> {
   }
 }
 
+/// Shared vertical text-height behavior modeled after FlClash's status capsule
+/// (`TextLeadingDistribution.even`) so CJK, digits, and icons center optically
+/// inside fixed-height pills on Android and Windows.
+const kAnimePillTextHeightBehavior = TextHeightBehavior(
+  applyHeightToFirstAscent: true,
+  applyHeightToLastDescent: true,
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
+/// Single-line capsule text with symmetric vertical leading (`even` + forced
+/// strut height), guaranteeing optical vertical centering inside pills/badges.
+class AnimeCapsuleText extends StatelessWidget {
+  const AnimeCapsuleText(
+    this.text, {
+    super.key,
+    required this.fontSize,
+    required this.color,
+    this.lineHeight = 1.15,
+    this.fontWeight = FontWeight.w700,
+    this.letterSpacing,
+    this.tabularFigures = false,
+    this.textAlign,
+    this.overflow = TextOverflow.ellipsis,
+    this.textScaler,
+  });
+
+  final String text;
+  final double fontSize;
+  final Color color;
+  final double lineHeight;
+  final FontWeight fontWeight;
+  final double? letterSpacing;
+  final bool tabularFigures;
+  final TextAlign? textAlign;
+  final TextOverflow? overflow;
+  final TextScaler? textScaler;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      maxLines: 1,
+      softWrap: false,
+      textAlign: textAlign,
+      overflow: overflow,
+      textScaler: textScaler,
+      textHeightBehavior: kAnimePillTextHeightBehavior,
+      strutStyle: StrutStyle(
+        fontSize: fontSize,
+        height: lineHeight,
+        forceStrutHeight: true,
+        leadingDistribution: TextLeadingDistribution.even,
+      ),
+      style: TextStyle(
+        fontSize: fontSize,
+        height: lineHeight,
+        leadingDistribution: TextLeadingDistribution.even,
+        fontWeight: fontWeight,
+        color: color,
+        letterSpacing: letterSpacing,
+        fontFeatures:
+            tabularFigures ? const [FontFeature.tabularFigures()] : null,
+      ),
+    );
+  }
+}
+
+/// Compact tabular count capsule used inside tab pills (Collect & Timeline).
+class AnimeCountPill extends StatelessWidget {
+  const AnimeCountPill({
+    super.key,
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        color: backgroundColor,
+        shape: const SuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(1000)),
+        ),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 20, minHeight: 18),
+        child: SizedBox(
+          height: 18,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.5),
+            child: Center(
+              widthFactor: 1.0,
+              child: AnimeCapsuleText(
+                label,
+                fontSize: 10.0,
+                lineHeight: 1.1,
+                fontWeight: FontWeight.w700,
+                color: foregroundColor,
+                tabularFigures: true,
+                overflow: TextOverflow.visible,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Theme-adaptive capsule ribbon badge (e.g. `TOP 1`, `♥ 在追`).
 class AnimeRibbonBadge extends StatelessWidget {
   const AnimeRibbonBadge({
     super.key,
     required this.label,
+    this.icon,
     this.gradient,
     this.backgroundColor,
     this.foregroundColor,
@@ -542,6 +657,7 @@ class AnimeRibbonBadge extends StatelessWidget {
   });
 
   final String label;
+  final IconData? icon;
   final Gradient? gradient;
   final Color? backgroundColor;
   final Color? foregroundColor;
@@ -551,6 +667,7 @@ class AnimeRibbonBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AnimePastelPalette.of(context);
     final fg = foregroundColor ?? palette.onAccent;
+    final height = compact ? 19.0 : 21.0;
     return DecoratedBox(
       decoration: ShapeDecoration(
         gradient: backgroundColor == null
@@ -572,21 +689,31 @@ class AnimeRibbonBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 6 : 7.5,
-          vertical: compact ? 2 : 2.5,
-        ),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: compact ? 9.2 : 10.2,
-            height: 1.2,
-            fontWeight: FontWeight.w800,
-            color: fg,
-            letterSpacing: 0.2,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: compact ? 6.5 : 8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: compact ? 10.5 : 11.5,
+                  color: fg,
+                ),
+                const SizedBox(width: 2.5),
+              ],
+              AnimeCapsuleText(
+                label,
+                fontSize: compact ? 9.5 : 10.5,
+                lineHeight: 1.1,
+                fontWeight: FontWeight.w800,
+                color: fg,
+                letterSpacing: 0.2,
+              ),
+            ],
           ),
         ),
       ),
@@ -608,6 +735,7 @@ class AnimeScoreBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = AnimePastelPalette.of(context);
+    final height = compact ? 20.0 : 22.0;
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: palette.scoreBg,
@@ -632,72 +760,77 @@ class AnimeScoreBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 5.5 : 7,
-          vertical: compact ? 2 : 2.5,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.star_rounded,
-              size: compact ? 11.5 : 13,
-              color: palette.scoreStar,
-            ),
-            const SizedBox(width: 2),
-            Text(
-              score.toStringAsFixed(1),
-              maxLines: 1,
-              style: TextStyle(
-                fontSize: compact ? 9.8 : 11,
-                height: 1.15,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: compact ? 6.5 : 7.5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.star_rounded,
+                size: compact ? 12.0 : 13.0,
+                color: palette.scoreStar,
+              ),
+              const SizedBox(width: 2.5),
+              AnimeCapsuleText(
+                score.toStringAsFixed(1),
+                fontSize: compact ? 10.5 : 11.0,
+                lineHeight: 1.1,
                 fontWeight: FontWeight.w800,
                 color: palette.scoreFg,
-                fontFeatures: const [FontFeature.tabularFigures()],
+                tabularFigures: true,
+                overflow: TextOverflow.visible,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Soft tonal chip for anime genres / metadata.
+/// Soft tonal capsule for anime genres / metadata, sized identically to
+/// [AnimeScoreBadge] so inline meta rows align cleanly.
 class AnimeTagPill extends StatelessWidget {
   const AnimeTagPill({
     super.key,
     required this.label,
     this.backgroundColor,
     this.foregroundColor,
+    this.compact = false,
   });
 
   final String label;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final palette = AnimePastelPalette.of(context);
+    final height = compact ? 20.0 : 22.0;
     return DecoratedBox(
       decoration: ShapeDecoration(
         color: backgroundColor ?? palette.tagFill,
-        shape: SuperellipseBorder(
-          borderRadius: BorderRadius.circular(8),
+        shape: const SuperellipseBorder(
+          borderRadius: BorderRadius.all(Radius.circular(1000)),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 10.5,
-            height: 1.25,
-            fontWeight: FontWeight.w600,
-            color: foregroundColor ?? palette.tagText,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: compact ? 7.5 : 8.5),
+          child: Center(
+            widthFactor: 1.0,
+            child: AnimeCapsuleText(
+              label,
+              fontSize: compact ? 10.5 : 11.0,
+              lineHeight: 1.1,
+              fontWeight: FontWeight.w600,
+              color: foregroundColor ?? palette.tagText,
+            ),
           ),
         ),
       ),
